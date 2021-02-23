@@ -2,6 +2,7 @@
   <div class="container">
     <div>{{msg}}</div>
     <div>{{propData}}</div>
+    <el-button type="primary">12</el-button>
   </div>
 </template>
 
