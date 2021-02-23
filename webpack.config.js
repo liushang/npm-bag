@@ -22,16 +22,16 @@ module.exports = {
       },      {
         test: /\.vue$/,
         loader: 'vue-loader',
-        options: {
-          loaders: {
-          }
-          // other vue-loader options go here
-        }
+        // options: {
+        //   loaders: {
+        //   }
+        //   // other vue-loader options go here
+        // }
       },
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        exclude: /node_modules/
+        // exclude: /node_modules/
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
@@ -51,6 +51,9 @@ module.exports = {
       {
         test: /\.sass$/,
         loaders: ['style', 'css', 'sass']
+      },{
+        test: /.less$/,
+        loader: "style-loader!css-loader!less-loader"
       }
     ]
   },

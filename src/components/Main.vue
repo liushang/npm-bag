@@ -3,6 +3,7 @@
     <div>{{msg}}</div>
     <div>{{propData}}</div>
     <el-button type="primary">12</el-button>
+    <el-input v-model="tt"></el-input>
   </div>
 </template>
 
@@ -11,7 +12,8 @@ export default {
   name: 'yyl-npm-practice',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App',
+      tt: '123'
     }
   },
   props: {
