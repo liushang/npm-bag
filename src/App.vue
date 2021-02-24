@@ -8,8 +8,8 @@
 </template>
 
 <script>
-import Main from './components/views/index/Home'
-// import Main from './components/Main'
+// import Main from './components/views/index/Home'
+import Main from './components/Main'
 
 export default {
     data(){

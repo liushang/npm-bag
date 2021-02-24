@@ -10,7 +10,11 @@
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
+    "@vue/babel-helper-vue-jsx-merge-props": "^1.2.1",
+    "@vue/babel-preset-app": "^4.5.11",
+    "@vue/babel-preset-jsx": "^1.2.4",
     "axios": "^0.21.1",
+    "core-js": "^3.0.0",
     "element-ui": "^2.14.1",
     "file-saver": "^2.0.2",
     "iicarus": "^1.0.20",
@@ -28,23 +32,29 @@
   ],
   "main": "./lib/some-library.js",
   "devDependencies": {
-    "babel-core": "^6.26.0",
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-json-strings": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-syntax-import-meta": "^7.0.0",
+    "@babel/plugin-syntax-jsx": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
     "babel-helper-vue-jsx-merge-props": "^2.0.3",
-    "babel-loader": "^7.1.2",
+    "babel-loader": "^8.0.0",
+    "babel-plugin-jsx-v-model": "^2.0.3",
     "babel-plugin-syntax-jsx": "^6.18.0",
     "babel-plugin-transform-vue-jsx": "^3.7.0",
     "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-3": "^6.24.1",
     "cross-env": "^5.0.5",
     "css-loader": "^0.28.11",
     "file-loader": "^1.1.4",
     "less": "^3.11.1",
     "less-loader": "4.1.0",
     "url-loader": "^0.5.8",
-    "vue-loader": "^13.0.5",
+    "vue-loader": "^15.4.2",
     "vue-template-compiler": "^2.4.4",
-    "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.9.1",
-    "babel-plugin-jsx-v-model": "^2.0.3"
+    "webpack": "4.34.0",
+    "webpack-cli": "3.1.2",
+    "webpack-dev-server": "^3.1.10"
   }
 }

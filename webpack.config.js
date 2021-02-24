@@ -1,6 +1,7 @@
 var path = require('path')
 var webpack = require('webpack')
 const NODE_ENV = process.env.NODE_ENV
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 module.exports = {
   entry: NODE_ENV === 'development' ? './src/main.js' : './index.js',
   output: {
@@ -31,7 +32,10 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        // exclude: /node_modules/
+        exclude: file => (
+          // /node_modules/.test(file) &&
+          (!/somelibrarysss/.test(file))
+        )
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
@@ -53,7 +57,11 @@ module.exports = {
         loaders: ['style', 'css', 'sass']
       },{
         test: /.less$/,
-        loader: "style-loader!css-loader!less-loader"
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          'less-loader'
+        ],
       }
     ]
   },
@@ -71,7 +79,8 @@ module.exports = {
   performance: {
     hints: false
   },
-  devtool: '#eval-source-map'
+  devtool: '#eval-source-map',
+  plugins: [  new VueLoaderPlugin() ]
 }
 
 if (process.env.NODE_ENV === 'production') {
