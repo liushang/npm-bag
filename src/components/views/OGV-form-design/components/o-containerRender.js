@@ -18,10 +18,6 @@ let base = {
     },
     props: {
         // 以下属性正式环境下皆为 data
-        form: {
-            type: Object,
-            default: () => {}
-        },
         attrs: {
             type: Object,
             default: () => {
@@ -74,15 +70,6 @@ let base = {
     },
     render,
     methods: {
-        updateMsg() {
-            console.log('updateMsg');
-        },
-        change() {
-            console.log('我是change');
-        },
-        input(event) {
-            this.value = event;
-        },
         submit(e) {},
         ...((this && this.methods) || {})
     },
@@ -153,11 +140,11 @@ let base = {
         }
     },
     created() {
-        // if (!this.containerInject[this.rawId]) {
-        //     this.rawId = 'oContainer' + parseInt(Math.random() * 1000000);
-        //     this.$set(this.containerInject, this.rawId, {});
-        // }
-        // this.$set(this.containerInject[this.rawId], 'methods', this.methods);
+        if (!this.containerInject[this.rawId]) {
+            this.rawId = 'oContainer' + parseInt(Math.random() * 1000000);
+            this.$set(this.containerInject, this.rawId, {});
+        }
+        this.$set(this.containerInject[this.rawId], 'methods', this.methods);
     },
     mounted() {
         if (!this.container[this.rawId]) {
