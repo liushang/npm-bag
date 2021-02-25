@@ -142,6 +142,9 @@ let base = {
             };
         }
     },
+    created() {
+        
+    },
     mounted() {
         this.containerId = this.rawId || ('oContainer' + parseInt(Math.random() * 1000000))
         if (!this.containerInject[this.containerId]) {
