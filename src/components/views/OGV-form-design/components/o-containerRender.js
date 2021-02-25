@@ -70,6 +70,7 @@ let base = {
     },
     render,
     methods: {
+        submit(e) {},
         ...((this && this.methods) || {})
     },
     provide() {
@@ -135,7 +136,13 @@ let base = {
             };
         }
     },
-    created() {},
+    created() {
+        if (!this.containerInject[this.rawId]) {
+            this.rawId = 'oContainer' + parseInt(Math.random() * 1000000);
+            this.$set(this.containerInject, this.rawId, {});
+        }
+        this.$set(this.containerInject[this.rawId], 'methods', this.methods);
+    },
     mounted() {
         if (!this.container[this.rawId]) {
             this.$set(this.container, this.rawId, {});
