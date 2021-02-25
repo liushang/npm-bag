@@ -52,6 +52,12 @@ let base = {
             return (this.containerInject[this.rawId] && this.containerInject[this.rawId].input) || '';
         },
         configComponents() {
+            for (let i in this.on) {
+                let func = this.on[i];
+                this.on[i] = (e) => {
+                    return func(e, this);
+                };
+            }
             let children = [{
                 name: 'el-input',
                 attrs: Object.assign({

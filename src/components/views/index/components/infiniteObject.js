@@ -381,6 +381,7 @@ export default {
                         style: {},
                         attrs: {},
                         children: [],
+                        on: {},
                         renderFun: x => x
                     }
                     const config = {

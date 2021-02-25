@@ -390,6 +390,7 @@ export default {
             this.fetchData(clone);
             console.log(clone);
             console.log(this.activeData);
+            console.log(this.drawingList)
             this.activeData.props.children.push(clone);
             // this.drawingList.push(clone);
             this.activeFormItem(clone);
@@ -426,7 +427,14 @@ export default {
             this.activeFormItem(clone);
         },
         drawingItemDelete(index, list) {
-            this.drawingList[0].props.children = [];
+            list.splice(index, 1);
+            this.$nextTick(() => {
+                const len = this.drawingList.length;
+                if (len) {
+                    this.activeFormItem(this.drawingList[len - 1]);
+                }
+            });
+            // this.drawingList[0].props.children = [];
         },
         tagChange(newTag) {
             newTag = this.cloneComponent(newTag);

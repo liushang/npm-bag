@@ -67,6 +67,12 @@ let base = {
     computed: {
         ...computed,
         configComponents() {
+            for (let i in this.on) {
+                let func = this.on[i];
+                this.on[i] = (e) => {
+                    return func(e, this);
+                };
+            }
             let children = [{
                 name: 'el-switch',
                 attrs: Object.assign({

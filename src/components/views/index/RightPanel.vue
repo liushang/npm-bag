@@ -11,6 +11,7 @@
             <span  @click="changeTab(index)">
               <div>{{i.name}}</div>
               <span style="color:rgb(64, 158, 255);font-size:10px;text-align:center" v-if="i.props.rawId">({{i.props.rawId.slice(i.name.length)}})</span>
+              <span style="color:rgb(64, 158, 255);font-size:10px;text-align:center" v-if="i.props.subRawId">({{i.props.subRawId.slice(i.name.length)}})</span>
             </span>
           </el-breadcrumb-item>
         </el-breadcrumb>
@@ -193,8 +194,8 @@ export default {
     methods: {
         haveFixedAttrs(item, name) {
             // 判断是否还可以添加固有属性
-            console.log('判断是否还可以添加固有属性');
-            console.log(this.editItem);
+            // console.log('判断是否还可以添加固有属性');
+            // console.log(this.editItem);
             let attrs = Object.keys((defaultKV[this.editItem.name] || {})[name] || {});
             if (name !== 'children') attrs = attrs.filter(y => !item[y]);
             return attrs.length;
@@ -219,11 +220,17 @@ export default {
         changeFuncCode(code) {
             this.showFunctionDialog = false;
             this.$emit('renderAgain');
+            console.log('changeFuncCodechangeFuncCodechangeFuncCode')
             const [ data, property, subProperty ] = this.tempCodeArr;
-            if (data[property][subProperty]) {
+            const funcArr = ['on', 'nativeOn', 'methods']
+            if (data[property][subProperty] && !funcArr.includes(property)) {
                 data[property][subProperty] = code;
             } else {
+              if (funcArr.includes(property)) {
+                data[property][subProperty] = stringToFunc(code);
+              } else {
                 data[property] = stringToFunc(code);
+              }
             }
             // this.activeData.props.renderFunStr = code
             // this.activeData.props.renderFun = stringToFunc(code)

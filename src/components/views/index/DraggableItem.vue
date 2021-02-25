@@ -56,6 +56,7 @@ const layouts = {
         // currentItem.props.env = 'dev';
         let configData = analysisDataRender([ currentItem ]);
         let configArr = analysisRenderConfig(configData, h);
+        console.log('oFormItem', configArr[0])
         /* eslint-disable */
         return (
             <el-col span={config.span} class={className}

@@ -68,6 +68,12 @@ let base = {
             return (this.containerInject && this.containerInject[this.rawId] && this.containerInject[this.rawId].select) || '';
         },
         configComponents() {
+            for (let i in this.on) {
+                let func = this.on[i];
+                this.on[i] = (e) => {
+                    return func(e, this);
+                };
+            }
             return {
                 children: [{
                     name: 'el-select',

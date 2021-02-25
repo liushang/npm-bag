@@ -52,21 +52,7 @@ let base = {
         }
     },
     render,
-    methods: {
-        updateMsg() {
-            console.log('updateMsg');
-        },
-        change() {
-            console.log('我是change');
-        },
-        input(event) {
-            this.value = event;
-        },
-        submit(e) {
-            console.log('submit');
-            console.log(e);
-        }
-    },
+    methods: {},
     inject: {
         env: {
             type: String,

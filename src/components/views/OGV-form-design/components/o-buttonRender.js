@@ -54,6 +54,7 @@ let base = {
             default: () => {}
         },
         rootId: {
+            type: String,
             default: ''
         },
         env: {

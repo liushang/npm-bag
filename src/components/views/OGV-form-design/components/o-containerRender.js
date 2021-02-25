@@ -13,7 +13,8 @@ let base = {
                 'min-height': '200px'
             },
             basicData: {},
-            container: {}
+            container: {},
+            containerId: '',
         };
     },
     props: {
@@ -70,12 +71,11 @@ let base = {
     },
     render,
     methods: {
-        submit(e) {},
         ...((this && this.methods) || {})
     },
     provide() {
         return {
-            rootId: this.rawId,
+            rootId: this.proId,
             env: this.env,
             containerInject: this.rootData
         };
@@ -87,6 +87,9 @@ let base = {
     },
     computed: {
         ...computed,
+        proId() {
+            return this.containerId
+        },
         rootData() {
             return this.env === 'dev' ? this.containerInject : this.container;
         },
@@ -98,15 +101,20 @@ let base = {
                     return func(e, this);
                 };
             }
+            for (let i in this.nativeOn) {
+                let func = this.nativeOn[i];
+                this.nativeOn[i] = (e) => {
+                    return func(e, this);
+                };
+            }
             return {
                 children: this.renderFun([{
-                    name: 'el-row',
+                    name: 'ElCard',
                     ref: 'oContainer',
                     on: {
                         click: e => {
                             e.stopPropagation();
-                            console.log('container');
-                            this.$set(this.container[this.rawId], 'methods', this.methods);
+                            this.$set(this.container[this.containerId], 'methods', this.methods);
                         },
                         ...this.on
                     },
@@ -115,13 +123,14 @@ let base = {
                     },
                     nativeOn: {
                         click: () => {
+                            console.log('哒哒哒哒哒哒多多')
                             if (this.env === 'dev') {
                                 this.$root.$emit('DEAL_CHOOSE', this);
                             }
-                            if (!this.container[this.rawId]) {
-                                this.$set(this.container, this.rawId, {});
+                            if (!this.container[this.containerId]) {
+                                this.$set(this.container, this.containerId, {});
                             }
-                            this.$set(this.container[this.rawId], 'methods', this.methods);
+                            this.$set(this.container[this.containerId], 'methods', this.methods);
                             
                         },
                         ...this.nativeOn
@@ -129,26 +138,22 @@ let base = {
                     style: Object.assign(this.style, this.styles),
                     props: {
                         value: this.value,
-                        rawId: this.rawId
+                        rawId: this.containerId
                     },
                     children: this.children
                 }])
             };
         }
     },
-    created() {
-        if (!this.containerInject[this.rawId]) {
-            this.rawId = 'oContainer' + parseInt(Math.random() * 1000000);
-            this.$set(this.containerInject, this.rawId, {});
-        }
-        this.$set(this.containerInject[this.rawId], 'methods', this.methods);
-    },
     mounted() {
-        if (!this.container[this.rawId]) {
-            this.$set(this.container, this.rawId, {});
-        }
-        this.$set(this.container[this.rawId], 'methods', this.methods);
-        this.on && this.on['mounted'] && this.on['mounted'](this);
+        setTimeout(() => {
+            this.containerId = this.rawId || ('oContainer' + parseInt(Math.random() * 1000000))
+            if (!this.containerInject[this.containerId]) {
+                this.$set(this.rootData, this.containerId, {});
+            }
+            this.$set(this.rootData[this.containerId], 'methods', this.methods);
+            this.on && this.on['mounted'] && this.on['mounted'](this);
+        }, 0)
     }
 };
 export default base;

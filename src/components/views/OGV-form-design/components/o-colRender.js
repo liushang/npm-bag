@@ -67,6 +67,12 @@ let base = {
     computed: {
         ...computed,
         configComponents() {
+            for (let i in this.on) {
+                let func = this.on[i];
+                this.on[i] = (e) => {
+                    return func(e, this);
+                };
+            }
             return {
                 children: [{
                     // 为了展示边框选中态特意加的

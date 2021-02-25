@@ -18,7 +18,10 @@ export function getDrawingList() {
 
     const str = localStorage.getItem(DRAWING_ITEMS);
     // if (str) return propertyStringToFunc(JSON.parse(str))
-    if (str) return onToFunc(onToFunc(propertyStringToFunc(JSON.parse(str)), 'on'), 'methods');
+    if (str) {
+        let abc = onToFunc(onToFunc(onToFunc(propertyStringToFunc(JSON.parse(str)), 'on'), 'methods'), 'nativeOn')
+        return abc
+    };
     return null;
 }
 export function onToFunc(iarr, on) {
