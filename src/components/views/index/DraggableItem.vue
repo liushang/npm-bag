@@ -21,31 +21,6 @@ const components = {
     }
 };
 const layouts = {
-    colFormItem(h, currentItem, index, list) {
-        const { activeItem } = this.$listeners;
-        const config = currentItem.__config__;
-        const child = renderChildren.apply(this, arguments);
-        let className = this.activeId === config.formId ? 'drawing-item active-from-item' : 'drawing-item';
-        if (this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
-        let labelWidth = config.labelWidth ? `${config.labelWidth}px` : null;
-        if (config.showLabel === false) labelWidth = '0';
-        /* eslint-disable */
-        return (
-            <el-col span={config.span} class={className}
-                nativeOnClick={event => { activeItem(currentItem); event.stopPropagation(); }}>
-                <el-form-item label-width={labelWidth}
-                    label={config.showLabel ? config.label : ''} required={config.required}>
-                    <render key={config.renderKey} conf={currentItem} onInput={ event => {
-                        this.$set(config, 'defaultValue', event);
-                    }}>
-                        {child}
-                    </render>
-                </el-form-item>
-                {components.itemBtns.apply(this, arguments)}
-            </el-col>
-        );
-        /* eslint-enable */
-    },
     oFormItem(h, currentItem, index, list, containerData) {
         const { activeItem } = this.$listeners;
         const config = currentItem.__config__;
@@ -53,6 +28,7 @@ const layouts = {
         let className = this.activeId === config.formId ? 'drawing-item active-from-item' : 'drawing-item';
         if (this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
         console.log(currentItem);
+        if (!currentItem.props.rawId) return
         // currentItem.props.env = 'dev';
         let configData = analysisDataRender([ currentItem ]);
         let configArr = analysisRenderConfig(configData, h);
@@ -69,36 +45,6 @@ const layouts = {
             </el-col>
         );
         /* eslint-enable */
-    },
-    rowFormItem(h, currentItem, index, list) {
-        const { activeItem } = this.$listeners;
-        const config = currentItem.__config__;
-        const className = this.activeId === config.formId
-            ? 'drawing-row-item active-from-item'
-            : 'drawing-row-item';
-        let child = renderChildren.apply(this, arguments);
-        if (currentItem.type === 'flex') {
-            /* eslint-disable */
-            child = <el-row type={currentItem.type} justify={currentItem.justify} align={currentItem.align}>
-                {child}
-            </el-row>;
-            /* eslint-enable */
-        }
-        /* eslint-disable */
-        return (
-            <el-col span={config.span}>
-                <el-row gutter={config.gutter} class={className}
-                    nativeOnClick={event => { activeItem(currentItem); event.stopPropagation(); }}>
-                    <span className="component-name">{config.componentName}</span>
-                    <draggable list={config.children || []} animation={340}
-                        group="componentsGroup" className="drag-wrapper">
-                        {child}
-                    </draggable>
-                    {components.itemBtns.apply(this, arguments)}
-                </el-row>
-            </el-col>
-            /* eslint-enable */
-        );
     },
     raw(h, currentItem, index, list) {
         const config = currentItem.__config__;

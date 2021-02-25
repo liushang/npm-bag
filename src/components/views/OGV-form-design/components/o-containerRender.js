@@ -71,11 +71,11 @@ let base = {
     },
     render,
     methods: {
-        ...((this && this.methods) || {})
+        ...((this && this.methods) || {}),
     },
     provide() {
         return {
-            rootId: this.proId,
+            rootId: this.rawId,
             env: this.env,
             containerInject: this.rootData
         };
@@ -87,9 +87,6 @@ let base = {
     },
     computed: {
         ...computed,
-        proId() {
-            return this.containerId
-        },
         rootData() {
             return this.env === 'dev' ? this.containerInject : this.container;
         },
@@ -146,14 +143,12 @@ let base = {
         }
     },
     mounted() {
-        setTimeout(() => {
-            this.containerId = this.rawId || ('oContainer' + parseInt(Math.random() * 1000000))
-            if (!this.containerInject[this.containerId]) {
-                this.$set(this.rootData, this.containerId, {});
-            }
-            this.$set(this.rootData[this.containerId], 'methods', this.methods);
-            this.on && this.on['mounted'] && this.on['mounted'](this);
-        }, 0)
+        this.containerId = this.rawId || ('oContainer' + parseInt(Math.random() * 1000000))
+        if (!this.containerInject[this.containerId]) {
+            this.$set(this.rootData, this.containerId, {});
+        }
+        this.$set(this.rootData[this.containerId], 'methods', this.methods);
+        this.on && this.on['mounted'] && this.on['mounted'](this);
     }
 };
 export default base;
