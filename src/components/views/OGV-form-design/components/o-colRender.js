@@ -3,7 +3,6 @@ import { render, computed } from '../../../schema/api';
 let base = {
     data() {
         return {
-            val: '313',
             style: {
                 border: '1px solid #e4e7ed',
                 'min-height': '40px'

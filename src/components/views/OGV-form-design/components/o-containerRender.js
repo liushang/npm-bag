@@ -18,10 +18,6 @@ let base = {
     },
     props: {
         // 以下属性正式环境下皆为 data
-        form: {
-            type: Object,
-            default: () => {}
-        },
         attrs: {
             type: Object,
             default: () => {
@@ -74,16 +70,6 @@ let base = {
     },
     render,
     methods: {
-        updateMsg() {
-            console.log('updateMsg');
-        },
-        change() {
-            console.log('我是change');
-        },
-        input(event) {
-            this.value = event;
-        },
-        submit(e) {},
         ...((this && this.methods) || {})
     },
     provide() {
@@ -120,25 +106,22 @@ let base = {
                             e.stopPropagation();
                             console.log('container');
                             this.$set(this.container[this.rawId], 'methods', this.methods);
-                            // this.$root.$emit('DEAL_CHOOSE', this);
                         },
                         ...this.on
                     },
                     attrs: {
-                        model: this.form,
                         ...this.attrs
                     },
                     nativeOn: {
                         click: () => {
+                            if (this.env === 'dev') {
+                                this.$root.$emit('DEAL_CHOOSE', this);
+                            }
                             if (!this.container[this.rawId]) {
                                 this.$set(this.container, this.rawId, {});
                             }
-                            console.log('metcontainerInjecthods');
-                            console.log(this.methods);
-                            // if (!this.containerInject[this.rawId].methods) {
                             this.$set(this.container[this.rawId], 'methods', this.methods);
-                            // }
-                            this.$root.$emit('DEAL_CHOOSE', this);
+                            
                         },
                         ...this.nativeOn
                     },
@@ -152,16 +135,9 @@ let base = {
             };
         }
     },
-    created() {
-        // if (!this.containerInject[this.rawId]) {
-        //     this.rawId = 'oContainer' + parseInt(Math.random() * 1000000);
-        //     this.$set(this.containerInject, this.rawId, {});
-        // }
-        // this.$set(this.containerInject[this.rawId], 'methods', this.methods);
-    },
+    created() {},
     mounted() {
         if (!this.container[this.rawId]) {
-            // this.rawId = 'oContainer' + parseInt(Math.random() * 1000000);
             this.$set(this.container, this.rawId, {});
         }
         this.$set(this.container[this.rawId], 'methods', this.methods);

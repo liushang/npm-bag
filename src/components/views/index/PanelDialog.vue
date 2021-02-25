@@ -121,8 +121,6 @@ export default {
         saveProperty(key, data = this.activeData) {
             if (!(key in data)) this.$set(data, key, {});
             this.$set(this.activeData[key], this.modifyItem[key].key, this.modifyItem[key].value);
-            console.log('新增属性');
-            console.log(this.activeData);
             this.modifyItem = {};
         },
         delModifyItem(key, data = this.activeData) {

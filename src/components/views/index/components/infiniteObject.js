@@ -362,7 +362,8 @@ export default {
             if (!(key in data)) this.$set(data, key, {});
             if (this.modifyItem[key].type !== '4' && this.modifyItem[key].type !== '5') {
                 // 如果输入的是组件。则增加此组件的相关配置
-                if (this.$root.$options.components[this.modifyItem[key].value]) {
+                console.log(this.$root.$options.components)
+                if (this.$root.$options.components[this.modifyItem[key].value] && this.modifyItem[key].value.startsWith('o')) {
                     const comOptions = this.$root.$options.components[this.modifyItem[key].value].options;
                     // 填充初始props属性
                     const config = {
@@ -374,12 +375,18 @@ export default {
                         if (!this.containerInject[config.props.rawId]) this.containerInject[config.props.rawId] = {};
                     }
                     this.$set(this.activeData[key], this.modifyItem[key].key, config);
-                } else if (htmlNode.includes(this.modifyItem[key].value)) {
+                } else if (htmlNode.includes(this.modifyItem[key].value) || this.$root.$options.components[this.modifyItem[key].value]) {
                     // 如果输入的是节点html
+                    const commonConfig = {
+                        style: {},
+                        attrs: {},
+                        children: [],
+                        renderFun: x => x
+                    }
                     const config = {
                         name: this.modifyItem[key].value,
-                        props: defaultNode[this.modifyItem[key].value],
-                        ...defaultNode[this.modifyItem[key].value]
+                        props: defaultNode[this.modifyItem[key].value] || commonConfig,
+                        ...(defaultNode[this.modifyItem[key].value] || commonConfig)
                     };
                     // 将标签元素的其他属性保持和props属性内存地址相同，用来适应组件配置数据
                     // for (let i in config.props) {

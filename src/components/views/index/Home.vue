@@ -364,6 +364,7 @@ export default {
             }
         },
         activeFormItem(currentItem) {
+          console.log("currentItem");
             if (this.$root.$options.components[currentItem.name]) {
                 const comOptions = getDefaultProps(this.$root.$options.components[currentItem.name].options);
                 for (let i in comOptions) {

@@ -233,7 +233,7 @@ export default {
 .center-board {
   height: 100vh;
   width: auto;
-  margin: 0 450px 0 120px;
+  margin: 0 400px 0 120px;
   box-sizing: border-box;
 }
 .empty-info{

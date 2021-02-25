@@ -217,7 +217,6 @@ export default {
             this.$emit('codeValueChange', code);
         },
         changeFuncCode(code) {
-            console.log('changeFuncCode');
             this.showFunctionDialog = false;
             this.$emit('renderAgain');
             const [ data, property, subProperty ] = this.tempCodeArr;
@@ -228,12 +227,6 @@ export default {
             }
             // this.activeData.props.renderFunStr = code
             // this.activeData.props.renderFun = stringToFunc(code)
-        },
-        addData() {
-            console.log('addData');
-        },
-        delData() {
-            console.log('delData');
         },
         // 向上传递改变组件面板内容
         changeComponentPanel(type, data, property, subProperty) {
@@ -323,7 +316,7 @@ export default {
 </style>
 <style lang="less" scoped>
 .right-board {
-  width: 450px;
+  width: 400px;
   position: absolute;
   right: 0;
   top: 0;
