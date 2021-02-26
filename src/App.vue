@@ -1,7 +1,7 @@
 <template>
 <div>
-  <!-- <Main/> -->
-  <practice></practice>
+  <Main/>
+  <!-- <practice></practice> -->
   <ogvdesign :constructure="dataConfig[0]"></ogvdesign>
 </div>
 </template>

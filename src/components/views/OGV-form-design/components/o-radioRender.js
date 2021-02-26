@@ -113,7 +113,7 @@ let base = {
                 },
                 props: {
                     label: this.val,
-                    value: this.containerInject[this.rootId][this.keyword],
+                    value: (this.containerInject[this.rootId] || {})[this.keyword],
                     rawId: this.rawId
                 }
             }];

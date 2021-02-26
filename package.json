@@ -13,7 +13,7 @@
     "axios": "^0.21.1",
     "element-ui": "^2.14.1",
     "file-saver": "^2.0.2",
-    "iicarus": "^1.0.20",
+    "iicarus": "^1.0.21",
     "somelibrarysss": "1.0.5",
     "vue": "^2.5.11",
     "vue-codemirror": "^4.0.6",
