@@ -266,7 +266,7 @@ export default {
     methods: {
         codeValueChange(val) {
             console.log(val);
-            // this.containerInject = parseInt(val);
+            this.containerInject = JSON.parse(val);
         },
         renderAgain() {
             console.log('重新渲染');
@@ -407,9 +407,9 @@ export default {
         createIdAndKey(item) {
             const config = item.__config__;
             config.formId = ++this.idGlobal;
-            config.renderKey = `${config.formId}${+new Date()}`; // 改变renderKey后可以实现强制更新组件
+            // config.renderKey = `${config.formId}${+new Date()}`; // 改变renderKey后可以实现强制更新组件
             if (config.layout === 'colFormItem') {
-                item.__vModel__ = `field${this.idGlobal}`;
+                // item.__vModel__ = `field${this.idGlobal}`;
             } else if (config.layout === 'rowFormItem') {
                 config.componentName = `row${this.idGlobal}`;
                 !Array.isArray(config.children) && (config.children = []);
@@ -439,7 +439,7 @@ export default {
         tagChange(newTag) {
             newTag = this.cloneComponent(newTag);
             const config = newTag.__config__;
-            newTag.__vModel__ = this.activeData.__vModel__;
+            // newTag.__vModel__ = this.activeData.__vModel__;
             config.formId = this.activeId;
             config.span = this.activeData.__config__.span;
             this.activeData.__config__.tag = config.tag;

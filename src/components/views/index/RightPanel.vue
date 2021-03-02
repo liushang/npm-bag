@@ -10,7 +10,7 @@
           <el-breadcrumb-item v-for="(i, index) in elementList" :key="index">
             <span  @click="changeTab(index)">
               <div>{{i.name}}</div>
-              <span style="color:rgb(64, 158, 255);font-size:10px;text-align:center" v-if="i.props.rawId">({{i.props.rawId.slice(i.name.length)}})</span>
+              <span style="color:rgb(64, 158, 255);font-size:10px;text-align:center" v-if="i.props.rawId">({{i.props.rawId !== 'oContainer' ? i.props.rawId.slice(i.name.length) : 'oContainer'}})</span>
               <span style="color:rgb(64, 158, 255);font-size:10px;text-align:center" v-if="i.props.subRawId">({{i.props.subRawId.slice(i.name.length)}})</span>
             </span>
           </el-breadcrumb-item>
@@ -27,9 +27,9 @@
                 <div style="margin-left: 30px" v-if="!['string', 'number', 'boolean', 'function'].includes(typeof editItem[i])">
                     <span class='' v-if="!modifyItem[i] && haveFixedAttrs(editItemProperty[i], i)" style="color:#409eff;font-size:14px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord', 1)">添加</span>
                     <!-- <i class='el-icon-plus' v-if="!modifyItem[i]" style="color:#409eff;font-size:16px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord')"></i> -->
-                    <span v-if="!modifyItem[i]" style="color:#409eff;font-size:14px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord')">自定义</span>
+                    <span v-if="!modifyItem[i]" style="color:#409eff;font-size:12px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord')">自定义</span>
                     <span class='' v-else style="color:#409eff;font-size:14px;margin-right:10px;margin-left:30px" @click.stop="$refs['infiniteObj'][index].saveProperty(i)">确定</span>
-                    <span v-if="Object.keys(modifyItem).length > 0" style="color:#409eff;font-size:14px" @click.stop="$refs['infiniteObj'][index].delModifyItem(modifyItem, i)">X</span>
+                    <span v-if="Object.keys(modifyItem).length > 0" style="color:#409eff;font-size:14px" @click.stop="$refs['infiniteObj'][index].delModifyItem(modifyItem, i)">x</span>
                     <!-- <span v-if="getValueLength(editItemProperty[i]) > 0">...</span> -->
                 </div>
                   </span>
@@ -75,7 +75,7 @@ import 'codemirror/mode/javascript/javascript.js';
 import { htmlNode, defaultKV } from './components/default';
 // import theme style
 import 'codemirror/theme/base16-dark.css';
-
+import BASEMAP from './base/map';
 export default {
     components: {
         InfiniteObject,
@@ -89,17 +89,7 @@ export default {
     },
     data() {
         return {
-            valueNameMap: {
-                attrs: '组件属性',
-                on: '响应事件',
-                nativeOn: '原生事件',
-                children: '子元素',
-                renderFun: '渲染函数',
-                styles: '样式属性',
-                style: '样式属性',
-                computed: '计算属性',
-                methods: '方法'
-            },
+            valueNameMap: BASEMAP.valueName,
             // 展示弹窗
             showFunctionDialog: false,
             currentTab: 'field',
@@ -249,8 +239,6 @@ export default {
                     // 展开子元素项 border变蓝色
                     // data[property][subProperty].styles.border = '1px solid red';
                     if (!data[property][subProperty].style) data[property][subProperty].style = {};
-                    console.log(data[property][subProperty].style.border);
-                    console.log('重新设置颜色');
                     this.$emit('clearBorderBlue');
                     if (htmlNode.includes(data[property][subProperty].name)) {
                         this.$set(data[property][subProperty].style, 'border', '1px solid rgb(64, 158, 255)');

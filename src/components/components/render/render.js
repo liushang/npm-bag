@@ -107,7 +107,7 @@ export default {
         emitEvents.call(this, confClone);
 
         // 将json表单配置转化为vue render可以识别的 “数据对象（dataObject）”
-        buildDataObject.call(this, confClone, dataObject);
+        // buildDataObject.call(this, confClone, dataObject);
 
         return h(this.conf.__config__.tag, dataObject, children);
     }

@@ -1,5 +1,6 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../../../schema/api';
+import baseAttr from '../base/attrs';
 // import {
 //     stringToFunc
 //   } from '@/utils/db'
@@ -17,10 +18,7 @@ let base = {
         };
     },
     props: {
-        on: {
-            type: Object,
-            default: () => {}
-        },
+        ...baseAttr.props,
         attrs: {
             type: Object,
             default: () => {
@@ -30,24 +28,6 @@ let base = {
                 };
             }
         },
-        children: {
-            type: Array,
-            default: () => ['确定']
-        },
-        styles: {
-            type: Object,
-            default: () => {
-                return {};
-            }
-        },
-        renderFun: {
-            type: Function,
-            default: x => x
-        },
-        rawId: {
-            type: String,
-            default: ''
-        }
     },
     inject: {
         containerInject: {
@@ -99,12 +79,7 @@ let base = {
                         props: {
                             rawId: this.rawId
                         },
-                        nativeOn: {
-                            // click: () => {
-                            //   console.log('啊啊啊啊啊啊啊啊啊啊啊啊')
-                            //   this.$root.$emit('DEAL_CHOOSE', this)
-                            // },
-                        },
+                        nativeOn: {},
                         children: this.children
                     }])
                 }]

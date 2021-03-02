@@ -54,7 +54,7 @@ let base = {
         },
         rawId: {
             type: String,
-            default: ''
+            default: 'oContainer'
         },
         computed: {
             type: Object,
@@ -120,7 +120,6 @@ let base = {
                     },
                     nativeOn: {
                         click: () => {
-                            console.log('哒哒哒哒哒哒多多')
                             if (this.env === 'dev') {
                                 this.$root.$emit('DEAL_CHOOSE', this);
                             }
@@ -143,10 +142,10 @@ let base = {
         }
     },
     created() {
-        
+
     },
     mounted() {
-        this.containerId = this.rawId || ('oContainer' + parseInt(Math.random() * 1000000))
+        this.containerId = 'oContainer'
         if (!this.containerInject[this.containerId]) {
             this.$set(this.rootData, this.containerId, {});
         }

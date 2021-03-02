@@ -2,7 +2,7 @@
 <div>
   <Main/>
   <!-- <practice></practice> -->
-  <ogvdesign :constructure="dataConfig[0]"></ogvdesign>
+  <!-- <ogvdesign :constructure="dataConfig[0]"></ogvdesign> -->
 </div>
 </template>
 <script>

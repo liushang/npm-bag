@@ -129,7 +129,7 @@ export default {
                 // 为组件
                 return (<span class="value-string">
                     <span onClick={() => this.analysisProperty('turn', a, b, c)}>{val.name}</span>
-                    <span onClick={() => this.analysisProperty('code', a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px">code</span>
+                    <span onClick={() => this.analysisProperty('code', a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">查看</span>
                 </span>)
             } else {
                 // 函数字符串渲染
@@ -171,23 +171,28 @@ export default {
         }
         return (<div>
             {propertyList.map(x => {
-                return (<el-form-item label={['string', 'number', 'boolean', 'function'].includes(typeof this.activeData[rootWord]) ? '' : this.getAlias(this.activeData, rootWord, x)} label-width="90px">
-                    {
-                        ['string', 'number', 'boolean'].includes(typeof this.activeData[rootWord]) ? ''
-                            :
-                            <span className="el-icon-anti-tag-fill" onClick={() => this.delKey(x, rootWord)} style="margin-left: 5px;color: #409EFF">X&nbsp;&nbsp;</span>
-                    }
-                    {['string', 'number', 'boolean'].includes(typeof this.activeData[rootWord]) && this.initialTypeShow === 'input' ? <el-input  size="mini" v-model={this.activeData[rootWord]} placeholder="请输入字段名（v-model）s" style="width: 165px"/>
-                        : ['array', 'object'].includes(typeof this.activeData[rootWord][x])
-                        // 值为函数字符串/组件
-                            ? funStrComSpan(this.activeData, rootWord, x)
-                            // 值为字符串/数字/bool选项
-                            : this.initialTypeShow === 'input'
-                                ? strNumBoolSpan(this.activeData, rootWord, x)
-                                // 值为其他'renderFun', 'rawId', 'on', 'nativeOn', 'methods'
-                                : otherSpan(this.activeData, rootWord, x)
-                    }
-                </el-form-item>);
+                return (<div style="padding: 5px 0 5px 40px">
+                    <span>
+                        {['string', 'number', 'boolean', 'function'].includes(typeof this.activeData[rootWord]) ? '' : this.getAlias(this.activeData, rootWord, x)}
+                    </span>
+                    <span>
+                        {
+                            ['string', 'number', 'boolean'].includes(typeof this.activeData[rootWord]) ? ''
+                                :
+                                <span className="el-icon-anti-tag-fill" onClick={() => this.delKey(x, rootWord)} style="margin-left: 5px;color: rgb(241 23 23);font-size: 15px">x&nbsp;&nbsp;</span>
+                        }
+                        {['string', 'number', 'boolean'].includes(typeof this.activeData[rootWord]) && this.initialTypeShow === 'input' ? <el-input  size="mini" v-model={this.activeData[rootWord]} placeholder="请输入字段名（v-model）s" style="width: 165px"/>
+                            : ['array', 'object'].includes(typeof this.activeData[rootWord][x])
+                            // 值为函数字符串/组件
+                                ? funStrComSpan(this.activeData, rootWord, x)
+                                // 值为字符串/数字/bool选项
+                                : this.initialTypeShow === 'input'
+                                    ? strNumBoolSpan(this.activeData, rootWord, x)
+                                    // 值为其他'renderFun', 'rawId', 'on', 'nativeOn', 'methods'
+                                    : otherSpan(this.activeData, rootWord, x)
+                        }
+                    </span>
+                </div>)
             })}
             <el-form-item label-width="26px">
                 {this.getValue(modifyItem, rootWord)}
@@ -404,8 +409,6 @@ export default {
                     if (key === 'on' || key === 'nativeOn' || key === 'methods') {
                         value = stringToFunc(this.modifyItem[key].value);
                     }
-                    console.log(value);
-                    console.log(this.modifyItem[key].type);
                     // todo 属性改变需要关联的输入框类型一起改变
                     if (this.modifyItem[key].type === '2') value = +value;
                     if (this.modifyItem[key].type === '3') value = !!value;

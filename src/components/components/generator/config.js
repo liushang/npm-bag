@@ -44,7 +44,7 @@ export const oComponents = [
     }, {
         name: 'oInput',
         props: {
-            value: '323'
+            value: '1'
         },
         __config__: {
             label: '输入框',

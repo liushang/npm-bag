@@ -15,14 +15,6 @@ const styleProperty = {
         label: '背景',
         value: []
     },
-    // 'background-color': {
-    //     label: '背景色',
-    //     value: []
-    // },
-    // 'background-image': {
-    //     label: '背景图片',
-    //     value: []
-    // },
     'border': {
         label: 'border',
         value: []
