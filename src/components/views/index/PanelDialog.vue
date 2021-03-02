@@ -15,7 +15,7 @@
         <vue-json-editor
           v-model="modeJson"
           :show-btns="false"
-          mode="text"
+          mode="code"
           @json-change="onJsonChange"
           @json-save="onJsonSave"
           @has-error="onError"

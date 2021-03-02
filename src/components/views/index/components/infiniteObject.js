@@ -80,7 +80,11 @@ export default {
                 )
             },
             // 默认是自定义属性
-            addType: false
+            addType: false,
+            // 展示对象编辑panel
+            showObjectPanel: false,
+            tempAttrName: '',
+            tempAttrValue: ''
         };
     },
     props: {
@@ -111,13 +115,26 @@ export default {
         name: {
             type: String,
             default: 'oContainer'
-        }
-
+        },
+        // 属性-复杂对象详情
+        // attrDetail: {
+        //     type: Object | Array,
+        //     default: null
+        // }
     },
     computed: {
         defaultKeyValue() {
             return defaultKV[this.name] || {};
         }
+    },
+    watch: {
+        // attrDetail: {
+        //     handler(val, old) {
+        //         console.log(val)
+        //         console.log(old)
+        //     },
+        //     deep: true
+        // }
     },
     render() {
         const modifyItem = this.modifyItem;
@@ -181,7 +198,7 @@ export default {
                                 :
                                 <span className="el-icon-anti-tag-fill" onClick={() => this.delKey(x, rootWord)} style="margin-left: 5px;color: rgb(241 23 23);font-size: 15px">x&nbsp;&nbsp;</span>
                         }
-                        {['string', 'number', 'boolean'].includes(typeof this.activeData[rootWord]) && this.initialTypeShow === 'input' ? <el-input  size="mini" v-model={this.activeData[rootWord]} placeholder="请输入字段名（v-model）s" style="width: 165px"/>
+                        {['string', 'number', 'boolean'].includes(typeof this.activeData[rootWord]) && this.initialTypeShow === 'input' ? <el-input  size="mini" v-model={this.activeData[rootWord]} placeholder="请输入字段名（v-model）" style="width: 165px"/>
                             : ['array', 'object'].includes(typeof this.activeData[rootWord][x])
                             // 值为函数字符串/组件
                                 ? funStrComSpan(this.activeData, rootWord, x)
@@ -203,7 +220,6 @@ export default {
         getAlias(a, b, c) {
             const insertAttrs = (this.defaultKeyValue[b] || {})[c];
             if (insertAttrs) {
-                console.log(insertAttrs);
                 return insertAttrs.label || c;
             } else {
                 return c;
@@ -225,7 +241,6 @@ export default {
             if (this.addType) {
                 if (data[keyword].key) {
                     /* eslint-disable */
-                    console.log(this.defaultKeyValue[this.rootWord][data[keyword].key])
                     let defaultValue = []
                     if (this.rootWord === 'children') {
                         // 如果像数组一样可以添加重复属性 则取第一个下拉选项
@@ -275,8 +290,6 @@ export default {
         getKey(data, keyword) {
             if (this.addType) {
                 // 添加自带属性
-                // console.log(this.activeData[this.rootWord]);
-                // console.log(Object.keys(this.defaultKeyValue[this.rootWord]));
                 /* eslint-disable */
                 let keys = []
                 keys = Object.keys(this.defaultKeyValue[this.rootWord] || {}).filter(y => !this.activeData[this.rootWord][y])
@@ -317,9 +330,13 @@ export default {
             return list;
         },
         changeOptions(e, key, data) {
-            console.log('改变选项');
             // data[key].type = e;
             data[key].value = e === '5' ? [] : this.valueTypeInitial[e];
+            if (['4', '5'].includes(e)) {
+                this.showObjectPanel = true;
+                this.tempAttrName = data[key].key
+                this.analysisProperty('att', this.activeData, this.rootWord, e)
+            }
         },
         getType(e) {
             if (typeof e === 'string') return 1;
@@ -334,7 +351,6 @@ export default {
             data[key].value = data[key].type === '5' ? [] : this.valueTypeInitial[data[key].type];
         },
         addProperty(data, key, type, rootName, addType) {
-            console.log('addproperty');
             // addType 1 添加默认属性 无为自定义属性
             this.addType = !!addType;
             // type 不存在 查看原属性类型，object则为object 否则为数组/字符串
@@ -367,7 +383,6 @@ export default {
             if (!(key in data)) this.$set(data, key, {});
             if (this.modifyItem[key].type !== '4' && this.modifyItem[key].type !== '5') {
                 // 如果输入的是组件。则增加此组件的相关配置
-                console.log(this.$root.$options.components)
                 if (this.$root.$options.components[this.modifyItem[key].value] && this.modifyItem[key].value.startsWith('o')) {
                     const comOptions = this.$root.$options.components[this.modifyItem[key].value].options;
                     // 填充初始props属性
@@ -414,11 +429,13 @@ export default {
                     if (this.modifyItem[key].type === '3') value = !!value;
                     this.$set(this.activeData[key], this.modifyItem[key].key, value);
                 }
+            } else if(['4', '5'].includes(this.modifyItem[key].type)) {
+                this.$set(this.activeData[key], this.tempAttrName, this.tempAttrValue);
             } else {
-                // 复杂属性需要转换key、value变为对象
-                const rootValue = this.modifyItem[key].value;
-                const transformValue = this.transformKeyValue(rootValue, this.modifyItem[key].type);
-                this.$set(this.activeData[key], this.modifyItem[key].key, transformValue);
+                // 复杂属性需要转换key、value变为对象 这段省略也不删
+                // const rootValue = this.modifyItem[key].value;
+                // const transformValue = this.transformKeyValue(rootValue, this.modifyItem[key].type);
+                // this.$set(this.activeData[key], this.modifyItem[key].key, transformValue);
             }
             this.$delete(this.modifyItem, key);
             // this.modifyItem = {};
@@ -465,10 +482,16 @@ export default {
             }
         },
         delKey(key, property) {
+            if (this.activeData[property][key].props && this.activeData[property][key].props.rawId) {
+                const id = this.activeData[property][key].props.rawId
+                if (this.containerInject[id]) {
+                    this.$delete(this.containerInject, id)
+                    console.log(this.containerInject)
+                }
+            }
             this.$delete(this.activeData[property], key);
         },
         analysisProperty(type, data, property, subProperty) {
-            console.log(data, property, subProperty);
             // if (['renderFun', 'on', 'nativeOn'].includes(property) || x && x.name) {
             this.$emit('changeComponentPanel', type, data, property, subProperty);
             // }

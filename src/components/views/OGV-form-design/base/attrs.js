@@ -25,6 +25,10 @@ const props = {
       type: Object,
       default: () => {}
   },
+  insData: {
+    type: Object,
+    default: () => {}
+  }
 }
 export default {
   props,

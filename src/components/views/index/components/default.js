@@ -76,8 +76,6 @@ let htmlNodeWrapper = htmlNode.map(x => {
         }
     };
 });
-console.log('htmlnode');
-console.log(htmlNodeWrapper);
 const commonComponent = {
     styles: styleProperty
 };

@@ -24,15 +24,12 @@ const layouts = {
     oFormItem(h, currentItem, index, list, containerData) {
         const { activeItem } = this.$listeners;
         const config = currentItem.__config__;
-        console.log(currentItem);
         let className = this.activeId === config.formId ? 'drawing-item active-from-item' : 'drawing-item';
         if (this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
-        console.log(currentItem);
         if (!currentItem.props.rawId) return
         // currentItem.props.env = 'dev';
         let configData = analysisDataRender([ currentItem ]);
         let configArr = analysisRenderConfig(configData, h);
-        console.log('oFormItem', configArr[0])
         /* eslint-disable */
         return (
             <el-col span={config.span} class={className}

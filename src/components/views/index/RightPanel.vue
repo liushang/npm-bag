@@ -2,6 +2,7 @@
   <div class="right-board" id="right-board">
     <el-tabs v-model="currentTab" class="center-tabs">
       <el-tab-pane label="组件属性" name="field" />
+      <el-tab-pane label="关联配置" name="relation" />
       <el-tab-pane label="表单属性" name="form" />
     </el-tabs>
     <div class="field-box">
@@ -51,6 +52,7 @@
           </div>
           <!-- <codemirror v-model="activeData.props.renderFun" :options="cmOptions" ref="cmEditor"/> -->
         </el-form>
+        <div v-if="currentTab === 'form'">关联配置</div>
         <!-- 表单属性 -->
         <el-form v-if="currentTab === 'form'" size="small" label-width="90px">
           <!-- <el-form-item label="表单名" v-for="(i, index) in formConf" :key="index">
@@ -61,6 +63,14 @@
         </el-form>
       </el-scrollbar>
     </div>
+    <panel-dialog
+      :active-data="attrDetail"
+      :form-conf="formConf"
+      v-if="showPanel"
+      @close="closePanelDialog"
+      @tag-change="tagChange"
+      @fetch-data="fetchData"
+    />
     <codeEditor :dataStr="renderCode" v-if="activeData && activeData.props && activeData.props.renderFun && showFunctionDialog" :options="cmOptions" @close="changeFuncCode" ref="cmEditor"/>
   </div>
 </template>
@@ -76,16 +86,17 @@ import { htmlNode, defaultKV } from './components/default';
 // import theme style
 import 'codemirror/theme/base16-dark.css';
 import BASEMAP from './base/map';
+import PanelDialog from './PanelDialog';
 export default {
     components: {
         InfiniteObject,
-        CodeEditor
+        CodeEditor,
+        PanelDialog
     // ComponentConfigDetail
     // IconsDialog
     },
     props: ['showField', 'activeData', 'formConf', 'containerInject'],
     mounted() {
-        console.log(this.activeData);
     },
     data() {
         return {
@@ -126,7 +137,10 @@ export default {
             tempCodeArr: [],
             activeItems: [],
             subActivityData: {},
-            elementList: []
+            elementList: [],
+            attrDetail: {},
+            showPanel: false,
+            attrName: ''
         };
     },
     computed: {
@@ -182,20 +196,27 @@ export default {
         }
     },
     methods: {
+        closePanelDialog(e) {
+          console.log(this.$refs.infiniteObj)
+          let component = this.$refs.infiniteObj.filter(x => x.tempAttrName)[0]
+          component.tempAttrValue = JSON.parse(JSON.stringify(e))
+          this.attrDetail = []
+          this.attrName = ''
+          this.showPanel = false
+        },
+        convertConstrutor() {
+          return this.attrDetail
+        },
         haveFixedAttrs(item, name) {
             // 判断是否还可以添加固有属性
-            // console.log('判断是否还可以添加固有属性');
-            // console.log(this.editItem);
             let attrs = Object.keys((defaultKV[this.editItem.name] || {})[name] || {});
             if (name !== 'children') attrs = attrs.filter(y => !item[y]);
             return attrs.length;
         },
         changeTab(index) {
             this.elementList = this.elementList.slice(0, index + 1);
-            console.log(this.elementList);
         },
         handleChange(val) {
-            console.log(val);
         },
         getValueLength(a) {
             if (typeof a === 'string' || typeof a === 'number' || typeof a === 'function') return 1;
@@ -210,7 +231,6 @@ export default {
         changeFuncCode(code) {
             this.showFunctionDialog = false;
             this.$emit('renderAgain');
-            console.log('changeFuncCodechangeFuncCodechangeFuncCode')
             const [ data, property, subProperty ] = this.tempCodeArr;
             const funcArr = ['on', 'nativeOn', 'methods']
             if (data[property][subProperty] && !funcArr.includes(property)) {
@@ -227,39 +247,39 @@ export default {
         },
         // 向上传递改变组件面板内容
         changeComponentPanel(type, data, property, subProperty) {
-            console.log(property, subProperty);
             if (property === 'renderFun' || property === 'on' || property === 'nativeOn' || property === 'methods') {
                 // 函数编辑窗
                 this.tempCodeArr = [data, property, subProperty];
                 this.showFunctionDialog = true;
-            } else {
-                console.log(data);
+            } else if (type === 'turn') {
                 // if (htmlNode.includes(data[property][subProperty].name) || type === 'turn') {
-                if (type === 'turn') {
-                    // 展开子元素项 border变蓝色
-                    // data[property][subProperty].styles.border = '1px solid red';
-                    if (!data[property][subProperty].style) data[property][subProperty].style = {};
-                    this.$emit('clearBorderBlue');
-                    if (htmlNode.includes(data[property][subProperty].name)) {
-                        this.$set(data[property][subProperty].style, 'border', '1px solid rgb(64, 158, 255)');
-                    } else {
-                        // todu 颜色边框
-                        // this.$set(data[property][subProperty].props.styles, 'border', '1px solid rgb(64, 158, 255)');
-                    }
-                    // this.$set(data[property][subProperty].style, 'display', 'inline-block');
-                    this.subActivityData = data[property][subProperty];
-                    console.log(this.subActivityData);
-                    this.elementList.push(this.subActivityData);
+                // 展开子元素项 border变蓝色
+                // data[property][subProperty].styles.border = '1px solid red';
+                if (!data[property][subProperty].style) data[property][subProperty].style = {};
+                this.$emit('clearBorderBlue');
+                if (htmlNode.includes(data[property][subProperty].name)) {
+                    this.$set(data[property][subProperty].style, 'border', '1px solid rgb(64, 158, 255)');
                 } else {
-                    // json编辑窗
-                    this.$emit('panelContent', data, property, subProperty);
+                    // todu 颜色边框
+                    // this.$set(data[property][subProperty].props.styles, 'border', '1px solid rgb(64, 158, 255)');
                 }
+                // this.$set(data[property][subProperty].style, 'display', 'inline-block');
+                this.subActivityData = data[property][subProperty];
+                this.elementList.push(this.subActivityData);
+            } else if (type === 'att') {
+              // 属性-对象编辑窗
+              this.showPanel = true;
+              this.attrName = property;
+              this.attrDetail = subProperty === '5' ? [] : {}
+              // this.$emit('panelContent', data, property, subProperty);
+            } else {
+                // json编辑窗
+                this.$emit('panelContent', data, property, subProperty);
             }
         },
         getList(key, data = this.activeData) {
             let list = [];
             if (data) {
-                console.log('dataactive存在');
                 for (const i in data[key]) {
                     list.push(i);
                 }
@@ -267,8 +287,6 @@ export default {
             return list;
         },
         propertyAdd(modifyItem, i, index) {
-            console.log(index);
-            console.log(this.propertiesList[index]);
             this.$nextTick(() => {
                 this.$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord');
             });

@@ -20,6 +20,7 @@ export function getDrawingList() {
     // if (str) return propertyStringToFunc(JSON.parse(str))
     if (str) {
         let abc = onToFunc(onToFunc(onToFunc(propertyStringToFunc(JSON.parse(str)), 'on'), 'methods'), 'nativeOn')
+        console.log(abc)
         return abc
     };
     return null;
@@ -63,10 +64,8 @@ export function propertyStringToFunc(str) {
             i.props.renderFun = new Function(...funNameArr, funMiddle);
             /* eslint-enable */
         }
-        if (i.children) {
-            for (let y of i.children) {
-                propertyStringToFunc(y);
-            }
+        if (i.props && i.props.children) {
+            propertyStringToFunc(i.props.children);
         }
     }
     return str;
@@ -89,7 +88,7 @@ export function stringToFunc(str, self) {
 
 export function saveDrawingList(list) {
     let json = JSON.stringify(list, function(key, value) {
-        if (typeof value === 'function' && key !== 'renderFun') {
+        if (typeof value === 'function') {
             return value.toString();
         } else {
             return value;
@@ -115,7 +114,6 @@ export function getContainer() {
 }
 
 export function saveContainer(id) {
-    console.log(id);
     // todo 对函数处理
     localStorage.setItem(DRAWING_CONTAINER, JSON.stringify(id));
 }

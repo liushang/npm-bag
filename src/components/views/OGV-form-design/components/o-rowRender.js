@@ -44,7 +44,6 @@ let base = {
         updateMsg() {
         },
         click() {
-            console.log('啊啊啊啊啊啊啊啊啊啊啊啊');
             this.$root.$emit('DEAL_CHOOSE', this);
         }
     },
@@ -76,7 +75,6 @@ let base = {
                         click: e => {
                             e.preventDefault();
                             e.stopPropagation();
-                            console.log('啊啊啊啊啊啊啊啊啊啊我是div');
                             this.$root.$emit('DEAL_CHOOSE', this);
                         }
                     },
@@ -88,8 +86,6 @@ let base = {
     created() {
     },
     mounted() {
-        console.log('我是raw');
-        console.log(this.env);
     }
 };
 export default base;

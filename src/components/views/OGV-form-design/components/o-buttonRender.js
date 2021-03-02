@@ -14,7 +14,7 @@ let base = {
             attr: {
                 size: 'small',
                 type: 'primary'
-            }
+            },
         };
     },
     props: {
@@ -27,7 +27,7 @@ let base = {
                     size: 'small'
                 };
             }
-        },
+        }
     },
     inject: {
         containerInject: {
@@ -47,7 +47,8 @@ let base = {
             for (let i in this.on) {
                 let func = this.on[i];
                 this.on[i] = (e) => {
-                    return func(e, this);
+                    // return func(e, this);
+                    return func.bind(this)(e);
                 };
             }
             return {
@@ -87,10 +88,8 @@ let base = {
         }
     },
     render,
-    methods: {
-        change() {
-            console.log('我是change');
-        }
+    methods: {},
+    created() {
     },
     mounted() {}
 };

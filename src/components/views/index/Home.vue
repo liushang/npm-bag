@@ -125,7 +125,6 @@ import { getDefaultProps, getRawId } from '../../schema/util'
 let oldActiveId;
 let tempActiveData;
 const drawingListInDB = getDrawingList();
-console.log('drawingListInDB', drawingListInDB);
 const formConfInDB = getFormConf();
 const idGlobal = getIdGlobal();
 const containerInject = getContainer();
@@ -203,8 +202,6 @@ export default {
         },
         drawingList: {
             handler(val) {
-                console.log('保存结构配置数据');
-                console.log(val);
                 this.saveDrawingListDebounce(val);
                 if (val.length === 0) this.idGlobal = 100;
             },
@@ -213,8 +210,6 @@ export default {
         containerInject: {
             deep: true,
             handler(val) {
-                console.log('保存数据配置');
-                console.log(val);
                 this.saveContainerDebounce(val);
             }
         },
@@ -248,15 +243,10 @@ export default {
                 this.previewItem.style.border = '1px solid #e4e7ed';
                 if (this.previewItem.rawId !== item.rawId) this.clearSubBorder(this.drawingList);
             }
-            console.log(this.$refs.rightPanel);
-            console.log(item);
             this.$set(item.style, 'border', '1px solid red');
             let rawId = item.rawId;
             setTimeout(() => {
-                console.log(rawId);
                 let activeSubItem = this.getRawIdItem(this.drawingList, rawId);
-                console.log('我是activesubtime');
-                console.log(activeSubItem);
                 if (activeSubItem) this.activeFormItem(activeSubItem);
             }, 0);
             this.previewItem = item;
@@ -265,11 +255,9 @@ export default {
 
     methods: {
         codeValueChange(val) {
-            console.log(val);
             this.containerInject = JSON.parse(val);
         },
         renderAgain() {
-            console.log('重新渲染');
         },
         panelContent(data, property, subProperty) {
             this.dialogComponentDetail = {
@@ -283,6 +271,7 @@ export default {
             this.showPanel = false;
         },
         convertConstrutor(e) {
+          console.log(e)
             let json = this.activeData.props[e.property][e.subProperty];
             !json.props && json.name && (json.props = {
                 attrs: {},
@@ -333,7 +322,6 @@ export default {
             if (!Array.isArray(list)) return;
             for (const i of list) {
                 if (i.props && i.props.rawId === id) {
-                    console.log('找到id', i);
                     return i;
                 } else {
                     if (i.props && i.props.children) {
@@ -352,10 +340,8 @@ export default {
                 }
                 if (item.props && item.props.styles && item.props.styles.border === '1px solid rgb(64, 158, 255)') {
                     // todo清除组件蓝色框
-                    console.log('清除组件');
                     // item.props.styles.border = '1px solid rgb(228, 231, 237)';
                     // item.props.styles.border = '1px solid rgb(228, 231, 237)';
-                    console.log(item);
                     // this.$delete(item.props.styles, 'border');
                 }
                 if (item.children || (item.props && item.props.children)) {
@@ -364,7 +350,6 @@ export default {
             }
         },
         activeFormItem(currentItem) {
-          console.log("currentItem");
             if (this.$root.$options.components[currentItem.name]) {
                 const comOptions = getDefaultProps(this.$root.$options.components[currentItem.name].options);
                 for (let i in comOptions) {
@@ -374,7 +359,6 @@ export default {
                 if (!currentItem.props.rawId) currentItem.props.rawId = getRawId(currentItem.name);
             }
             this.activeData = currentItem;
-            console.log(this.activeData);
         },
         onEnd(obj) {
             if (obj.from !== obj.to) {
@@ -385,12 +369,8 @@ export default {
         },
         // 添加组件 点击复制
         addComponent(item) {
-            console.log('点击复制', item);
             const clone = this.cloneComponent(item);
             this.fetchData(clone);
-            console.log(clone);
-            console.log(this.activeData);
-            console.log(this.drawingList)
             this.activeData.props.children.push(clone);
             // this.drawingList.push(clone);
             this.activeFormItem(clone);

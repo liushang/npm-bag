@@ -1,4 +1,5 @@
 import { render, computed } from '../../../schema/api';
+import baseAttr from '../base/attrs';
 let base = {
     data() {
         return {
@@ -8,6 +9,7 @@ let base = {
         };
     },
     props: {
+        ...baseAttr.props,
         styles: {
             type: Object,
             default: () => {
@@ -35,9 +37,7 @@ let base = {
     methods: {
         input(event) {
             this.$emit('oInput', event);
-            console.log(event)
             this.containerInject[this.rawId].input = event;
-            console.log(this.containerInject[this.rawId])
             this.$root.$emit('DEAL_CHOOSE', this);
         }
     },
@@ -108,9 +108,6 @@ let base = {
         // }
     },
     mounted() {
-        console.log('我是input')
-        console.log(this.value)
-        console.log(this.containerInject);
         this.$set(this.containerInject, this.rawId, {
             input: this.value || ''
         });
