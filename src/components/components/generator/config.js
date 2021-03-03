@@ -3,6 +3,40 @@ export const formConf = {
     basicData: []
 };
 
+// element 组件
+
+export function getElementList (list) {
+    let elList = []
+    for(let i in list) {
+        if (i.startsWith('El')) {
+            elList.push({
+                name: i,
+                props: {},
+                __config__: {
+                    label: i,
+                    layout: 'oFormItem'
+                }
+            })
+        }
+    }
+    return elList;
+}
+
+export const htmlLabel = [ 'div', 'span', 'img', 'a' ]
+
+export function getHtmlLabel() {
+    return htmlLabel.map(x => {
+        return {
+            name: x,
+            props: {},
+            __config__: {
+                label: x,
+                layout: 'oFormItem'
+            }
+        }
+    })
+}
+
 // o-组件
 
 export const oComponents = [

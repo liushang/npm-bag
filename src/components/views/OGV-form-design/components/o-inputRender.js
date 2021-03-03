@@ -1,4 +1,5 @@
 import { render, computed } from '../../../schema/api';
+import { dealMultiChildren } from '../../../schema/util';
 import baseAttr from '../base/attrs';
 let base = {
     data() {
@@ -37,7 +38,10 @@ let base = {
     methods: {
         input(event) {
             this.$emit('oInput', event);
-            this.containerInject[this.rawId].input = event;
+            console.log(event);
+            // 为啥这里一定要用￥set
+            this.containerInject[this.rawId].value = event;
+            // this.$set(this.containerInject[this.rawId], 'value', event)
             this.$root.$emit('DEAL_CHOOSE', this);
         }
     },
@@ -55,7 +59,7 @@ let base = {
     computed: {
         ...computed,
         val() {
-            return (this.containerInject[this.rawId] && this.containerInject[this.rawId].input) || '';
+            return (this.containerInject[this.rawId] && this.containerInject[this.rawId].value) || '';
         },
         configComponents() {
             for (let i in this.on) {
@@ -80,6 +84,8 @@ let base = {
                     rawId: this.rawId
                 }
             }];
+            let renderChildren = this.renderFun(children)
+            let multiChildren = dealMultiChildren(renderChildren)
             return {
                 children: this.env === 'dev' ? [{
                     // 为了展示边框选中态特意加的
@@ -89,28 +95,23 @@ let base = {
                             e.stopPropagation();
                             if (!this.containerInject[this.rawId]) {
                                 this.$set(this.containerInject, this.rawId, {
-                                    input: ''
+                                    value: ''
                                 });
                             }
                             this.$root.$emit('DEAL_CHOOSE', this);
                         }
                     },
-                    children
-                }] : children
+                    children: multiChildren
+                }] : multiChildren
             };
         }
     },
-    created() {
-        // if (!this.containerInject[this.rawId]) {
-        this.$set(this.containerInject, this.rawId, {
-            input: ''
-        });
-        // }
-    },
+    created() {},
     mounted() {
         this.$set(this.containerInject, this.rawId, {
-            input: this.value || ''
+            value: this.value || ''
         });
+        // this.$set(this.containerInject[this.rawId], 'input', this.value || '');
     }
 };
 export default base;

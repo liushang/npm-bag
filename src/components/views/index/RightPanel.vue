@@ -11,8 +11,8 @@
           <el-breadcrumb-item v-for="(i, index) in elementList" :key="index">
             <span  @click="changeTab(index)">
               <div>{{i.name}}</div>
-              <span style="color:rgb(64, 158, 255);font-size:10px;text-align:center" v-if="i.props.rawId">({{i.props.rawId !== 'oContainer' ? i.props.rawId.slice(i.name.length) : 'oContainer'}})</span>
-              <span style="color:rgb(64, 158, 255);font-size:10px;text-align:center" v-if="i.props.subRawId">({{i.props.subRawId.slice(i.name.length)}})</span>
+              <span style="color:rgb(64, 158, 255);font-size:10px;text-align:center" v-if="i.props.rawId">({{i.props.rawId !== 'oContainer' ? i.props.rawId.slice(i.name.length + 1) : 'oContainer'}})</span>
+              <span style="color:rgb(64, 158, 255);font-size:10px;text-align:center" v-if="i.props.subRawId">({{i.props.subRawId.slice(i.name.length + 1)}})</span>
             </span>
           </el-breadcrumb-item>
         </el-breadcrumb>
@@ -82,7 +82,7 @@ import { saveFormConf,
     stringToFunc
 } from '../../utils/db';
 import 'codemirror/mode/javascript/javascript.js';
-import { htmlNode, defaultKV } from './components/default';
+import { htmlNode, elNode, defaultKV } from './components/default';
 // import theme style
 import 'codemirror/theme/base16-dark.css';
 import BASEMAP from './base/map';
@@ -257,7 +257,7 @@ export default {
                 // data[property][subProperty].styles.border = '1px solid red';
                 if (!data[property][subProperty].style) data[property][subProperty].style = {};
                 this.$emit('clearBorderBlue');
-                if (htmlNode.includes(data[property][subProperty].name)) {
+                if (htmlNode.includes(data[property][subProperty].name) || elNode(data[property][subProperty].name)) {
                     this.$set(data[property][subProperty].style, 'border', '1px solid rgb(64, 158, 255)');
                 } else {
                     // todu 颜色边框

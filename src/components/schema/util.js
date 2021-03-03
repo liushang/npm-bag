@@ -216,5 +216,28 @@ export function getDefaultProps (config) {
 }
 
 export function getRawId(name) {
-    return name + parseInt(Math.random() * 1000000);
+    return name + '_' + parseInt(Math.random() * 1000000);
+}
+function changeRawId(i) {
+    if (i.props && (i.props.rawId || i.props.subRawId)) {
+        // if (i.props.subRawId) i.props.subRawId = i.props.subRawId.split('_')[0] + '_' + parseInt(Math.random() * 1000000)
+        // if (i.props.rawId) i.props.rawId = i.props.rawId.split('_')[0] + '_' + parseInt(Math.random() * 1000000)
+    }
+    if (i.props.children) {
+        for (let x of i.props.children) {
+            changeRawId(x)
+        }
+    }
+    if (i.children) {
+        for (let x of i.children) {
+            changeRawId(x)
+        }
+    }
+}
+export function dealMultiChildren(children) {
+    if (children.length < 2) return children;
+    for (let i = 1; i < children.length; i++) {
+        changeRawId(children[i])
+    }
+    return children
 }

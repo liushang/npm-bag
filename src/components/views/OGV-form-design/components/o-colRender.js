@@ -1,5 +1,7 @@
-// import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../../../schema/api';
+import { dealMultiChildren } from '../../../schema/util';
+import baseAttr from '../base/attrs';
+
 let base = {
     data() {
         return {
@@ -13,6 +15,7 @@ let base = {
         };
     },
     props: {
+        ...baseAttr.props,
         on: {
             type: Object,
             default: () => {}
@@ -53,8 +56,6 @@ let base = {
     },
     render,
     methods: {
-        updateMsg() {
-        }
     },
     inject: {
         env: {
@@ -73,6 +74,32 @@ let base = {
                     return func(e, this);
                 };
             }
+            let children = [{
+                name: 'el-col',
+                attrs: {
+                    ...this.attr,
+                    ...this.attrs
+                },
+                style: Object.assign(this.style, this.styles),
+                ref: 'oCol',
+                on: {
+                    ...this.on
+                },
+                props: {
+                    rawId: this.rawId
+                },
+                nativeOn: {
+                    click: e => {
+                        e.stopPropagation();
+                        this.$root.$emit('DEAL_CHOOSE', this);
+                    },
+                    ...this.nativeOn
+                },
+                children: this.children
+            }]
+            let renderChildren = this.renderFun(children)
+            let multiChildren = dealMultiChildren(renderChildren)
+            console.log(multiChildren)
             return {
                 children: [{
                     // 为了展示边框选中态特意加的
@@ -83,29 +110,7 @@ let base = {
                             this.$root.$emit('DEAL_CHOOSE', this);
                         }
                     },
-                    children: this.renderFun([{
-                        name: 'el-col',
-                        attrs: {
-                            ...this.attr,
-                            ...this.attrs
-                        },
-                        style: Object.assign(this.style, this.styles),
-                        ref: 'oCol',
-                        on: {
-                            ...this.on
-                        },
-                        props: {
-                            rawId: this.rawId
-                        },
-                        nativeOn: {
-                            click: e => {
-                                e.stopPropagation();
-                                this.$root.$emit('DEAL_CHOOSE', this);
-                            },
-                            ...this.nativeOn
-                        },
-                        children: this.children
-                    }])
+                    children: multiChildren
                 }]
             };
         }

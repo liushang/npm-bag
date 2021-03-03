@@ -9,10 +9,10 @@
       <el-scrollbar class="left-scrollbar">
         <div class="components-list">
           <div v-for="(item, listIndex) in leftComponents" :key="listIndex">
-            <div class="components-title">
+            <!-- <div class="components-title">
               {{ item.title }}
-            </div>
-            <draggable
+            </div> -->
+            <!-- <draggable
               class="components-draggable"
               :list="item.list"
               :group="{ name: 'componentsGroup', pull: 'clone', put: false }"
@@ -25,13 +25,27 @@
                 v-for="(element, index) in item.list"
                 :key="index"
                 class="components-item"
-                @click="addComponent(element)"
+                @click="addComponent(element, listIndex)"
               >
                 <div class="components-body">
                   {{ element.__config__.label }}
                 </div>
               </div>
-            </draggable>
+            </draggable> -->
+            <el-collapse>
+              <el-collapse-item :title="item.title">
+                <div
+                  v-for="(element, index) in item.list"
+                  :key="index"
+                  class="components-item"
+                  @click="addComponent(element, listIndex)"
+                >
+                  <div class="components-body">
+                    {{ element.__config__.label }}
+                  </div>
+                </div>
+              </el-collapse-item>
+            </el-collapse>
           </div>
         </div>
       </el-scrollbar>
@@ -52,19 +66,19 @@
                 :key="index"
                 >
               <draggable-item
-              v-if="showNew"
-                :key="item.renderKey"
-                :drawing-list="drawingList"
-                :current-item="item"
-                :index="index"
-                :active-id="activeId"
-                :containerInject="containerInject"
-                :form-conf="formConf"
-                @activeItem="activeFormItem"
-                @copyItem="drawingItemCopy"
-                @deleteItem="drawingItemDelete"
-              />
-                </div>
+                v-if="showNew"
+                  :key="item.renderKey"
+                  :drawing-list="drawingList"
+                  :current-item="item"
+                  :index="index"
+                  :active-id="activeId"
+                  :containerInject="containerInject"
+                  :form-conf="formConf"
+                  @activeItem="activeFormItem"
+                  @copyItem="drawingItemCopy"
+                  @deleteItem="drawingItemDelete"
+                />
+                  </div>
             </draggable>
             <div v-show="!drawingList.length" class="empty-info">
               从左侧拖入或点选组件进行表单设计
@@ -107,7 +121,7 @@ import render from '../../components/render/render';
 import RightPanel from './RightPanel';
 import PanelDialog from './PanelDialog';
 import {
-    inputComponents, selectComponents, layoutComponents, formConf, oComponents
+    inputComponents, selectComponents, layoutComponents, formConf, oComponents, getElementList, getHtmlLabel
 } from '../../components/generator/config';
 import {
     deepClone
@@ -119,8 +133,8 @@ import DraggableItem from './DraggableItem';
 import {
     getDrawingList, saveDrawingList, getIdGlobal, saveIdGlobal, getFormConf, getContainer, saveContainer
 } from '../../utils/db';
-import { getDefaultProps, getRawId } from '../../schema/util'
-    ;
+import { getDefaultProps, getRawId } from '../../schema/util';
+import { defaultNode } from './components/default';
 
 let oldActiveId;
 let tempActiveData;
@@ -142,7 +156,6 @@ export default {
     name: 'practice',
     data() {
         return {
-            ee: '122',
             // 重新展示
             showNew: true,
             logo,
@@ -171,10 +184,16 @@ export default {
             saveIdGlobalDebounce: debounce(340, saveIdGlobal),
             saveContainerDebounce: debounce(340, saveContainer),
             leftComponents: [
-                {
-                    title: 'ogv组件',
-                    list: oComponents
-                }
+              {
+                title: '容器组件',
+                list: oComponents
+              }, {
+                title: '常用html标签',
+                list: getHtmlLabel() || []
+              }, {
+                title: 'element',
+                list: getElementList(this.$root.$options.components)
+              }
             ],
             // 点击的组件结构数据
             dialogComponentDetail: {},
@@ -210,6 +229,8 @@ export default {
         containerInject: {
             deep: true,
             handler(val) {
+              console.log(val)
+                console.log('保存结构')
                 this.saveContainerDebounce(val);
             }
         },
@@ -349,14 +370,47 @@ export default {
                 }
             }
         },
-        activeFormItem(currentItem) {
-            if (this.$root.$options.components[currentItem.name]) {
-                const comOptions = getDefaultProps(this.$root.$options.components[currentItem.name].options);
-                for (let i in comOptions) {
-                    if (!currentItem.props[i]) this.$set(currentItem.props, i, comOptions[i]);
-                    // this.$set(currentItem.props.attrs, i, comOptions[i])
+        activeFormItem(currentItem, type) {
+            if (type) {
+              // if (this.$root.$options.components[currentItem.name]) {
+              //     const comOptions = getDefaultProps(this.$root.$options.components[currentItem.name].options);
+              //     for (let i in comOptions) {
+              //         if (!currentItem.props[i]) this.$set(currentItem.props, i, comOptions[i]);
+              //     }
+              // } else {
+                const commonConfig = {
+                    style: {},
+                    attrs: {},
+                    children: [],
+                    on: {},
+                    renderFun: x => x
                 }
-                if (!currentItem.props.rawId) currentItem.props.rawId = getRawId(currentItem.name);
+                const cofg = defaultNode[currentItem.name] || commonConfig
+                if (!currentItem.props) this.$set(currentItem, 'props', {})
+                for (let i in cofg) {
+                    if (!currentItem.props[i]) this.$set(currentItem.props, i, cofg[i]);
+                    if (!currentItem[i]) this.$set(currentItem, i, cofg[i]);
+                }
+                // const config = {
+                //     name: currentItem.name,
+                //     props: defaultNode[currentItem.name] || commonConfig,
+                //     ...(defaultNode[currentItem.name] || commonConfig)
+                // };
+                // currentItem = config
+              // }
+              if (!currentItem.props.subRawId) {
+                  currentItem.props.subRawId = getRawId(currentItem.name);
+              }
+              
+            } else {
+              if (this.$root.$options.components[currentItem.name]) {
+                  const comOptions = getDefaultProps(this.$root.$options.components[currentItem.name].options);
+                  for (let i in comOptions) {
+                      if (!currentItem.props[i]) this.$set(currentItem.props, i, comOptions[i]);
+                      // this.$set(currentItem.props.attrs, i, comOptions[i])
+                  }
+                  if (!currentItem.props.rawId) currentItem.props.rawId = getRawId(currentItem.name);
+              }
             }
             this.activeData = currentItem;
         },
@@ -368,12 +422,11 @@ export default {
             }
         },
         // 添加组件 点击复制
-        addComponent(item) {
+        addComponent(item, index) {
             const clone = this.cloneComponent(item);
             this.fetchData(clone);
             this.activeData.props.children.push(clone);
-            // this.drawingList.push(clone);
-            this.activeFormItem(clone);
+            this.activeFormItem(clone, index);
         },
         cloneComponent(origin) {
             const clone = deepClone(origin);
@@ -387,14 +440,6 @@ export default {
         createIdAndKey(item) {
             const config = item.__config__;
             config.formId = ++this.idGlobal;
-            // config.renderKey = `${config.formId}${+new Date()}`; // 改变renderKey后可以实现强制更新组件
-            if (config.layout === 'colFormItem') {
-                // item.__vModel__ = `field${this.idGlobal}`;
-            } else if (config.layout === 'rowFormItem') {
-                config.componentName = `row${this.idGlobal}`;
-                !Array.isArray(config.children) && (config.children = []);
-                delete config.label; // rowFormItem无需配置label属性
-            }
             if (Array.isArray(config.children)) {
                 config.children = config.children.map(childItem => this.createIdAndKey(childItem));
             }
@@ -484,7 +529,7 @@ export default {
 }
 
 .components-body {
-  padding: 8px 10px;
+  padding: 4px 4px;
   background: @selectedColor;
   font-size: 12px;
   cursor: move;

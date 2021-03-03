@@ -69,6 +69,8 @@ const styleProperty = {
     }
 };
 export const htmlNode = [ 'div', 'span', 'img', 'a' ];
+export const elNode = name => name.startsWith('El');
+
 let htmlNodeWrapper = htmlNode.map(x => {
     return {
         x: {

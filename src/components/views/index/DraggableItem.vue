@@ -137,7 +137,7 @@ export default {
 }
 
 .components-body {
-  padding: 8px 10px;
+  padding: 4px 4px;
   background: @selectedColor;
   font-size: 12px;
   cursor: move;
