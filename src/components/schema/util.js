@@ -31,9 +31,10 @@ export function analysisRenderConfig(configData, createElement) {
     }
 }
 function dealChild(child, cb) {
+    console.log(child)
     if (!Array.isArray(child.value)) { // 简单类型
         return child.value;
-    } else if (child.raw.name.startsWith('o')) {
+    } else if (child.name.startsWith('o')) {
         let item = {
             class: child.raw['class'],
             style: child.raw.style,
@@ -59,7 +60,7 @@ function dealChild(child, cb) {
             item.props = Object.assign(item.props || {}, props);
         }
         return cb(
-            child.raw.name,
+            child.name,
             item,
             analysisRenderConfig.bind(this)(child.value, cb)
         );
@@ -87,9 +88,9 @@ function dealChild(child, cb) {
             item.attrs = Object.assign(item.attrs || {}, attrs);
         }
         return cb(
-            child.raw.name,
+            child.name,
             item,
-            analysisRenderConfig.bind(self)(child.value, cb)
+            analysisRenderConfig.bind(this)(child.value, cb)
         )
     }
 }
@@ -109,53 +110,41 @@ export function stringToFunc(str) {
         return str
     }
 }
-
-export function dealConfigJSON(configJson) {
-    let components = {};
-    for (let i of configJson) {
-        components[i.name] = resolve => {
-            getComponent(component => {
-            }, i, resolve);
-        };
-        // components[i.name] = resolve => require([i.path], resolve);
-    }
-    return components;
-}
 export function getComponent(callBack, { path, delay = 1 }, param) {
     // setTimeout(() => {
     callBack(require([`${path}`], param));
     // }, delay);
 }
 
-export function analysisData(configComponents) {
-    // 构建组件数据
-    const configData = [];
-    for (let i = 0; i < configComponents.length; i++) {
-        const rawData = deepClone1(configComponents[i]);
-        delete rawData.children;
-        if (typeof configComponents[i] !== 'object') { // 简单类型
-            const childrenData = {
-                type: 'simple',
-                value: configComponents[i],
-                raw: rawData
-            };
-            configData.push(childrenData);
-        } else {
-            const childrenData = {
-                type: 'Array',
-                raw: rawData
-            };
-            if (configComponents[i].children) {
-                childrenData.value = analysisData(configComponents[i].children);
-            } else {
-                childrenData.value = [];
-            }
-            configData.push(childrenData);
-        }
-    }
+// export function analysisData(configComponents) {
+//     // 构建组件数据
+//     const configData = [];
+//     for (let i = 0; i < configComponents.length; i++) {
+//         const rawData = deepClone1(configComponents[i]);
+//         delete rawData.children;
+//         if (typeof configComponents[i] !== 'object') { // 简单类型
+//             const childrenData = {
+//                 type: 'simple',
+//                 value: configComponents[i],
+//                 raw: rawData
+//             };
+//             configData.push(childrenData);
+//         } else {
+//             const childrenData = {
+//                 type: 'Array',
+//                 raw: rawData
+//             };
+//             if (configComponents[i].children) {
+//                 childrenData.value = analysisData(configComponents[i].children);
+//             } else {
+//                 childrenData.value = [];
+//             }
+//             configData.push(childrenData);
+//         }
+//     }
     
-    return configData;
-}
+//     return configData;
+// }
 
 export function analysisDataRender(configComponents, index) {
     // 构建组件数据
@@ -164,44 +153,16 @@ export function analysisDataRender(configComponents, index) {
         const rawData = deepClone1(configComponents[i]);
         delete rawData.children;
         if (typeof configComponents[i] !== 'object') { // 简单类型
-            const childrenData = {
-                type: 'simple',
+            configData.push({
+                name: configComponents[i].name,
                 value: configComponents[i],
                 raw: rawData
-            };
-            if (rawData.on) {
-                for (let i in rawData.on) {
-                    let funcs = stringToFunc(rawData.on[i]);
-                    rawData.on[i] = (e) => {
-                        // return func(e, this);
-                        let oo = funcs.bind(this)
-                        return oo(e);
-                    };
-                }
-            }
-            if (rawData.nativeOn) {
-                for (let i in rawData.nativeOn) {
-                    let funcs = stringToFunc(rawData.nativeOn[i]);
-                    rawData.nativeOn[i] = (e) => {
-                        // return func(e, this);
-                        let oo = funcs.bind(this)
-                        return oo(e);
-                    };
-                }
-            }
-            if (rawData.renderFun) {
-                if (rawData.renderFun) {
-                    let funcss = stringToFunc(rawData.renderFun)
-                    childrenArr = funcss.bind(this)(childrenArr)
-                }
-            }
-            // Vue.set(this.controlData, id, childrenData);
-            configData.push(childrenData);
+            });
         } else {
             const childrenData = {
-                type: 'Array',
+                name: configComponents[i].name,
                 raw: rawData
-            };
+            }
             if (configComponents[i].children) {
                 childrenData.value = analysisDataRender.bind(this)(configComponents[i].children);
             } else {
@@ -209,11 +170,9 @@ export function analysisDataRender(configComponents, index) {
             }
             let childrenArr = [childrenData]
             if (rawData.on) {
-                for (let i in rawData.on) {
-                    if (i === 'input') {
-                    }
-                    let funcs = stringToFunc(rawData.on[i]);
-                    rawData.on[i] = (e) => {
+                for (let x in rawData.on) {
+                    let funcs = stringToFunc(rawData.on[x]);
+                    rawData.on[x] = (e) => {
                         // return func(e, this);
                         let oo = funcs.bind(this)
                         return oo(e);
@@ -221,9 +180,9 @@ export function analysisDataRender(configComponents, index) {
                 }
             }
             if (rawData.nativeOn) {
-                for (let i in rawData.nativeOn) {
-                    let funcs = stringToFunc(rawData.nativeOn[i]);
-                    rawData.nativeOn[i] = (e) => {
+                for (let x in rawData.nativeOn) {
+                    let funcs = stringToFunc(rawData.nativeOn[x]);
+                    rawData.nativeOn[x] = (e) => {
                         // return func(e, this);
                         let oo = funcs.bind(this)
                         return oo(e);
