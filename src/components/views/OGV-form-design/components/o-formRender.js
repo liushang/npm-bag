@@ -1,5 +1,6 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../../../schema/api';
+import baseAttr from '../base/attrs';
 let base = {
     data() {
         return {
@@ -13,6 +14,7 @@ let base = {
         };
     },
     props: {
+        ...baseAttr.props,
         form: {
             type: Object,
             default: () => {}

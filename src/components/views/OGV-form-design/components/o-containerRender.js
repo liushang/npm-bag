@@ -1,5 +1,6 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../../../schema/api';
+import baseAttr from '../base/attrs';
 let base = {
     data() {
         return {
@@ -15,9 +16,11 @@ let base = {
             basicData: {},
             container: {},
             containerId: '',
+            localData: {}
         };
     },
     props: {
+        ...baseAttr.props,
         // 以下属性正式环境下皆为 data
         attrs: {
             type: Object,
@@ -67,11 +70,19 @@ let base = {
         methods: {
             type: Object,
             default: () => {}
+        },
+        insData: {
+            type: Object,
+            default: () => {}
         }
     },
     render,
     methods: {
         ...((this && this.methods) || {}),
+        renderRender: (x) => {
+            return x
+            // return [ x[0], ((this.localData || {}) || '').toString() ]
+        }
     },
     provide() {
         return {
@@ -84,6 +95,14 @@ let base = {
         containerInject: {
             default: () => {}
         }
+    },
+    watch: {
+        // style: {
+        //     deep: true,
+        //     handle(val) {
+        //         console.log('insData变化', val)
+        //     }
+        // }
     },
     computed: {
         ...computed,
@@ -104,45 +123,47 @@ let base = {
                     return func(e, this);
                 };
             }
+            console.log('从新计算')
+            const  cc = this.renderRender([{
+                name: 'ElCard',
+                ref: 'oContainer',
+                on: {
+                    click: e => {
+                        e.stopPropagation();
+                        this.$set(this.container[this.containerId], 'methods', this.methods);
+                    },
+                    ...this.on
+                },
+                attrs: {
+                    ...this.attrs
+                },
+                nativeOn: {
+                    click: () => {
+                        if (this.env === 'dev') {
+                            this.$root.$emit('DEAL_CHOOSE', this);
+                        }
+                        if (!this.container[this.containerId]) {
+                            this.$set(this.container, this.containerId, {});
+                        }
+                        this.$set(this.container[this.containerId], 'methods', this.methods);
+                        
+                    },
+                    ...this.nativeOn
+                },
+                style: Object.assign(this.style, this.styles),
+                props: {
+                    value: this.value,
+                    rawId: this.containerId
+                },
+                children: this.children
+            }])
             return {
-                children: this.renderFun([{
-                    name: 'ElCard',
-                    ref: 'oContainer',
-                    on: {
-                        click: e => {
-                            e.stopPropagation();
-                            this.$set(this.container[this.containerId], 'methods', this.methods);
-                        },
-                        ...this.on
-                    },
-                    attrs: {
-                        ...this.attrs
-                    },
-                    nativeOn: {
-                        click: () => {
-                            if (this.env === 'dev') {
-                                this.$root.$emit('DEAL_CHOOSE', this);
-                            }
-                            if (!this.container[this.containerId]) {
-                                this.$set(this.container, this.containerId, {});
-                            }
-                            this.$set(this.container[this.containerId], 'methods', this.methods);
-                            
-                        },
-                        ...this.nativeOn
-                    },
-                    style: Object.assign(this.style, this.styles),
-                    props: {
-                        value: this.value,
-                        rawId: this.containerId
-                    },
-                    children: this.children
-                }])
+                children: cc
             };
         }
     },
     created() {
-
+        console.log('fjasodjfpafjaps[jdf======= ')
     },
     mounted() {
         this.containerId = 'oContainer'
@@ -151,6 +172,8 @@ let base = {
         }
         this.$set(this.rootData[this.containerId], 'methods', this.methods);
         this.on && this.on['mounted'] && this.on['mounted'](this);
+        console.log(this.insData)
+        this.localData = this.insData
     }
 };
 export default base;

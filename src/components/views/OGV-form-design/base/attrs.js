@@ -17,18 +17,14 @@ const props = {
     type: Array,
     default: () => []
   },
-  data: {
-    type: Object,
-    default: () => {}
-  },
   on: {
       type: Object,
       default: () => {}
   },
-  insData: {
-    type: Object,
-    default: () => {}
-  }
+  // insData: {
+  //   type: Object,
+  //   default: () => {}
+  // }
 }
 export default {
   props,

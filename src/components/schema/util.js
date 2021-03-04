@@ -15,47 +15,54 @@ export function deepClone1(obj) {
     }
     return objClone;
 }
-
-// template字符串拼接
-export function analysisConfig(configData) {
-    // let templateString = `<div><component :is="i" v-for="(i, index) in useConfig" :key="index"></component></div>`;
-    let templateString = ``;
-    if (!Array.isArray(configData)) configData = [ configData ];
-    for (let i of configData) {
-        let staticParams = '';
-        if (i.staticParams) {
-            for (let y in i.staticParams) {
-                if (typeof i.staticParams[y] === 'boolean') {
-                    staticParams += `:${y}=${i.staticParams[y]} `;
-                } else if (typeof i.staticParams[y] === 'string') {
-                    staticParams += `${y}="${i.staticParams[y]}" `;
-                }
-            }
-        }
-        if (i.name) {
-            templateString += `<${i.name} ${staticParams}>${i.children ? analysisConfig(i.children) : ''}</${i.name}>`;
-        } else {
-            templateString += i.value;
-        }
-    }
-    return templateString;
-}
 // render拼接
 export function analysisRenderConfig(configData, createElement) {
     if (configData) {
         let renderArr = [];
         for (let i of configData) {
-            renderArr.push(dealChild(i, createElement));
+            let dealChildFun = dealChild.bind(this)
+            if (Array.isArray(dealChildFun(i, createElement))) {
+                renderArr.push(...dealChildFun(i, createElement))
+            } else {
+                renderArr.push(dealChildFun(i, createElement));
+            }
         }
         return renderArr;
     }
 }
 function dealChild(child, cb) {
-    if (child.vFor) {
-        delete child.vFor;
-    }
     if (!Array.isArray(child.value)) { // 简单类型
         return child.value;
+    } else if (child.raw.name.startsWith('o')) {
+        let item = {
+            class: child.raw['class'],
+            style: child.raw.style,
+            attrs: child.raw.attrs,
+            props: child.raw.props,
+            domProps: child.raw.domProps,
+            on: child.raw.on,
+            nativeOn: child.raw.nativeOn,
+            directives: child.raw.directives,
+            scopedSlots: child.raw.scopedSlots,
+            slot: child.raw.slot,
+            key: child.raw.key,
+            ref: child.raw.ref,
+            refInFor: child.raw.refInFor
+        };
+        if (child.raw.attr) {
+            let attrs = {};
+            let props = {};
+            for (let i in child.raw.attr) {
+                attrs[i] = child.raw.attr[i];
+            }
+            item.attrs = Object.assign(item.attrs || {}, attrs);
+            item.props = Object.assign(item.props || {}, props);
+        }
+        return cb(
+            child.raw.name,
+            item,
+            analysisRenderConfig.bind(this)(child.value, cb)
+        );
     } else {
         let item = {
             'class': child.raw['class'],
@@ -74,22 +81,32 @@ function dealChild(child, cb) {
         };
         if (child.raw.attr) {
             let attrs = {};
-            let props = {};
             for (let i in child.raw.attr) {
-                if (i.startsWith('$')) {
-                    props[i.slice(1)] = child.raw.attr[i];
-                } else {
-                    attrs[i] = child.raw.attr[i];
-                }
+                attrs[i] = child.raw.attr[i];
             }
             item.attrs = Object.assign(item.attrs || {}, attrs);
-            item.props = Object.assign(item.props || {}, props);
         }
         return cb(
             child.raw.name,
             item,
-            analysisRenderConfig(child.value, cb)
-        );
+            analysisRenderConfig.bind(self)(child.value, cb)
+        )
+    }
+}
+
+export function stringToFunc(str) {
+    if (typeof str === 'string') {
+        str = String(str)
+        let funLast = str.slice(str.indexOf('{') + 1);
+        let funMiddle = funLast.slice(0, funLast.lastIndexOf('}')).trim();
+        // 获取函数参数
+        let funPre = str.slice(str.indexOf('(') + 1);
+        let funNamePre = funPre.slice(0, funPre.indexOf(')'));
+        let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
+        /* eslint-disable */
+        return new Function(...funNameArr, funMiddle);
+    } else {
+        return str
     }
 }
 
@@ -110,38 +127,33 @@ export function getComponent(callBack, { path, delay = 1 }, param) {
     // }, delay);
 }
 
-export function analysisData(configComponents, index) {
+export function analysisData(configComponents) {
     // 构建组件数据
     const configData = [];
     for (let i = 0; i < configComponents.length; i++) {
         const rawData = deepClone1(configComponents[i]);
         delete rawData.children;
-        let id = index === undefined ? 0 : index + '-' + i;
         if (typeof configComponents[i] !== 'object') { // 简单类型
             const childrenData = {
                 type: 'simple',
-                id,
                 value: configComponents[i],
                 raw: rawData
             };
-            this.$set(this.controlData, id, childrenData);
             configData.push(childrenData);
         } else {
             const childrenData = {
                 type: 'Array',
-                id,
-                vIf: i.vIf,
                 raw: rawData
             };
             if (configComponents[i].children) {
-                childrenData.value = analysisData(configComponents[i].children, id);
+                childrenData.value = analysisData(configComponents[i].children);
             } else {
                 childrenData.value = [];
             }
-            this.$set(this.controlData, id, childrenData);
             configData.push(childrenData);
         }
     }
+    
     return configData;
 }
 
@@ -151,30 +163,78 @@ export function analysisDataRender(configComponents, index) {
     for (let i = 0; i < configComponents.length; i++) {
         const rawData = deepClone1(configComponents[i]);
         delete rawData.children;
-        let id = index === undefined ? 0 : index + '-' + i;
         if (typeof configComponents[i] !== 'object') { // 简单类型
             const childrenData = {
                 type: 'simple',
-                id,
                 value: configComponents[i],
                 raw: rawData
             };
+            if (rawData.on) {
+                for (let i in rawData.on) {
+                    let funcs = stringToFunc(rawData.on[i]);
+                    rawData.on[i] = (e) => {
+                        // return func(e, this);
+                        let oo = funcs.bind(this)
+                        return oo(e);
+                    };
+                }
+            }
+            if (rawData.nativeOn) {
+                for (let i in rawData.nativeOn) {
+                    let funcs = stringToFunc(rawData.nativeOn[i]);
+                    rawData.nativeOn[i] = (e) => {
+                        // return func(e, this);
+                        let oo = funcs.bind(this)
+                        return oo(e);
+                    };
+                }
+            }
+            if (rawData.renderFun) {
+                if (rawData.renderFun) {
+                    let funcss = stringToFunc(rawData.renderFun)
+                    childrenArr = funcss.bind(this)(childrenArr)
+                }
+            }
             // Vue.set(this.controlData, id, childrenData);
             configData.push(childrenData);
         } else {
             const childrenData = {
                 type: 'Array',
-                id,
-                vIf: i.vIf,
                 raw: rawData
             };
             if (configComponents[i].children) {
-                childrenData.value = analysisDataRender(configComponents[i].children, id);
+                childrenData.value = analysisDataRender.bind(this)(configComponents[i].children);
             } else {
                 childrenData.value = [];
             }
-            // Vue.set(this.controlData, id, childrenData);
-            configData.push(childrenData);
+            let childrenArr = [childrenData]
+            if (rawData.on) {
+                for (let i in rawData.on) {
+                    if (i === 'input') {
+                    }
+                    let funcs = stringToFunc(rawData.on[i]);
+                    rawData.on[i] = (e) => {
+                        // return func(e, this);
+                        let oo = funcs.bind(this)
+                        return oo(e);
+                    };
+                }
+            }
+            if (rawData.nativeOn) {
+                for (let i in rawData.nativeOn) {
+                    let funcs = stringToFunc(rawData.nativeOn[i]);
+                    rawData.nativeOn[i] = (e) => {
+                        // return func(e, this);
+                        let oo = funcs.bind(this)
+                        return oo(e);
+                    };
+                }
+            }
+            if (rawData.renderFun) {
+                let funcss = stringToFunc(rawData.renderFun)
+                childrenArr = funcss.bind(this)(childrenArr)
+            }
+            configData.push(...childrenArr);
         }
     }
     return configData;

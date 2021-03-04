@@ -249,6 +249,7 @@ export default {
                         defaultValue = this.defaultKeyValue[this.rootWord][data[keyword].key].value
                     }
                     let valueType = 'select'
+                    console.log(defaultValue)
                     const options = defaultValue.map((x, i, arr) => {
                         if (typeof x === 'string') {
                             return <el-option key={i} label={x} value={x}></el-option>
@@ -382,7 +383,7 @@ export default {
         saveProperty(key, data = this.activeData) {
             if (!(key in data)) this.$set(data, key, {});
             if (this.modifyItem[key].type !== '4' && this.modifyItem[key].type !== '5') {
-                // 如果输入的是组件。则增加此组件的相关配置
+                // 如果输入的是容器组件。则增加此组件的相关配置
                 if (this.$root.$options.components[this.modifyItem[key].value] && this.modifyItem[key].value.startsWith('o')) {
                     const comOptions = this.$root.$options.components[this.modifyItem[key].value].options;
                     // 填充初始props属性

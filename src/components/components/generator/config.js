@@ -6,26 +6,46 @@ export const formConf = {
 // element 组件
 
 export function getElementList (list) {
+    let elCommonList = [ 'ElRow', 'ElCol', 'ElInput', 'ElSelect', 'ElOption', 'ElButton', 'ElTable', 'ElForm', 'ElItem' ]
+    let elRareList = []
     let elList = []
     for(let i in list) {
         if (i.startsWith('El')) {
-            elList.push({
-                name: i,
-                props: {},
-                __config__: {
-                    label: i,
-                    layout: 'oFormItem'
-                }
-            })
+            if (elCommonList.includes(i)) {
+                elList.push({
+                    name: i,
+                    props: {},
+                    __config__: {
+                        label: i,
+                        layout: 'oFormItem'
+                    }
+                })
+            } else {
+                elRareList.push(i)
+            }
         }
     }
+    elList.push({
+        title: '不常用',
+        list: elRareList.map(x => {
+            return {
+                name: x,
+                props: {},
+                __config__: {
+                    label: x,
+                    layout: 'oFormItem'
+                }
+            }
+        })
+    })
     return elList;
 }
 
-export const htmlLabel = [ 'div', 'span', 'img', 'a' ]
-
+export const commonHtmlLabel = [ 'div', 'span', 'img', 'a' ]
+export const rareHtmlLabel = [ 'h1', 'h2', 'h3' ]
 export function getHtmlLabel() {
-    return htmlLabel.map(x => {
+    let list =  []
+    list.push(...commonHtmlLabel.map(x => {
         return {
             name: x,
             props: {},
@@ -34,7 +54,21 @@ export function getHtmlLabel() {
                 layout: 'oFormItem'
             }
         }
+    }))
+    list.push({
+        title: '不常用html',
+        list: rareHtmlLabel.map(i => {
+            return {
+                name: i,
+                props: {},
+                __config__: {
+                    label: i,
+                    layout: 'oFormItem'
+                }
+            }
+        })
     })
+    return list
 }
 
 // o-组件

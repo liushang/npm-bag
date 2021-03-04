@@ -172,9 +172,17 @@ export const defaultKV = {
                 value: [ 'oOption' ]
             }
         }
+    },
+    ElInput: {
+        props: {
+            size: {
+                label: '尺寸',
+                value: [ 'small', 'medium', 'mini' ]
+            },
+        }
     }
 };
-
+// todo 增加其他元素
 export const defaultNode = {
     div: {
         style: {},

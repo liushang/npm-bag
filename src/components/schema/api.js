@@ -7,13 +7,18 @@ export function created() {
 
 export const computed = {
     configData() {
-        return analysisDataRender(this.configComponents.children);
-    }
+        console.log('this.configComponents.children')
+        console.log(this.configComponents.children)
+        return analysisDataRender.bind(this)(this.configComponents.children);
+    }, 
+    // configArr() {
+    //     return 
+    // }
 };
 
 export function render(h) {
     // this.configData = analysisDataRender(this.configComponents.children);
-    let configArr = analysisRenderConfig(this.configData, h);
+    let configArr = analysisRenderConfig.bind(this)(this.configData, h);
     if (configArr.length > 1) {
         return h(
             'span',

@@ -38,11 +38,24 @@
                   v-for="(element, index) in item.list"
                   :key="index"
                   class="components-item"
-                  @click="addComponent(element, listIndex)"
                 >
-                  <div class="components-body">
+                  <div class="components-body" v-if="element.__config__" @click="addComponent(element, listIndex)">
                     {{ element.__config__.label }}
                   </div>
+                  <el-collapse v-else>
+                    <el-collapse-item :title="element.title">
+                      <div
+                        v-for="(e, endex) in element.list"
+                        :key="endex"
+                        class="components-item"
+                        @click="addComponent(e, listIndex)"
+                      >
+                        <div class="components-body">
+                          {{ e.__config__.label }}
+                        </div>
+                      </div>
+                    </el-collapse-item>
+                  </el-collapse>
                 </div>
               </el-collapse-item>
             </el-collapse>
@@ -188,11 +201,14 @@ export default {
                 title: '容器组件',
                 list: oComponents
               }, {
-                title: '常用html标签',
+                title: 'html标签',
                 list: getHtmlLabel() || []
               }, {
                 title: 'element',
                 list: getElementList(this.$root.$options.components)
+              }, {
+                title: '全局组件',
+                list: []
               }
             ],
             // 点击的组件结构数据
@@ -372,17 +388,13 @@ export default {
         },
         activeFormItem(currentItem, type) {
             if (type) {
-              // if (this.$root.$options.components[currentItem.name]) {
-              //     const comOptions = getDefaultProps(this.$root.$options.components[currentItem.name].options);
-              //     for (let i in comOptions) {
-              //         if (!currentItem.props[i]) this.$set(currentItem.props, i, comOptions[i]);
-              //     }
-              // } else {
                 const commonConfig = {
                     style: {},
                     attrs: {},
                     children: [],
                     on: {},
+                    nativeOn: {},
+                    props: {},
                     renderFun: x => x
                 }
                 const cofg = defaultNode[currentItem.name] || commonConfig
@@ -391,13 +403,7 @@ export default {
                     if (!currentItem.props[i]) this.$set(currentItem.props, i, cofg[i]);
                     if (!currentItem[i]) this.$set(currentItem, i, cofg[i]);
                 }
-                // const config = {
-                //     name: currentItem.name,
-                //     props: defaultNode[currentItem.name] || commonConfig,
-                //     ...(defaultNode[currentItem.name] || commonConfig)
-                // };
-                // currentItem = config
-              // }
+                // if (!currentItem.props) this.$set(currentItem.props, i, cofg[i]);
               if (!currentItem.props.subRawId) {
                   currentItem.props.subRawId = getRawId(currentItem.name);
               }

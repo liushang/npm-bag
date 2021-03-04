@@ -90,6 +90,7 @@ let base = {
     render,
     methods: {},
     created() {
+        this.insData = this.insData
     },
     mounted() {}
 };
