@@ -31,12 +31,13 @@ export function analysisRenderConfig(configData, createElement) {
     }
 }
 function dealChild(child, cb) {
-    console.log(child)
-    if (!Array.isArray(child.value)) { // 简单类型
-        return child.value;
+    // console.log(child)
+    if (!child || !child.values) { // 简单类型
+        return child;
     } else if (child.name.startsWith('o')) {
+        // assign
         let item = {
-            class: child.raw['class'],
+            class: Object.assign(child.raw['class'] || {}, child.class),
             style: child.raw.style,
             attrs: child.raw.attrs,
             props: child.raw.props,
@@ -59,10 +60,13 @@ function dealChild(child, cb) {
             item.attrs = Object.assign(item.attrs || {}, attrs);
             item.props = Object.assign(item.props || {}, props);
         }
+        for (let x in child) {
+            if (!['values', 'children', 'name', 'raw'].includes(x)) item.props[x] = child[x];
+        }
         return cb(
             child.name,
             item,
-            analysisRenderConfig.bind(this)(child.value, cb)
+            analysisRenderConfig.bind(this)(child.values, cb)
         );
     } else {
         let item = {
@@ -86,11 +90,15 @@ function dealChild(child, cb) {
                 attrs[i] = child.raw.attr[i];
             }
             item.attrs = Object.assign(item.attrs || {}, attrs);
+            // item.props = Object.assign(item.props || {}, props);
+        }
+        for (let x in child) {
+            if (!['values', 'children', 'name', 'raw'].includes(x)) item.props[x] = child[x];
         }
         return cb(
             child.name,
             item,
-            analysisRenderConfig.bind(this)(child.value, cb)
+            analysisRenderConfig.bind(this)(child.values, cb)
         )
     }
 }
@@ -125,7 +133,7 @@ export function getComponent(callBack, { path, delay = 1 }, param) {
 //         if (typeof configComponents[i] !== 'object') { // 简单类型
 //             const childrenData = {
 //                 type: 'simple',
-//                 value: configComponents[i],
+//                 values: configComponents[i],
 //                 raw: rawData
 //             };
 //             configData.push(childrenData);
@@ -135,9 +143,9 @@ export function getComponent(callBack, { path, delay = 1 }, param) {
 //                 raw: rawData
 //             };
 //             if (configComponents[i].children) {
-//                 childrenData.value = analysisData(configComponents[i].children);
+//                 childrenData.values = analysisData(configComponents[i].children);
 //             } else {
-//                 childrenData.value = [];
+//                 childrenData.values = [];
 //             }
 //             configData.push(childrenData);
 //         }
@@ -153,20 +161,16 @@ export function analysisDataRender(configComponents, index) {
         const rawData = deepClone1(configComponents[i]);
         delete rawData.children;
         if (typeof configComponents[i] !== 'object') { // 简单类型
-            configData.push({
-                name: configComponents[i].name,
-                value: configComponents[i],
-                raw: rawData
-            });
+            configData.push(configComponents[i]);
         } else {
             const childrenData = {
                 name: configComponents[i].name,
                 raw: rawData
             }
             if (configComponents[i].children) {
-                childrenData.value = analysisDataRender.bind(this)(configComponents[i].children);
+                childrenData.values = analysisDataRender.bind(this)(configComponents[i].children);
             } else {
-                childrenData.value = [];
+                childrenData.values = [];
             }
             let childrenArr = [childrenData]
             if (rawData.on) {

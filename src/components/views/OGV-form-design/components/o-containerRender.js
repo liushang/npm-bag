@@ -124,7 +124,7 @@ let base = {
                 };
             }
             console.log('从新计算')
-            const  cc = this.renderRender([{
+            const  cc = this.renderFun([{
                 name: 'ElCard',
                 ref: 'oContainer',
                 on: {
