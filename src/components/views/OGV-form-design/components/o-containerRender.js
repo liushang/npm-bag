@@ -1,5 +1,6 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../../../schema/api';
+import { dealMultiChildren, deepClone1 } from '../../../schema/util';
 import baseAttr from '../base/attrs';
 let base = {
     data() {
@@ -96,14 +97,6 @@ let base = {
             default: () => {}
         }
     },
-    watch: {
-        // style: {
-        //     deep: true,
-        //     handle(val) {
-        //         console.log('insData变化', val)
-        //     }
-        // }
-    },
     computed: {
         ...computed,
         rootData() {
@@ -123,8 +116,7 @@ let base = {
                     return func(e, this);
                 };
             }
-            console.log('从新计算')
-            const  cc = this.renderFun([{
+            const  cc = dealMultiChildren(this.renderFun({
                 name: 'ElCard',
                 ref: 'oContainer',
                 on: {
@@ -156,7 +148,7 @@ let base = {
                     rawId: this.containerId
                 },
                 children: this.children
-            }])
+            }))
             return {
                 children: cc
             };
@@ -167,13 +159,13 @@ let base = {
     },
     mounted() {
         this.containerId = 'oContainer'
-        if (!this.containerInject[this.containerId]) {
+        if (!this.rootData[this.containerId]) {
             this.$set(this.rootData, this.containerId, {});
         }
         this.$set(this.rootData[this.containerId], 'methods', this.methods);
         this.on && this.on['mounted'] && this.on['mounted'](this);
         console.log(this.insData)
-        this.localData = this.insData
+        this.localData = deepClone1(this.insData)
     }
 };
 export default base;

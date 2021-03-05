@@ -180,10 +180,24 @@ export const defaultKV = {
                 value: [ 'small', 'medium', 'mini' ]
             },
         }
+    },
+    ElForm: {
+        children: {
+            0: {
+                value: ['ElFormItem', 'ElRow']
+            }
+        }
+    },
+    ElSelect: {
+        children: {
+            0: {
+                value: ['ElOption']
+            }
+        }
     }
 };
-// todo 增加其他元素
-export const defaultNode = {
+
+const htmlDefaultNode = {
     div: {
         style: {},
         attrs: {},
@@ -195,5 +209,113 @@ export const defaultNode = {
         attrs: {},
         children: [],
         renderFun: x => x
+    },
+}
+
+const elDefaultNode = {
+    ElInput: {
+        style: {
+            width: '200px',
+        },
+        attrs: {},
+        children: [],
+        on: {
+            input: e => e
+        },
+        nativeOn: {
+            input: e => {
+                setTimeout(() => {
+                    e.target.click()
+                }, 100)
+            }
+        },
+        renderFun: x => {
+            x.value = '';
+            return x
+        },
+    },
+    ElForm: {
+        attrs: {
+            ref: 'form'
+        },
+        children: [],
+        on: {
+            input: e => e
+        },
+        nativeOn: {},
+        renderFun: x => {
+            return x
+        },
+    },
+    ElFormItem: {
+        attrs: {
+            prop: 'item',
+            label: '标签1'
+        },
+        children: [ 'ElSelect', 'ElInput', 'ElRow', 'ElCol' ],
+        on: {},
+        nativeOn: {},
+        renderFun: x => {
+            return x
+        },
+    },
+    ElSelect: {
+        children: [  ],
+        style: {
+            width: '200px',
+        },
+        attrs: {},
+        on: {
+            input: e => e
+        },
+        nativeOn: {
+            input: e => {
+                // setTimeout(() => {
+                //     e.target.click()
+                // }, 100)
+            }
+        },
+        renderFun: x => {
+            x.value = '';
+            return x
+        },
+    },
+    ElOption: {
+        children: [],
+        style: {
+            width: '200px',
+        },
+        attrs: {},
+        on: {
+            input: e => e
+        },
+        nativeOn: {
+            click: e => {
+                console.log(e.target.value)
+            }
+        },
+        renderFun: x => {
+            x.value = '1';
+            x.label='选项'
+            return x
+        },
+    },
+    ElButton: {
+        attrs: {
+            size: 'small',
+            type: 'primary'
+        },
+        children: [ '确定' ],
+        on: {},
+        nativeOn: {},
+        renderFun: x => {
+            return x
+        },
     }
+}
+
+// todo 增加其他元素
+export const defaultNode = {
+    ...htmlDefaultNode,
+    ...elDefaultNode
 };

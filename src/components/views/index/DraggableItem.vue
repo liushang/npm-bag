@@ -5,12 +5,22 @@ import { analysisRenderConfig, analysisDataRender } from '../../schema/util';
 
 const components = {
     itemBtns(h, currentItem, index, list) {
-        const { copyItem, deleteItem } = this.$listeners;
+        const { copyItem, deleteItem, viewItem } = this.$listeners;
         return [
+            <span class="drawing-item-view" onClick={event => {
+                viewItem(currentItem, list); event.stopPropagation();
+            }}>
+                <span>预</span>
+            </span>,
+            <span class="drawing-item-export" onClick={event => {
+                copyItem(currentItem, list); event.stopPropagation();
+            }}>
+                <span>导</span>
+            </span>,
             <span class="drawing-item-copy" title="复制" onClick={event => {
                 copyItem(currentItem, list); event.stopPropagation();
             }}>
-                <span class="el-icon-copy-document">+</span>
+                <span>+</span>
             </span>,
             <span class="drawing-item-delete" title="删除" onClick={event => {
                 deleteItem(index, list); event.stopPropagation();
@@ -21,53 +31,31 @@ const components = {
     }
 };
 const layouts = {
-    oFormItem(h, currentItem, index, list, containerData) {
+    oFormItem(h, currentItem) {
         const { activeItem } = this.$listeners;
         const config = currentItem.__config__;
         let className = this.activeId === config.formId ? 'drawing-item active-from-item' : 'drawing-item';
-        if (this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
+        if (this.formConf && this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
         if (!currentItem.props.rawId) return
-        // currentItem.props.env = 'dev';
+        if (this.showType) {
+          currentItem.props.env = 'prod';
+        } else {
+          currentItem.props.env = 'dev';
+        }
+        console.log(this.showType )
         let configData = analysisDataRender([ currentItem ]);
         let configArr = analysisRenderConfig(configData, h);
         /* eslint-disable */
         return (
             <el-col span={config.span} class={className}
-                nativeOnClick={event => { activeItem(currentItem); event.stopPropagation(); }}>
-                <el-form-item label-width="0px"
-                    label={config.showLabel ? config.label : ''} required={config.required}>
-                    {configArr[0]}
-                </el-form-item>
-                {components.itemBtns.apply(this, arguments)}
+                nativeOnClick={event => { activeItem && activeItem(currentItem); event.stopPropagation(); }}>
+                {configArr[0]}
+                {!this.showType ? components.itemBtns.apply(this, arguments) : ''}
             </el-col>
         );
         /* eslint-enable */
     },
-    raw(h, currentItem, index, list) {
-        const config = currentItem.__config__;
-        const child = renderChildren.apply(this, arguments);
-        /* eslint-disable */
-        return <render key={config.renderKey} conf={currentItem} onInput={ event => {
-            this.$set(config, 'defaultValue', event);
-        }}>
-            {child}
-        </render>;
-        /* eslint-enable */
-    }
 };
-
-function renderChildren(h, currentItem, index, list) {
-    const config = currentItem.__config__;
-    if (!Array.isArray(config.children)) return null;
-    return config.children.map((el, i) => {
-        const layout = layouts[el.__config__.layout];
-        if (layout) {
-            return layout.call(this, h, el, i, config.children);
-        }
-        // 没有layout属性直接报错
-        return layoutIsNotFound.call(this);
-    });
-}
 
 function layoutIsNotFound() {
     throw new Error(`没有与${this.currentItem.__config__.layout}匹配的layout`);
@@ -84,7 +72,8 @@ export default {
         'drawingList',
         'activeId',
         'formConf',
-        'containerInject'
+        'containerInject',
+        'showType'
     ],
     provide() {
         return {
@@ -105,7 +94,9 @@ export default {
 <style lang="less">
 @selectedColor: #f6f7ff;
 @lighterBlue: #409EFF;
-
+.el-dialog__body{
+  height:700px;
+}
 .container {
   position: relative;
   width: 100%;
@@ -275,7 +266,7 @@ export default {
       background: @selectedColor;
       border-radius: 6px;
     }
-    & > .drawing-item-copy, & > .drawing-item-delete{
+    & > .drawing-item-copy, & > .drawing-item-delete, & > .drawing-item-export, & > .drawing-item-view{
       display: initial;
     }
     & > .component-name{
@@ -335,11 +326,11 @@ export default {
       background: @selectedColor;
       border-radius: 6px;
     }
-    & > .drawing-item-copy, & > .drawing-item-delete{
+    & > .drawing-item-copy, & > .drawing-item-delete, & > .drawing-item-export, & > .drawing-item-view{
       display: initial;
     }
   }
-  & > .drawing-item-copy, & > .drawing-item-delete{
+  & > .drawing-item-copy, & > .drawing-item-delete, & > .drawing-item-export, & > .drawing-item-view{
     display: none;
     position: absolute;
     top: -10px;
@@ -355,6 +346,26 @@ export default {
   }
   & > .drawing-item-copy{
     right: 56px;
+    border-color: @lighterBlue;
+    color: @lighterBlue;
+    background: #fff;
+    &:hover{
+      background: @lighterBlue;
+      color: #fff;
+    }
+  }
+  & > .drawing-item-export{
+    right: 88px;
+    border-color: @lighterBlue;
+    color: @lighterBlue;
+    background: #fff;
+    &:hover{
+      background: @lighterBlue;
+      color: #fff;
+    }
+  }
+  & > .drawing-item-view{
+    right: 120px;
     border-color: @lighterBlue;
     color: @lighterBlue;
     background: #fff;

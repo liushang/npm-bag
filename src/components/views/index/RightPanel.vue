@@ -19,6 +19,9 @@
         <!-- 组件属性 -->
         <el-form v-show="currentTab==='field' && showField" v-if="editItem" size="small" label-width="90px">
           <div v-if="editItem.name" style="margin: 8px 0 0 0px">
+            <span>{{editItem.props.rawId ? '模块' : '元素'}}别名</span>
+            <elInput v-model="editItem.props.rawId" style="width: 140px;margin-bottom: 10px" size="mini" v-if="editItem.props.rawId" />
+            <elInput v-model="editItem.props.subRawId" style="width: 140px;margin-bottom: 10px" size="mini" v-if="editItem.props.subRawId" />
             <el-collapse v-model="activeItems" @change="handleChange">
               <div v-for="(i, index) in propertiesList.filter(x => !['rawId', 'renderFunStr', 'subRawId'].includes(x))" :key="index">
               <el-collapse-item  :name="valueNameMap[i]" v-if="!['rawId', 'renderFunStr', 'subRawId'].includes(i)">
@@ -27,11 +30,9 @@
                   <span>
                 <div style="margin-left: 30px" v-if="!['string', 'number', 'boolean', 'function'].includes(typeof editItem[i])">
                     <span class='' v-if="!modifyItem[i] && haveFixedAttrs(editItemProperty[i], i)" style="color:#409eff;font-size:14px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord', 1)">添加</span>
-                    <!-- <i class='el-icon-plus' v-if="!modifyItem[i]" style="color:#409eff;font-size:16px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord')"></i> -->
                     <span v-if="!modifyItem[i]" style="color:#409eff;font-size:12px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord')">自定义</span>
                     <span class='' v-else style="color:#409eff;font-size:14px;margin-right:10px;margin-left:30px" @click.stop="$refs['infiniteObj'][index].saveProperty(i)">确定</span>
                     <span v-if="Object.keys(modifyItem).length > 0" style="color:#409eff;font-size:14px" @click.stop="$refs['infiniteObj'][index].delModifyItem(modifyItem, i)">x</span>
-                    <!-- <span v-if="getValueLength(editItemProperty[i]) > 0">...</span> -->
                 </div>
                   </span>
                 </template>

@@ -400,6 +400,7 @@ export default {
                     // 如果输入的是节点html
                     const commonConfig = {
                         style: {},
+                        class: {},
                         attrs: {},
                         children: [],
                         on: {},
@@ -414,10 +415,11 @@ export default {
                     // for (let i in config.props) {
                     //     config[i] = config.props[i];
                     // }
-                    if (!config.props.subRawId) {
+                    console.log('config.props.subRawId')
+                    // if (!config.props.subRawId) {
                         config.props.subRawId = getRawId(config.name);
                         // if (!this.containerInject[config.props.subRawId]) this.containerInject[config.props.rawId] = {};
-                    }
+                    // }
                     this.$set(this.activeData[key], this.modifyItem[key].key, config);
                 } else {
                 // 简单属性直接保存

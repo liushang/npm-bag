@@ -51,6 +51,14 @@ function dealChild(child, cb) {
             ref: child.raw.ref,
             refInFor: child.raw.refInFor
         };
+        if (item.style && item.style.border && item.style.border === '1px solid red') {
+            console.log('设置class')
+            item.class['border-red'] = true
+            console.log(item)
+        } else {
+            console.log('删除class', child.name)
+            delete item.class['border-red']
+        }
         if (child.raw.attr) {
             let attrs = {};
             let props = {};
@@ -70,10 +78,10 @@ function dealChild(child, cb) {
         );
     } else {
         let item = {
-            'class': child.raw['class'],
+            'class': child.raw['class'] || {},
             style: child.raw.style,
             attrs: child.raw.attrs,
-            props: child.raw.props,
+            props: child.raw.attrs,
             domProps: child.raw.domProps,
             on: child.raw.on,
             nativeOn: child.raw.nativeOn,
@@ -84,16 +92,25 @@ function dealChild(child, cb) {
             ref: child.raw.ref,
             refInFor: child.raw.refInFor
         };
+        if (item.style && item.style.border && item.style.border === '1px solid red') {
+            item.class['border-red'] = true
+        } else {
+            delete item.class['border-red']
+        }
         if (child.raw.attr) {
             let attrs = {};
+            let props = {};
             for (let i in child.raw.attr) {
                 attrs[i] = child.raw.attr[i];
             }
             item.attrs = Object.assign(item.attrs || {}, attrs);
-            // item.props = Object.assign(item.props || {}, props);
+            item.props = Object.assign(item.props || {}, props);
         }
         for (let x in child) {
             if (!['values', 'children', 'name', 'raw'].includes(x)) item.props[x] = child[x];
+        }
+        if (item.ref) { console.log('ref', item.ref)} else {
+            if (item.props && item.props.ref) item.ref = item.props.ref
         }
         return cb(
             child.name,
@@ -195,7 +212,10 @@ export function analysisDataRender(configComponents, index) {
             }
             if (rawData.renderFun) {
                 let funcss = stringToFunc(rawData.renderFun)
-                childrenArr = funcss.bind(this)(childrenArr)
+                childrenArr = funcss.bind(this)(childrenData)
+                if (!Array.isArray(childrenArr)) {
+                    childrenArr = [childrenArr]
+                }
             }
             configData.push(...childrenArr);
         }
@@ -258,6 +278,7 @@ function changeRawId(i) {
     }
 }
 export function dealMultiChildren(children) {
+    if (!Array.isArray(children)) children = [children]
     if (children.length < 2) return children;
     for (let i = 1; i < children.length; i++) {
         changeRawId(children[i])

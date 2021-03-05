@@ -39,7 +39,6 @@ let base = {
         input(event) {
             this.$emit('oInput', event);
             console.log(event);
-            // 为啥这里一定要用￥set
             this.containerInject[this.rawId].value = event;
             // this.$set(this.containerInject[this.rawId], 'value', event)
             this.$root.$emit('DEAL_CHOOSE', this);
@@ -68,7 +67,7 @@ let base = {
                     return func(e, this);
                 };
             }
-            let children = [{
+            let children = {
                 name: 'el-input',
                 attrs: Object.assign({
                     size: 'small'
@@ -83,7 +82,7 @@ let base = {
                     value: this.val,
                     rawId: this.rawId
                 }
-            }];
+            };
             let renderChildren = this.renderFun(children)
             let multiChildren = dealMultiChildren(renderChildren)
             return {

@@ -89,6 +89,7 @@
                   :form-conf="formConf"
                   @activeItem="activeFormItem"
                   @copyItem="drawingItemCopy"
+                  @viewItem="drawingItemView"
                   @deleteItem="drawingItemDelete"
                 />
                   </div>
@@ -111,7 +112,6 @@
       @clearBorderBlue="clearSubBorder(drawingList)"
       @panelContent="panelContent"
       @codeValueChange="codeValueChange"
-      @fetch-data="fetchData"
     />
     <panel-dialog
       :active-data="convertConstrutor(dialogComponentDetail)"
@@ -119,9 +119,10 @@
       v-if="showPanel"
       @close="closePanelDialog"
       @tag-change="tagChange"
-      @fetch-data="fetchData"
     />
     <input id="copyNode" type="hidden">
+    <view-model v-if="showViewModel" @closeViewModel="showViewModel=false" :drawingList="drawingList">
+    </view-model>
   </div>
 </template>
 
@@ -133,6 +134,8 @@ import render from '../../components/render/render';
 // import JsonDrawer from './JsonDrawer'
 import RightPanel from './RightPanel';
 import PanelDialog from './PanelDialog';
+import ViewModel from './ViewModel';
+
 import {
     inputComponents, selectComponents, layoutComponents, formConf, oComponents, getElementList, getHtmlLabel
 } from '../../components/generator/config';
@@ -164,7 +167,8 @@ export default {
         RightPanel,
         PanelDialog,
         CodeTypeDialog,
-        DraggableItem
+        DraggableItem,
+        ViewModel
     },
     name: 'practice',
     data() {
@@ -214,7 +218,9 @@ export default {
             // 点击的组件结构数据
             dialogComponentDetail: {},
             showPanel: false,
-            previewItem: null
+            previewItem: null,
+            // 展示预览弹窗
+            showViewModel: false,
         };
     },
     watch: {
@@ -245,7 +251,6 @@ export default {
         containerInject: {
             deep: true,
             handler(val) {
-              console.log(val)
                 console.log('保存结构')
                 this.saveContainerDebounce(val);
             }
@@ -281,6 +286,8 @@ export default {
                 if (this.previewItem.rawId !== item.rawId) this.clearSubBorder(this.drawingList);
             }
             this.$set(item.style, 'border', '1px solid red');
+            // console.log(item)
+            // this.$set(item.class, 'border-red', true);
             let rawId = item.rawId;
             setTimeout(() => {
                 let activeSubItem = this.getRawIdItem(this.drawingList, rawId);
@@ -308,7 +315,6 @@ export default {
             this.showPanel = false;
         },
         convertConstrutor(e) {
-          console.log(e)
             let json = this.activeData.props[e.property][e.subProperty];
             !json.props && json.name && (json.props = {
                 attrs: {},
@@ -338,21 +344,12 @@ export default {
         fetchData(component) {
             const { dataType, method, url } = component.__config__;
             if (dataType === 'dynamic' && method && url) {
-                this.setLoading(component, true);
                 this.$axios({
                     method,
                     url
                 }).then(resp => {
-                    this.setLoading(component, false);
                     this.setRespData(component, resp.data);
                 });
-            }
-        },
-        setLoading(component, val) {
-            const { directives } = component;
-            if (Array.isArray(directives)) {
-                const t = directives.find(d => d.name === 'loading');
-                if (t) t.value = val;
             }
         },
         getRawIdItem(list, id) {
@@ -403,6 +400,11 @@ export default {
                     if (!currentItem.props[i]) this.$set(currentItem.props, i, cofg[i]);
                     if (!currentItem[i]) this.$set(currentItem, i, cofg[i]);
                 }
+                // if (cofg.props) {
+                //   for (let i in cofg.props) {
+                //     this.$set(currentItem.props, i, cofg.props[i])
+                //   }
+                // }
                 // if (!currentItem.props) this.$set(currentItem.props, i, cofg[i]);
               if (!currentItem.props.subRawId) {
                   currentItem.props.subRawId = getRawId(currentItem.name);
@@ -422,7 +424,6 @@ export default {
         },
         onEnd(obj) {
             if (obj.from !== obj.to) {
-                this.fetchData(tempActiveData);
                 this.activeData = tempActiveData;
                 this.activeId = this.idGlobal;
             }
@@ -430,7 +431,6 @@ export default {
         // 添加组件 点击复制
         addComponent(item, index) {
             const clone = this.cloneComponent(item);
-            this.fetchData(clone);
             this.activeData.props.children.push(clone);
             this.activeFormItem(clone, index);
         },
@@ -456,6 +456,9 @@ export default {
             clone = this.createIdAndKey(clone);
             list.push(clone);
             this.activeFormItem(clone);
+        },
+        drawingItemView(item, list) {
+            this.showViewModel = true;
         },
         drawingItemDelete(index, list) {
             list.splice(index, 1);
@@ -503,7 +506,12 @@ export default {
 <style lang='less'>
 @selectedColor: #f6f7ff;
 @lighterBlue: #409EFF;
-
+.drawing-board .border-red{
+  background-color: #e4e7ed;
+}
+.drawing-board .border-blue{
+  background-color: rgb(64, 158, 255);
+}
 .container {
   position: relative;
   width: 100%;
