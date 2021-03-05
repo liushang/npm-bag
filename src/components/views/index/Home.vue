@@ -156,7 +156,6 @@ let oldActiveId;
 let tempActiveData;
 const drawingListInDB = getDrawingList();
 const formConfInDB = getFormConf();
-const idGlobal = getIdGlobal();
 const containerInject = getContainer();
 export default {
     components: {
@@ -176,7 +175,6 @@ export default {
             // 重新展示
             showNew: true,
             logo,
-            idGlobal,
             formConf,
             // o型组件
             oComponents,
@@ -244,7 +242,6 @@ export default {
         drawingList: {
             handler(val) {
                 this.saveDrawingListDebounce(val);
-                if (val.length === 0) this.idGlobal = 100;
             },
             deep: true
         },
@@ -255,12 +252,6 @@ export default {
                 this.saveContainerDebounce(val);
             }
         },
-        idGlobal: {
-            handler(val) {
-                this.saveIdGlobalDebounce(val);
-            },
-            immediate: true
-        }
     },
     mounted() {
         if (Array.isArray(drawingListInDB) && drawingListInDB.length > 0) {
@@ -425,7 +416,6 @@ export default {
         onEnd(obj) {
             if (obj.from !== obj.to) {
                 this.activeData = tempActiveData;
-                this.activeId = this.idGlobal;
             }
         },
         // 添加组件 点击复制
@@ -445,7 +435,6 @@ export default {
         },
         createIdAndKey(item) {
             const config = item.__config__;
-            config.formId = ++this.idGlobal;
             if (Array.isArray(config.children)) {
                 config.children = config.children.map(childItem => this.createIdAndKey(childItem));
             }
@@ -507,10 +496,10 @@ export default {
 @selectedColor: #f6f7ff;
 @lighterBlue: #409EFF;
 .drawing-board .border-red{
-  background-color: #e4e7ed;
+  border: 1px solid red;
 }
 .drawing-board .border-blue{
-  background-color: rgb(64, 158, 255);
+  border: 1px solid rgb(64, 158, 255);
 }
 .container {
   position: relative;

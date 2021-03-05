@@ -14,7 +14,7 @@ let base = {
             type: Object,
             default: () => {}
         },
-        class: {
+        classes: {
             type: Object,
             default: () => {}
         },
@@ -65,7 +65,7 @@ let base = {
                 attr: this.attrs,
                 style: Object.assign(this.style, this.styles),
                 ref: 'oRow',
-                class: this.class,
+                class: this.classes,
                 on: {
                     click: this.click,
                     ...this.on
