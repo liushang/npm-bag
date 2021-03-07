@@ -87,6 +87,7 @@
                   :active-id="activeId"
                   :containerInject="containerInject"
                   :form-conf="formConf"
+                  :configData="configData"
                   @activeItem="activeFormItem"
                   @copyItem="drawingItemCopy"
                   @viewItem="drawingItemView"
@@ -219,7 +220,32 @@ export default {
             previewItem: null,
             // 展示预览弹窗
             showViewModel: false,
-        };
+            configData: {
+              'oContainer': {
+                renderFun: function(oooo) {
+                  console.log(this);
+                  console.log(this.tt)
+                  return oooo
+                },
+                attrMap: {
+                  tt: 'insData'
+                },
+                insData: {
+                  form: {
+                    input: '我11112',
+                    select: 1
+                  },
+                  rules: {
+                    input: [
+                      { required: true, message: '请输入活动名称', trigger: 'blur' },
+                      { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+                    ],
+                  }
+                }
+              }
+            },
+
+          };
     },
     watch: {
     // eslint-disable-next-line func-names
@@ -277,8 +303,6 @@ export default {
                 if (this.previewItem.rawId !== item.rawId) this.clearSubBorder(this.drawingList);
             }
             this.$set(item.style, 'border', '1px solid red');
-            // console.log(item)
-            // this.$set(item.class, 'border-red', true);
             let rawId = item.rawId;
             setTimeout(() => {
                 let activeSubItem = this.getRawIdItem(this.drawingList, rawId);
@@ -379,6 +403,7 @@ export default {
                 const commonConfig = {
                     style: {},
                     attrs: {},
+                    attrMap: {},
                     children: [],
                     on: {},
                     nativeOn: {},

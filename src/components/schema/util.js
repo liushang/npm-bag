@@ -52,11 +52,8 @@ function dealChild(child, cb) {
             refInFor: child.raw.refInFor
         };
         if (item.style && item.style.border && item.style.border === '1px solid red') {
-            console.log('设置class')
             item.class['border-red'] = true
-            console.log(item)
         } else {
-            console.log('删除class', child.name)
             delete item.class['border-red']
         }
         if (child.raw.attr) {
@@ -109,7 +106,7 @@ function dealChild(child, cb) {
         for (let x in child) {
             if (!['values', 'children', 'name', 'raw'].includes(x)) item.props[x] = child[x];
         }
-        if (item.ref) { console.log('ref', item.ref)} else {
+        if (item.ref) {} else {
             if (item.props && item.props.ref) item.ref = item.props.ref
         }
         return cb(
@@ -217,6 +214,15 @@ export function analysisDataRender(configComponents, index) {
                     childrenArr = [childrenArr]
                 }
             }
+            // 组件 renderfun 字符串注入处理为函数
+            // if (rawData.props && rawData.props.renderFun) {
+            //     console.log(typeof rawData.props.renderFun)
+            //     let funcss = stringToFunc(rawData.props.renderFun)
+            //     rawData.props.renderFun = funcss
+            // }
+            // if (rawData.props && rawData.props.insData) {
+            //     rawData.props.insData = JSON.parse(rawData.props.insData)
+            // }
             configData.push(...childrenArr);
         }
     }
@@ -284,4 +290,82 @@ export function dealMultiChildren(children) {
         changeRawId(children[i])
     }
     return children
+}
+
+export function analysisInjectData(constructor, data = {}, parentRawId, all) {
+    // 注入数据：组件本地数据，组件函数，组件映射字段
+    console.log('injectData')
+    console.log(constructor)
+    // if (!data) return constructor
+    const { rawId, subRawId } = constructor.props;
+    if (rawId && constructor.props && constructor.props.children && constructor.props.children.length) {
+        // 组件子元素注入
+        for (let i of constructor.props.children) {
+            if (i.props.rawId && data[i.props.rawId]) {
+                // 如果检测到的是组件，按组件注入
+                analysisInjectData(i, all[i.props.rawId], rawId, all)
+            } else if (i.props.subRawId) {
+                console.log('注入元素树形,依旧注入组件属性', i, data[i.props.subRawId], all)
+                analysisInjectData(i, data[i.props.subRawId], rawId, all)
+            }
+        }
+    } else if (subRawId && constructor.children && constructor.children.length) {
+        // 元素子元素注入
+        for (let i of constructor.children) {
+            console.log(i.props)
+            if (!i.props) return
+            if (i.props.rawId && data[i.props.rawId]) {
+                // 如果检测到的是组件，按组件注入
+                analysisInjectData(i, all[i.props.rawId], parentRawId, all)
+            } else if (i.props.subRawId) {
+                console.log('注入元素树形', i.name, data, all)
+                analysisInjectData(i, all[parentRawId][i.props.subRawId], parentRawId, all)
+            }
+        }
+    }
+    let mergerLocal = Object.assign(data, {
+        attrMap: constructor.props.attrMap
+    })
+    injectData(constructor, mergerLocal)
+    return constructor;
+}
+function injectData(item, dataItem) {
+    if (item.name === 'ElInput') {
+        console.log('ElInpeeeeeeeeut')
+    }
+    console.log('inject', item.name, dataItem)
+    const { insData, renderFun, attrMap, on } = dataItem || {};
+    if (item.props.insData && insData) {
+        for (let i in dataItem.insData) {
+            item.props.insData[i] = insData[i]
+        } 
+    }
+    if (attrMap) {
+        for(let x in attrMap) {
+            // this的坑点
+            item.props.renderFun = item.props.renderFun.replace(x, attrMap[x])
+            item.renderFun = item.renderFun.replace(x, attrMap[x])
+        }
+    }
+    if (item.props.renderFun && renderFun) {
+        item.props.renderFun = getFunctionReplace(renderFun);
+    }
+    if (item.props.on && on) {
+        for (let y in item.props.on) {
+            if (on[y]) item.props.on[y] = getFunctionReplace(on[y])
+        }
+    }
+    function getFunctionReplace(func) {
+        // 函数替换配置中的变量map
+        if (typeof func === 'function') {
+            func = func.toString()
+        }
+        if (attrMap) {
+            for(let x in attrMap) {
+                if (func.includes(x)) func = func.replace(x, attrMap[x])
+            }
+        }
+        return stringToFunc(func)
+    }
+    console.log(item)
 }

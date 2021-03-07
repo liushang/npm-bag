@@ -21,10 +21,14 @@ const props = {
       type: Object,
       default: () => {}
   },
-  // insData: {
-  //   type: Object,
-  //   default: () => {}
-  // }
+  insData: {
+    type: Object,
+    default: () => {}
+  },
+  attrMap: {
+    type: Object,
+    default: () => {}
+  }
 }
 export default {
   props,

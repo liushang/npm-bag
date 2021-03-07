@@ -10,6 +10,7 @@ export default {
     style: '样式属性',
     computed: '计算属性',
     methods: '方法',
+    attrMap: '别名映射',
     insData: '本地数据'
   }
 }

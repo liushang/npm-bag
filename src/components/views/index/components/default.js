@@ -217,6 +217,7 @@ const elDefaultNode = {
         style: {
             width: '200px',
         },
+        attrMap: {},
         attrs: {},
         children: [],
         on: {
@@ -230,7 +231,7 @@ const elDefaultNode = {
             }
         },
         renderFun: x => {
-            x.value = '';
+            x.value = this.elInput_value;
             return x
         },
     },

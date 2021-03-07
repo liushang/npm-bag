@@ -1,7 +1,7 @@
 <script>
 import draggable from 'vuedraggable';
 import render from '../../components/render/render';
-import { analysisRenderConfig, analysisDataRender } from '../../schema/util';
+import { analysisRenderConfig, analysisDataRender, analysisInjectData } from '../../schema/util';
 
 const components = {
     itemBtns(h, currentItem, index, list) {
@@ -34,15 +34,17 @@ const layouts = {
     oFormItem(h, currentItem) {
         const { activeItem } = this.$listeners;
         const config = currentItem.__config__;
+        // if (!config) return (<el-col></el-col>)
         let className = this.activeId === config.formId ? 'drawing-item active-from-item' : 'drawing-item';
         if (this.formConf && this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
-        if (!currentItem.props.rawId) return
+        if (!currentItem || !currentItem.props || !currentItem.props.rawId) return
         if (this.showType) {
           currentItem.props.env = 'prod';
         } else {
           currentItem.props.env = 'dev';
         }
-        console.log(this.showType )
+        console.log(currentItem )
+
         let configData = analysisDataRender([ currentItem ]);
         let configArr = analysisRenderConfig(configData, h);
         /* eslint-disable */
@@ -73,19 +75,46 @@ export default {
         'activeId',
         'formConf',
         'containerInject',
-        'showType'
+        'showType',
+        'configData'
     ],
     provide() {
         return {
             containerInject: this.containerInject
         };
     },
+    data() {
+      return {
+      }
+    },
+    created() {
+
+    },
+    computed: {
+      injectDataItem() {
+        return  this.currentItem.props && this.currentItem.props.rawId ? analysisInjectData(this.currentItem, this.configData[this.currentItem.props.rawId], 'oContainer', this.configData) : {__config__: {}}
+      }
+    },
+    mounted() {
+      //   const data = {
+      //     'oContainer': {
+      //       renderFun: 'function anonymous(xx ) { console.log(this);return xx; }',
+      //       insData: {
+      //         form: {
+      //           input: 123,
+      //           select: 1
+      //         }
+      //       }
+      //     }
+      //   }
+      // this.injectDataItem = analysisInjectData(this.currentItem, data)
+    },
     render(h) {
     // 根据布局方式选择不同渲染函数 rol和raw两种
         const layout = layouts[this.currentItem.__config__.layout];
 
-        if (layout) {
-            return layout.call(this, h, this.currentItem, this.index, this.drawingList, this.containerInject);
+        if (layout && this.injectDataItem) {
+            return layout.call(this, h, this.injectDataItem, this.index, this.drawingList, this.containerInject);
         }
         return layoutIsNotFound.call(this);
     }

@@ -53,7 +53,21 @@
           </div>
           <!-- <codemirror v-model="activeData.props.renderFun" :options="cmOptions" ref="cmEditor"/> -->
         </el-form>
-        <div v-if="currentTab === 'form'">关联配置</div>
+        <div v-if="currentTab === 'relation'">
+          <!-- <el-form>
+          <InfiniteObject
+            ref="infiniteObj"
+            :modifyItem="modifyItem"
+            :activeData="editItemProperty"
+            :containerInject="containerInject"
+            :name="editItem.name"
+            rootWord="attrMap"
+            initialType="string"
+            @changeComponentPanel="changeComponentPanel"
+            initialTypeShow="input"
+            ></InfiniteObject>
+          </el-form> -->
+        </div>
         <!-- 表单属性 -->
         <el-form v-if="currentTab === 'form'" size="small" label-width="90px">
           <!-- <el-form-item label="表单名" v-for="(i, index) in formConf" :key="index">
@@ -198,7 +212,6 @@ export default {
     },
     methods: {
         closePanelDialog(e) {
-          console.log(this.$refs.infiniteObj)
           let component = this.$refs.infiniteObj.filter(x => x.tempAttrName)[0]
           component.tempAttrValue = JSON.parse(JSON.stringify(e))
           this.attrDetail = []

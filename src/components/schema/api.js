@@ -7,8 +7,8 @@ export function created() {
 
 export const computed = {
     configData() {
-        console.log('this.configComponents.children')
-        console.log(this.configComponents.children)
+        // console.log('this.configComponents.children')
+        // console.log(this.configComponents.children)
         return analysisDataRender.bind(this)(this.configComponents.children);
     }, 
     // configArr() {

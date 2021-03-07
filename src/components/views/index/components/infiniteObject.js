@@ -401,6 +401,7 @@ export default {
                     const commonConfig = {
                         style: {},
                         class: {},
+                        attrMap: {},
                         attrs: {},
                         children: [],
                         on: {},
@@ -416,6 +417,9 @@ export default {
                     //     config[i] = config.props[i];
                     // }
                     console.log('config.props.subRawId')
+                    config.props.renderFun = stringToFunc(config.props.renderFun.toString().replace('_this', 'this'))
+                    config.renderFun = stringToFunc(config.renderFun.toString().replace('_this', 'this'))
+                    console.log(config.props.renderFun)
                     // if (!config.props.subRawId) {
                         config.props.subRawId = getRawId(config.name);
                         // if (!this.containerInject[config.props.subRawId]) this.containerInject[config.props.rawId] = {};
