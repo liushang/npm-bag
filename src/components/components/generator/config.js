@@ -6,7 +6,7 @@ export const formConf = {
 // element 组件
 
 export function getElementList (list) {
-    let elCommonList = [ 'ElRow', 'ElCol', 'ElInput', 'ElSelect', 'ElOption', 'ElButton', 'ElTable', 'ElForm', 'ElItem' ]
+    let elCommonList = [ 'ElRow', 'ElCol', 'ElInput', 'ElSelect', 'ElOption', 'ElButton', 'ElTable', 'ElForm', 'ElItem', 'ElFormItem' ]
     let elRareList = []
     let elList = []
     for(let i in list) {

@@ -228,6 +228,12 @@ export default {
                 attrMap: {
                   tt: 'insData'
                 },
+                methods: {
+                  getAA: function(a) {
+                    console.log(a)
+                  },
+                  getBB: () => {}
+                },
                 insData: {
                   form: {
                     input: '我11112',
@@ -242,10 +248,11 @@ export default {
                 },
                 'ElInput_925750': {
                   attrMap: {
-                    'elInput_value': 'localData.form.input1'
+                    'elInput_value': 'localData.form.input1',
+                    'elInput_vwe': 'localData.form.input1'
                   },
                   renderFun: function(x) {
-                    x.value = this.localData.form.input;
+                    x.value = this.localData.aa;
                     return x
                   }
                 }

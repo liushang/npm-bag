@@ -261,7 +261,7 @@ const elDefaultNode = {
         },
     },
     ElSelect: {
-        children: [  ],
+        children: [],
         style: {
             width: '200px',
         },

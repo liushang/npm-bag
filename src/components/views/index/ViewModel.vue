@@ -2,7 +2,7 @@
 <el-dialog
   class="panel-dialog"
   :visible.sync="dialogVisible"
-  width="80%"
+  width="90%"
   center
   top="5vh"
   @close="close">

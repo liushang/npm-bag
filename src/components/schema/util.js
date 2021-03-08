@@ -168,7 +168,7 @@ export function getComponent(callBack, { path, delay = 1 }, param) {
 //     return configData;
 // }
 
-export function analysisDataRender(configComponents, index) {
+export function analysisDataRender(configComponents) {
     // 构建组件数据
     const configData = [];
     for (let i = 0; i < configComponents.length; i++) {
@@ -292,7 +292,7 @@ export function dealMultiChildren(children) {
     return children
 }
 
-export function analysisInjectData(constructor, data = {}, parentRawId, all) {
+export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawId, all) {
     // 注入数据：组件本地数据，组件函数，组件映射字段
     // if (!data) return constructor
     const { rawId, subRawId } = constructor.props;
@@ -305,7 +305,7 @@ export function analysisInjectData(constructor, data = {}, parentRawId, all) {
                 // 如果检测到的是组件，按组件注入
                 analysisInjectData(i, all[i.props.rawId], rawId, all)
             } else if (i.props.subRawId) {
-                console.log('注入元素树形,依旧注入组件属性', i, data[i.props.subRawId], all)
+                console.log('注入元素树形,依旧注入组件属性', i.name, data[i.props.subRawId], all)
                 analysisInjectData(i, data[i.props.subRawId], rawId, all)
             }
         }
@@ -318,18 +318,20 @@ export function analysisInjectData(constructor, data = {}, parentRawId, all) {
                 analysisInjectData(i, all[i.props.rawId], parentRawId, all)
             } else if (i.props.subRawId) {
                 if (i.props.subRawId === 'ElInput_925750') {
-                    console.log('注入元素树形', i.name, data, parentRawId, i.props.subRawId, all)
+                    console.log('注入元素树形', i.name, data, parentRawId, i.name, all)
                 }
-                analysisInjectData(i, all[parentRawId][i.props.subRawId], parentRawId, all)
+                analysisInjectData(i, (all[parentRawId] || {})[i.props.subRawId], parentRawId, all)
             }
         }
-    }
-    if (constructor.name === 'ElInput') {
-        console.log('ff123123')
     }
     for (let i in constructor.attrMap) {
         if (!data.attrMap[i]) data.attrMap[i] = constructor.attrMap[i]
     }
+    for (let i in constructor.props.attrMap) {
+        if (!data.attrMap[i]) data.attrMap[i] = constructor.props.attrMap[i]
+    }
+    constructor.props.attrMap && Object.assign(constructor.props.attrMap, data.attrMap)
+    constructor.attrMap && Object.assign(constructor.attrMap, data.attrMap)
     // for (let i in data.attrMap) {
     //     constructor.props.attrMap[i] = data.attrMap[i]
     // }
@@ -337,7 +339,7 @@ export function analysisInjectData(constructor, data = {}, parentRawId, all) {
     return constructor;
 }
 function injectData(item, dataItem) {
-    const { insData, renderFun, attrMap, on, nativeOn } = dataItem || {};
+    const { insData, renderFun, attrMap, on, nativeOn, methods } = dataItem || {};
     if (item.props.insData && insData) {
         for (let i in dataItem.insData) {
             item.props.insData[i] = insData[i]
@@ -349,8 +351,23 @@ function injectData(item, dataItem) {
             // this的坑点
             if (item.props && item.props.renderFun) item.props.renderFun = replaceFun(item.props.renderFun, x, attrMap[x])
             if (item.renderFun) item.renderFun = replaceFun(item.renderFun, x, attrMap[x])
+            // for(let i in item.props.on) {
+            //     item.props.on[i] = replaceFun(item.props.on[i], x, attrMap[x])
+            // }
             for(let i in item.props.on) {
-                item.props.on[i] = replaceFun(item.props.on[i], x, attrMap[x])
+                // 组件on方法
+                if (item.name === 'ElInput') {
+                    console.log('123123')
+                    console.log(item.props.on[i].toString())
+                }
+                item.props.on[i] = stringToFunc(item.props.on[i].toString().replace(x, attrMap[x]))
+            }
+            for(let i in item.on) {
+                // 元素on方法
+                item.on[i] = stringToFunc(item.on[i].toString().replace(x, attrMap[x]))
+            }
+            for(let i in item.nativeOn) {
+                item.nativeOn[i] = replaceFun(item.nativeOn[i], x, attrMap[x])
             }
             for(let i in item.props.nativeOn) {
                 item.props.nativeOn[i] = replaceFun(item.props.nativeOn[i], x, attrMap[x])
@@ -362,20 +379,28 @@ function injectData(item, dataItem) {
             }
         }
     }
-    if (item.name === 'ElInput') {
-        console.log('123123')
-    }
+
     if (item.props && item.props.renderFun && renderFun) {
         item.props.renderFun = getFunctionReplace(renderFun);
         item.renderFun && (item.renderFun = getFunctionReplace(renderFun));
     }
     if (item.props && item.props.on && on) {
-        for (let y in item.props.on) {
-            if (on[y]) {
-                item.props.on[y] = getFunctionReplace(on[y])
-                if (item.on[y]) item.on[y] = getFunctionReplace(on[y])
-            }
-        }
+        // for (let y in item.props.on) {
+        //     if (on[y]) {
+        //         item.props.on[y] = getFunctionReplace(on[y])
+        //         if (item.on[y]) item.on[y] = getFunctionReplace(on[y])
+        //     }
+        // }
+        Object.assign(item.props.methods, on)
+    }
+    if (item.props && item.props.methods && methods) {
+        // for (let y in item.props.methods) {
+        //     if (methods[y]) {
+        //         item.props.methods[y] = getFunctionReplace(methods[y])
+        //         if (item.methods[y]) item.methods[y] = getFunctionReplace(methods[y])
+        //     }
+        // }
+        Object.assign(item.props.methods, methods)
     }
     if (item.props && item.props.nativeOn && nativeOn) {
         for (let y in item.props.nativeOn) {
@@ -384,6 +409,7 @@ function injectData(item, dataItem) {
                 if (item.nativeOn[y]) item.nativeOn[y] = getFunctionReplace(nativeOn[y])
             }
         }
+        Object.assign(item.props.nativeOn, nativeOn)
     }
     function getFunctionReplace(func) {
         // 函数替换配置中的变量map

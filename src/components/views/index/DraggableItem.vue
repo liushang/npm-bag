@@ -38,12 +38,12 @@ const layouts = {
         let className = this.activeId === config.formId ? 'drawing-item active-from-item' : 'drawing-item';
         if (this.formConf && this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
         if (!currentItem || !currentItem.props || !currentItem.props.rawId) return
-        if (this.showType) {
-          currentItem.props.env = 'prod';
-        } else {
-          currentItem.props.env = 'dev';
-        }
-        console.log(currentItem )
+        // if (this.showType) {
+        //   currentItem.props.env = 'prod';
+        // } else {
+        //   currentItem.props.env = 'dev';
+        // }
+        console.log('injectDataItem')
 
         let configData = analysisDataRender([ currentItem ]);
         let configArr = analysisRenderConfig(configData, h);
@@ -92,6 +92,14 @@ export default {
     },
     computed: {
       injectDataItem() {
+        if (!this.configData) {
+          if (this.showType) {
+            this.currentItem.props.env = 'prod';
+          } else {
+            this.currentItem.props.env = 'dev';
+          }
+          return this.currentItem
+        };
         return  this.currentItem.props && this.currentItem.props.rawId ? analysisInjectData(this.currentItem, this.configData[this.currentItem.props.rawId], 'oContainer', this.configData) : {__config__: {}}
       }
     },
