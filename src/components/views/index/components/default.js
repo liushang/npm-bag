@@ -221,7 +221,7 @@ const elDefaultNode = {
         attrs: {},
         children: [],
         on: {
-            input: e => e
+            input: e => this.elInput_value = e
         },
         nativeOn: {
             input: e => {

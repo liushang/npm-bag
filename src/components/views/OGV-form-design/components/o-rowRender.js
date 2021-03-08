@@ -1,15 +1,19 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../../../schema/api';
+import baseAttr from '../base/attrs';
+import { dealMultiChildren, deepClone1 } from '../../../schema/util';
 let base = {
     data() {
         return {
             style: {
                 border: '1px solid #e4e7ed',
-                'min-height': '40px'
+                'min-height': '40px',
+                localData: {}
             }
         };
     },
     props: {
+        ...baseAttr.props,
         on: {
             type: Object,
             default: () => {}
@@ -91,6 +95,7 @@ let base = {
     created() {
     },
     mounted() {
+        this.localData = deepClone1(this.insData)
     }
 };
 export default base;

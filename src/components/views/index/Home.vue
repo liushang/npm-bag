@@ -223,7 +223,6 @@ export default {
             configData: {
               'oContainer': {
                 renderFun: function(oooo) {
-                  console.log(this);
                   console.log(this.tt)
                   return oooo
                 },
@@ -242,6 +241,12 @@ export default {
                     ],
                   }
                 }
+              },
+              'oRow_712129': {
+                renderFun: function(oooo) {
+                  console.log(this.tt)
+                  return oooo
+                },
               }
             },
 

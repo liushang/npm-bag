@@ -294,14 +294,14 @@ export function dealMultiChildren(children) {
 
 export function analysisInjectData(constructor, data = {}, parentRawId, all) {
     // 注入数据：组件本地数据，组件函数，组件映射字段
-    console.log('injectData')
-    console.log(constructor)
     // if (!data) return constructor
     const { rawId, subRawId } = constructor.props;
     if (rawId && constructor.props && constructor.props.children && constructor.props.children.length) {
         // 组件子元素注入
         for (let i of constructor.props.children) {
-            if (i.props.rawId && data[i.props.rawId]) {
+            if (i.name === 'oRow') {
+            }
+            if (i.props.rawId && all[i.props.rawId]) {
                 // 如果检测到的是组件，按组件注入
                 analysisInjectData(i, all[i.props.rawId], rawId, all)
             } else if (i.props.subRawId) {
@@ -312,7 +312,6 @@ export function analysisInjectData(constructor, data = {}, parentRawId, all) {
     } else if (subRawId && constructor.children && constructor.children.length) {
         // 元素子元素注入
         for (let i of constructor.children) {
-            console.log(i.props)
             if (!i.props) return
             if (i.props.rawId && data[i.props.rawId]) {
                 // 如果检测到的是组件，按组件注入
@@ -330,29 +329,40 @@ export function analysisInjectData(constructor, data = {}, parentRawId, all) {
     return constructor;
 }
 function injectData(item, dataItem) {
-    if (item.name === 'ElInput') {
-        console.log('ElInpeeeeeeeeut')
-    }
-    console.log('inject', item.name, dataItem)
-    const { insData, renderFun, attrMap, on } = dataItem || {};
+    const { insData, renderFun, attrMap, on, nativeOn } = dataItem || {};
     if (item.props.insData && insData) {
         for (let i in dataItem.insData) {
             item.props.insData[i] = insData[i]
-        } 
+        }
     }
     if (attrMap) {
         for(let x in attrMap) {
             // this的坑点
-            item.props.renderFun = item.props.renderFun.replace(x, attrMap[x])
-            item.renderFun = item.renderFun.replace(x, attrMap[x])
+            if (item.props && item.props.renderFun) item.props.renderFun = stringToFunc((item.props.renderFun).toString().replace(x, attrMap[x]))
+            if (item.renderFun) item.renderFun = stringToFunc(item.renderFun.toString().replace(x, attrMap[x]))
         }
     }
-    if (item.props.renderFun && renderFun) {
-        item.props.renderFun = getFunctionReplace(renderFun);
+    if (item.name === 'oRow') {
+        console.log('123123')
     }
-    if (item.props.on && on) {
+    if (item.props && item.props.renderFun && renderFun) {
+        item.props.renderFun = getFunctionReplace(renderFun);
+        item.renderFun && (item.props.renderFun = getFunctionReplace(renderFun));
+    }
+    if (item.props && item.props.on && on) {
         for (let y in item.props.on) {
-            if (on[y]) item.props.on[y] = getFunctionReplace(on[y])
+            if (on[y]) {
+                item.props.on[y] = getFunctionReplace(on[y])
+                if (item.on[y]) item.on[y] = getFunctionReplace(on[y])
+            }
+        }
+    }
+    if (item.props && item.props.nativeOn && nativeOn) {
+        for (let y in item.props.nativeOn) {
+            if (nativeOn[y]) {
+                item.props.nativeOn[y] = getFunctionReplace(nativeOn[y])
+                if (item.nativeOn[y]) item.nativeOn[y] = getFunctionReplace(nativeOn[y])
+            }
         }
     }
     function getFunctionReplace(func) {
@@ -367,5 +377,4 @@ function injectData(item, dataItem) {
         }
         return stringToFunc(func)
     }
-    console.log(item)
 }
