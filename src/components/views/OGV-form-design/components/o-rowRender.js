@@ -64,7 +64,7 @@ let base = {
                     return func(e, this);
                 };
             }
-            let children = [{
+            let children = {
                 name: 'el-row',
                 attr: this.attrs,
                 style: Object.assign(this.style, this.styles),
@@ -75,7 +75,9 @@ let base = {
                     ...this.on
                 },
                 children: this.children
-            }];
+            };
+            let renderChildren = this.renderFun(children)
+            let multiChildren = dealMultiChildren(renderChildren)
             return {
                 children: this.env === 'dev' ? [{
                     // 为了展示边框选中态特意加的
@@ -87,8 +89,8 @@ let base = {
                             this.$root.$emit('DEAL_CHOOSE', this);
                         }
                     },
-                    children
-                }] : children
+                    children: multiChildren
+                }] : multiChildren
             };
         }
     },

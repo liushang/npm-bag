@@ -16,6 +16,7 @@ export const computed = {
 
 export function render(h) {
     // this.configData = analysisDataRender(this.configComponents.children);
+    console.log(this.configData)
     let configArr = analysisRenderConfig.bind(this)(this.configData, h);
     if (configArr.length > 1) {
         return h(

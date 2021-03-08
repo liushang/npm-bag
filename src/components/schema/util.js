@@ -15,158 +15,6 @@ export function deepClone1(obj) {
     }
     return objClone;
 }
-// render拼接
-export function analysisRenderConfig(configData, createElement) {
-    if (configData) {
-        let renderArr = [];
-        for (let i of configData) {
-            let dealChildFun = dealChild.bind(this)
-            if (Array.isArray(dealChildFun(i, createElement))) {
-                renderArr.push(...dealChildFun(i, createElement))
-            } else {
-                renderArr.push(dealChildFun(i, createElement));
-            }
-        }
-        return renderArr;
-    }
-}
-function dealChild(child, cb) {
-    // console.log(child)
-    if (!child || !child.values) { // 简单类型
-        return child;
-    } else if (child.name.startsWith('o')) {
-        // assign
-        let item = {
-            class: Object.assign(child.raw['class'] || {}, child.class),
-            style: child.raw.style,
-            attrs: child.raw.attrs,
-            props: child.raw.props,
-            domProps: child.raw.domProps,
-            on: child.raw.on,
-            nativeOn: child.raw.nativeOn,
-            directives: child.raw.directives,
-            scopedSlots: child.raw.scopedSlots,
-            slot: child.raw.slot,
-            key: child.raw.key,
-            ref: child.raw.ref,
-            refInFor: child.raw.refInFor
-        };
-        if (item.style && item.style.border && item.style.border === '1px solid red') {
-            item.class['border-red'] = true
-        } else {
-            delete item.class['border-red']
-        }
-        if (child.raw.attr) {
-            let attrs = {};
-            let props = {};
-            for (let i in child.raw.attr) {
-                attrs[i] = child.raw.attr[i];
-            }
-            item.attrs = Object.assign(item.attrs || {}, attrs);
-            item.props = Object.assign(item.props || {}, props);
-        }
-        for (let x in child) {
-            if (!['values', 'children', 'name', 'raw'].includes(x)) item.props[x] = child[x];
-        }
-        return cb(
-            child.name,
-            item,
-            analysisRenderConfig.bind(this)(child.values, cb)
-        );
-    } else {
-        let item = {
-            'class': child.raw['class'] || {},
-            style: child.raw.style,
-            attrs: child.raw.attrs,
-            props: child.raw.attrs,
-            domProps: child.raw.domProps,
-            on: child.raw.on,
-            nativeOn: child.raw.nativeOn,
-            directives: child.raw.directives,
-            scopedSlots: child.raw.scopedSlots,
-            slot: child.raw.slot,
-            key: child.raw.key,
-            ref: child.raw.ref,
-            refInFor: child.raw.refInFor
-        };
-        if (item.style && item.style.border && item.style.border === '1px solid red') {
-            item.class['border-red'] = true
-        } else {
-            delete item.class['border-red']
-        }
-        if (child.raw.attr) {
-            let attrs = {};
-            let props = {};
-            for (let i in child.raw.attr) {
-                attrs[i] = child.raw.attr[i];
-            }
-            item.attrs = Object.assign(item.attrs || {}, attrs);
-            item.props = Object.assign(item.props || {}, props);
-        }
-        for (let x in child) {
-            if (!['values', 'children', 'name', 'raw'].includes(x)) item.props[x] = child[x];
-        }
-        if (item.ref) {} else {
-            if (item.props && item.props.ref) item.ref = item.props.ref
-        }
-        return cb(
-            child.name,
-            item,
-            analysisRenderConfig.bind(this)(child.values, cb)
-        )
-    }
-}
-
-export function stringToFunc(str) {
-    if (typeof str === 'string') {
-        str = String(str)
-        let funLast = str.slice(str.indexOf('{') + 1);
-        let funMiddle = funLast.slice(0, funLast.lastIndexOf('}')).trim();
-        // 获取函数参数
-        let funPre = str.slice(str.indexOf('(') + 1);
-        let funNamePre = funPre.slice(0, funPre.indexOf(')'));
-        let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
-        /* eslint-disable */
-        return new Function(...funNameArr, funMiddle);
-    } else {
-        return str
-    }
-}
-export function getComponent(callBack, { path, delay = 1 }, param) {
-    // setTimeout(() => {
-    callBack(require([`${path}`], param));
-    // }, delay);
-}
-
-// export function analysisData(configComponents) {
-//     // 构建组件数据
-//     const configData = [];
-//     for (let i = 0; i < configComponents.length; i++) {
-//         const rawData = deepClone1(configComponents[i]);
-//         delete rawData.children;
-//         if (typeof configComponents[i] !== 'object') { // 简单类型
-//             const childrenData = {
-//                 type: 'simple',
-//                 values: configComponents[i],
-//                 raw: rawData
-//             };
-//             configData.push(childrenData);
-//         } else {
-//             const childrenData = {
-//                 type: 'Array',
-//                 raw: rawData
-//             };
-//             if (configComponents[i].children) {
-//                 childrenData.values = analysisData(configComponents[i].children);
-//             } else {
-//                 childrenData.values = [];
-//             }
-//             configData.push(childrenData);
-//         }
-//     }
-    
-//     return configData;
-// }
 
 export function analysisDataRender(configComponents) {
     // 构建组件数据
@@ -229,6 +77,122 @@ export function analysisDataRender(configComponents) {
     return configData;
 }
 
+
+// render拼接
+export function analysisRenderConfig(configData, createElement) {
+    if (configData) {
+        let renderArr = [];
+        for (let i of configData) {
+            let dealChildFun = dealChild.bind(this)
+            if (Array.isArray(dealChildFun(i, createElement))) {
+                renderArr.push(...dealChildFun(i, createElement))
+            } else {
+                renderArr.push(dealChildFun(i, createElement));
+            }
+        }
+        return renderArr;
+    }
+}
+function dealChild(child, cb) {
+    // console.log(child)
+    if (!child || !child.values) { // 简单类型
+        return child;
+    // } else if (child.name.startsWith('o')) {
+    //     // assign
+    //     let item = {
+    //         class: Object.assign(child.raw['class'] || {}, child.class),
+    //         style: child.raw.style,
+    //         attrs: child.raw.attrs,
+    //         props: child.raw.props,
+    //         domProps: child.raw.domProps,
+    //         on: child.raw.on,
+    //         nativeOn: child.raw.nativeOn,
+    //         directives: child.raw.directives,
+    //         scopedSlots: child.raw.scopedSlots,
+    //         slot: child.raw.slot,
+    //         key: child.raw.key,
+    //         ref: child.raw.ref,
+    //         refInFor: child.raw.refInFor
+    //     };
+    //     if (item.style && item.style.border && item.style.border === '1px solid red') {
+    //         item.class['border-red'] = true
+    //     } else {
+    //         delete item.class['border-red']
+    //     }
+    //     return cb(
+    //         child.name,
+    //         item,
+    //         analysisRenderConfig.bind(this)(child.values, cb)
+    //     );
+    } else {
+        // console.log('测试123', child.name)
+        let item = {
+            'class': child.raw['class'] || {},
+            style: child.raw.style,
+            attrs: child.raw.attrs,
+            props: child.name.startsWith('o') ? child.raw.props : child.raw.attrs,
+            domProps: child.raw.domProps,
+            on: child.raw.on,
+            nativeOn: child.raw.nativeOn,
+            directives: child.raw.directives,
+            scopedSlots: child.raw.scopedSlots,
+            slot: child.raw.slot,
+            key: child.raw.key,
+            ref: child.raw.ref,
+            refInFor: child.raw.refInFor
+        };
+        if (item.style && item.style.border && item.style.border === '1px solid red') {
+            item.class['border-red'] = true
+        } else {
+            delete item.class['border-red']
+        }
+        if (child.name === 'ElInput') {
+            console.log('我是elInput')
+        }
+        if (child.raw.attr) {
+            let attrs = {};
+            let props = {};
+            for (let i in child.raw.attr) {
+                attrs[i] = child.raw.attr[i];
+            }
+            item.attrs = Object.assign(item.attrs || {}, attrs);
+            item.props = Object.assign(item.props || {}, props);
+        }
+        for (let x in child) {
+            if (!['values', 'children', 'name', 'raw'].includes(x)) item.props[x] = child[x];
+        }
+        if (item.ref) {} else {
+            if (item.props && item.props.ref) item.ref = item.props.ref
+        }
+        return cb(
+            child.name,
+            item,
+            analysisRenderConfig.bind(this)(child.values, cb)
+        )
+    }
+}
+
+export function stringToFunc(str) {
+    if (typeof str === 'string') {
+        str = String(str)
+        let funLast = str.slice(str.indexOf('{') + 1);
+        let funMiddle = funLast.slice(0, funLast.lastIndexOf('}')).trim();
+        // 获取函数参数
+        let funPre = str.slice(str.indexOf('(') + 1);
+        let funNamePre = funPre.slice(0, funPre.indexOf(')'));
+        let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
+        /* eslint-disable */
+        return new Function(...funNameArr, funMiddle);
+    } else {
+        return str
+    }
+}
+export function getComponent(callBack, { path, delay = 1 }, param) {
+    // setTimeout(() => {
+    callBack(require([`${path}`], param));
+    // }, delay);
+}
+
 export function getDefaultProps (config) {
     let props = config.props || {};
     let propsIns = {};
@@ -272,7 +236,7 @@ function changeRawId(i) {
         // if (i.props.subRawId) i.props.subRawId = i.props.subRawId.split('_')[0] + '_' + parseInt(Math.random() * 1000000)
         // if (i.props.rawId) i.props.rawId = i.props.rawId.split('_')[0] + '_' + parseInt(Math.random() * 1000000)
     }
-    if (i.props.children) {
+    if (i.props && i.props.children) {
         for (let x of i.props.children) {
             changeRawId(x)
         }
