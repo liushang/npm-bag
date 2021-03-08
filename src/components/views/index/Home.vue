@@ -223,7 +223,6 @@ export default {
             configData: {
               'oContainer': {
                 renderFun: function(oooo) {
-                  console.log(this.tt)
                   return oooo
                 },
                 attrMap: {
@@ -239,6 +238,15 @@ export default {
                       { required: true, message: '请输入活动名称', trigger: 'blur' },
                       { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
                     ],
+                  }
+                },
+                'ElInput_925750': {
+                  attrMap: {
+                    'elInput_value': 'localData.form.input1'
+                  },
+                  renderFun: function(x) {
+                    x.value = this.localData.form.input;
+                    return x
                   }
                 }
               },

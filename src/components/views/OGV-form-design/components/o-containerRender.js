@@ -155,7 +155,8 @@ let base = {
         }
     },
     created() {
-        console.log('fjasodjfpafjaps[jdf======= ')
+        console.log(this.insData)
+        this.localData = deepClone1(this.insData)
     },
     mounted() {
         this.containerId = 'oContainer'
@@ -164,8 +165,6 @@ let base = {
         }
         this.$set(this.rootData[this.containerId], 'methods', this.methods);
         this.on && this.on['mounted'] && this.on['mounted'](this);
-        console.log(this.insData)
-        this.localData = deepClone1(this.insData)
     }
 };
 export default base;

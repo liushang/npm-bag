@@ -317,15 +317,23 @@ export function analysisInjectData(constructor, data = {}, parentRawId, all) {
                 // 如果检测到的是组件，按组件注入
                 analysisInjectData(i, all[i.props.rawId], parentRawId, all)
             } else if (i.props.subRawId) {
-                console.log('注入元素树形', i.name, data, all)
+                if (i.props.subRawId === 'ElInput_925750') {
+                    console.log('注入元素树形', i.name, data, parentRawId, i.props.subRawId, all)
+                }
                 analysisInjectData(i, all[parentRawId][i.props.subRawId], parentRawId, all)
             }
         }
     }
-    let mergerLocal = Object.assign(data, {
-        attrMap: constructor.props.attrMap
-    })
-    injectData(constructor, mergerLocal)
+    if (constructor.name === 'ElInput') {
+        console.log('ff123123')
+    }
+    for (let i in constructor.attrMap) {
+        if (!data.attrMap[i]) data.attrMap[i] = constructor.attrMap[i]
+    }
+    // for (let i in data.attrMap) {
+    //     constructor.props.attrMap[i] = data.attrMap[i]
+    // }
+    injectData(constructor, data)
     return constructor;
 }
 function injectData(item, dataItem) {
@@ -336,18 +344,30 @@ function injectData(item, dataItem) {
         }
     }
     if (attrMap) {
+        const replaceFun = (func, key, val) => stringToFunc(func.toString().replace(key, val))
         for(let x in attrMap) {
             // this的坑点
-            if (item.props && item.props.renderFun) item.props.renderFun = stringToFunc((item.props.renderFun).toString().replace(x, attrMap[x]))
-            if (item.renderFun) item.renderFun = stringToFunc(item.renderFun.toString().replace(x, attrMap[x]))
+            if (item.props && item.props.renderFun) item.props.renderFun = replaceFun(item.props.renderFun, x, attrMap[x])
+            if (item.renderFun) item.renderFun = replaceFun(item.renderFun, x, attrMap[x])
+            for(let i in item.props.on) {
+                item.props.on[i] = replaceFun(item.props.on[i], x, attrMap[x])
+            }
+            for(let i in item.props.nativeOn) {
+                item.props.nativeOn[i] = replaceFun(item.props.nativeOn[i], x, attrMap[x])
+            }
+            if (item.props.methods) {
+                for(let i in item.props.methods) {
+                    item.props.methods[i] = replaceFun(item.props.methods[i], x, attrMap[x])
+                }
+            }
         }
     }
-    if (item.name === 'oRow') {
+    if (item.name === 'ElInput') {
         console.log('123123')
     }
     if (item.props && item.props.renderFun && renderFun) {
         item.props.renderFun = getFunctionReplace(renderFun);
-        item.renderFun && (item.props.renderFun = getFunctionReplace(renderFun));
+        item.renderFun && (item.renderFun = getFunctionReplace(renderFun));
     }
     if (item.props && item.props.on && on) {
         for (let y in item.props.on) {
