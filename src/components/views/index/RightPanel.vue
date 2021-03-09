@@ -2,7 +2,7 @@
   <div class="right-board" id="right-board">
     <el-tabs v-model="currentTab" class="center-tabs">
       <el-tab-pane label="组件属性" name="field" />
-      <el-tab-pane label="关联配置" name="relation" />
+      <!-- <el-tab-pane label="关联配置" name="relation" /> -->
       <el-tab-pane label="表单属性" name="form" />
     </el-tabs>
     <div class="field-box">

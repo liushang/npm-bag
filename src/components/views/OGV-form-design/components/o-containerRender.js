@@ -51,7 +51,7 @@ let base = {
             type: Object,
             default: () => {
                 return {
-                    'min-height': '700px',
+                    'min-height': '650px',
                     'padding': '10px 0 40px'
                 };
             }

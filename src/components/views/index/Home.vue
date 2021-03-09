@@ -9,29 +9,6 @@
       <el-scrollbar class="left-scrollbar">
         <div class="components-list">
           <div v-for="(item, listIndex) in leftComponents" :key="listIndex">
-            <!-- <div class="components-title">
-              {{ item.title }}
-            </div> -->
-            <!-- <draggable
-              class="components-draggable"
-              :list="item.list"
-              :group="{ name: 'componentsGroup', pull: 'clone', put: false }"
-              :clone="cloneComponent"
-              draggable=".components-item"
-              :sort="false"
-              @end="onEnd"
-            >
-              <div
-                v-for="(element, index) in item.list"
-                :key="index"
-                class="components-item"
-                @click="addComponent(element, listIndex)"
-              >
-                <div class="components-body">
-                  {{ element.__config__.label }}
-                </div>
-              </div>
-            </draggable> -->
             <el-collapse>
               <el-collapse-item :title="item.title">
                 <div
@@ -90,7 +67,7 @@
                   :configData="configData"
                   @activeItem="activeFormItem"
                   @copyItem="drawingItemCopy"
-                  @viewItem="showViewModel = true;"
+                  @viewItem="viewItem"
                   @deleteItem="drawingItemDelete"
                 />
                   </div>
@@ -119,7 +96,7 @@
       @close="closePanelDialog"
     />
     <input id="copyNode" type="hidden">
-    <view-model v-if="showViewModel" @closeViewModel="showViewModel=false" :drawingList="drawingList">
+    <view-model v-if="showViewModel" @closeViewModel="showViewModel=false" :drawingList="viewItemData">
     </view-model>
   </div>
 </template>
@@ -248,6 +225,7 @@ export default {
                 }
               },
             },
+            viewItemData: []
           };
     },
     watch: {
@@ -401,6 +379,11 @@ export default {
                 }
             });
         },
+        viewItem(viewItem) {
+          this.viewItemData = [viewItem];
+          console.log(this.viewItemData)
+          this.showViewModel = true;
+        }
     }
 };
 </script>
