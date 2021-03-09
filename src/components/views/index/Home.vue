@@ -262,6 +262,14 @@ export default {
                   console.log(this.tt)
                   return oooo
                 },
+              },
+              'oRow_719910': {
+                renderFun: function(oo) {
+                  return oo
+                },
+                insData: {
+                  aa: 0
+                }
               }
             },
 

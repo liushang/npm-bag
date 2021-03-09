@@ -95,9 +95,9 @@ let base = {
         }
     },
     created() {
+        this.localData = deepClone1(this.insData)
     },
     mounted() {
-        this.localData = deepClone1(this.insData)
     }
 };
 export default base;

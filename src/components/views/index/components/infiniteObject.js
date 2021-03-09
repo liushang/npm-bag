@@ -416,8 +416,7 @@ export default {
                     // for (let i in config.props) {
                     //     config[i] = config.props[i];
                     // }
-                    config.props.renderFun = stringToFunc(config.props.renderFun.toString().replace('_this', 'this'))
-                    config.renderFun = stringToFunc(config.renderFun.toString().replace('_this', 'this'))
+                    config.props.renderFun = config.renderFun = stringToFunc(config.props.renderFun.toString().replace('_this', 'this'))
                     for(let i in config.props.on) {
                         config.props.on[i] = stringToFunc(config.props.on[i].toString().replace('_this', 'this'))
                     }
@@ -430,10 +429,7 @@ export default {
                     for(let i in config.nativeOn) {
                         config.nativeOn[i] = stringToFunc(config.nativeOn[i].toString().replace('_this', 'this'))
                     }
-                    // if (!config.props.subRawId) {
-                        config.props.subRawId = getRawId(config.name);
-                        // if (!this.containerInject[config.props.subRawId]) this.containerInject[config.props.rawId] = {};
-                    // }
+                    config.props.subRawId = getRawId(config.name);
                     this.$set(this.activeData[key], this.modifyItem[key].key, config);
                 } else {
                 // 简单属性直接保存

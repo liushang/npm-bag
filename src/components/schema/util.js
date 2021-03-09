@@ -147,7 +147,6 @@ function dealChild(child, cb) {
             delete item.class['border-red']
         }
         if (child.name === 'ElInput') {
-            console.log('我是elInput')
         }
         if (child.raw.attr) {
             let attrs = {};
@@ -186,11 +185,6 @@ export function stringToFunc(str) {
     } else {
         return str
     }
-}
-export function getComponent(callBack, { path, delay = 1 }, param) {
-    // setTimeout(() => {
-    callBack(require([`${path}`], param));
-    // }, delay);
 }
 
 export function getDefaultProps (config) {
@@ -296,9 +290,6 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
     }
     constructor.props.attrMap && Object.assign(constructor.props.attrMap, data.attrMap)
     constructor.attrMap && Object.assign(constructor.attrMap, data.attrMap)
-    // for (let i in data.attrMap) {
-    //     constructor.props.attrMap[i] = data.attrMap[i]
-    // }
     injectData(constructor, data)
     return constructor;
 }
