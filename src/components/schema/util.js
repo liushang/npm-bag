@@ -38,6 +38,7 @@ export function analysisDataRender(configComponents) {
             if (rawData.on) {
                 for (let x in rawData.on) {
                     let funcs = stringToFunc(rawData.on[x]);
+                    // console.log(rawData.on['input'].toString())
                     rawData.on[x] = (e) => {
                         // return func(e, this);
                         let oo = funcs.bind(this)
@@ -97,35 +98,7 @@ function dealChild(child, cb) {
     // console.log(child)
     if (!child || !child.values) { // 简单类型
         return child;
-    // } else if (child.name.startsWith('o')) {
-    //     // assign
-    //     let item = {
-    //         class: Object.assign(child.raw['class'] || {}, child.class),
-    //         style: child.raw.style,
-    //         attrs: child.raw.attrs,
-    //         props: child.raw.props,
-    //         domProps: child.raw.domProps,
-    //         on: child.raw.on,
-    //         nativeOn: child.raw.nativeOn,
-    //         directives: child.raw.directives,
-    //         scopedSlots: child.raw.scopedSlots,
-    //         slot: child.raw.slot,
-    //         key: child.raw.key,
-    //         ref: child.raw.ref,
-    //         refInFor: child.raw.refInFor
-    //     };
-    //     if (item.style && item.style.border && item.style.border === '1px solid red') {
-    //         item.class['border-red'] = true
-    //     } else {
-    //         delete item.class['border-red']
-    //     }
-    //     return cb(
-    //         child.name,
-    //         item,
-    //         analysisRenderConfig.bind(this)(child.values, cb)
-    //     );
     } else {
-        // console.log('测试123', child.name)
         let item = {
             'class': child.raw['class'] || {},
             style: child.raw.style,
@@ -147,6 +120,7 @@ function dealChild(child, cb) {
             delete item.class['border-red']
         }
         if (child.name === 'ElInput') {
+            // if (child.raw.on) console.log(child.raw.on.input.toString())
         }
         if (child.raw.attr) {
             let attrs = {};
@@ -158,7 +132,7 @@ function dealChild(child, cb) {
             item.props = Object.assign(item.props || {}, props);
         }
         for (let x in child) {
-            if (!['values', 'children', 'name', 'raw'].includes(x)) item.props[x] = child[x];
+            if (!['values', 'children', 'name', 'raw'].includes(x) && child[x]) item.props[x] = child[x];
         }
         if (item.ref) {} else {
             if (item.props && item.props.ref) item.ref = item.props.ref
@@ -257,12 +231,10 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
     if (rawId && constructor.props && constructor.props.children && constructor.props.children.length) {
         // 组件子元素注入
         for (let i of constructor.props.children) {
-            if (i.name === 'oRow') {
-            }
-            if (i.props.rawId && all[i.props.rawId]) {
+            if (i.props && i.props.rawId && all[i.props.rawId]) {
                 // 如果检测到的是组件，按组件注入
                 analysisInjectData(i, all[i.props.rawId], rawId, all)
-            } else if (i.props.subRawId) {
+            } else if (i.props && i.props.subRawId) {
                 console.log('注入元素树形,依旧注入组件属性', i.name, data[i.props.subRawId], all)
                 analysisInjectData(i, data[i.props.subRawId], rawId, all)
             }
@@ -309,27 +281,33 @@ function injectData(item, dataItem) {
             // for(let i in item.props.on) {
             //     item.props.on[i] = replaceFun(item.props.on[i], x, attrMap[x])
             // }
-            for(let i in item.props.on) {
-                // 组件on方法
-                if (item.name === 'ElInput') {
-                    console.log('123123')
-                    console.log(item.props.on[i].toString())
-                }
-                item.props.on[i] = stringToFunc(item.props.on[i].toString().replace(x, attrMap[x]))
-            }
+            // for(let i in item.props.on) {
+            //     // 组件on方法
+            //     if (item.name === 'ElInput') {
+            //         console.log('123123')
+            //         console.log(item.props.on[i].toString())
+            //     }
+            //     item.props.on[i] = stringToFunc(item.props.on[i].toString().replace(x, attrMap[x]))
+            // }
             for(let i in item.on) {
                 // 元素on方法
-                item.on[i] = stringToFunc(item.on[i].toString().replace(x, attrMap[x]))
+                item.props.on[i] = item.on[i] = stringToFunc(item.on[i].toString().replace(x, attrMap[x]))
+                console.log(item.on[i].toString())
             }
+            // for(let i in item.nativeOn) {
+            //     item.nativeOn[i] = replaceFun(item.nativeOn[i], x, attrMap[x])
+            // }
             for(let i in item.nativeOn) {
-                item.nativeOn[i] = replaceFun(item.nativeOn[i], x, attrMap[x])
-            }
-            for(let i in item.props.nativeOn) {
-                item.props.nativeOn[i] = replaceFun(item.props.nativeOn[i], x, attrMap[x])
+                item.props.nativeOn[i] = item.nativeOn[i] = replaceFun(item.nativeOn[i], x, attrMap[x])
             }
             if (item.props.methods) {
                 for(let i in item.props.methods) {
                     item.props.methods[i] = replaceFun(item.props.methods[i], x, attrMap[x])
+                }
+            }
+            if (item.props.computed) {
+                for(let i in item.props.computed) {
+                    item.props.computed[i] = replaceFun(item.props.computed[i], x, attrMap[x])
                 }
             }
         }
@@ -340,22 +318,13 @@ function injectData(item, dataItem) {
         item.renderFun && (item.renderFun = getFunctionReplace(renderFun));
     }
     if (item.props && item.props.on && on) {
-        // for (let y in item.props.on) {
-        //     if (on[y]) {
-        //         item.props.on[y] = getFunctionReplace(on[y])
-        //         if (item.on[y]) item.on[y] = getFunctionReplace(on[y])
-        //     }
-        // }
-        Object.assign(item.props.methods, on)
+        Object.assign(item.props.on, on)
     }
     if (item.props && item.props.methods && methods) {
-        // for (let y in item.props.methods) {
-        //     if (methods[y]) {
-        //         item.props.methods[y] = getFunctionReplace(methods[y])
-        //         if (item.methods[y]) item.methods[y] = getFunctionReplace(methods[y])
-        //     }
-        // }
         Object.assign(item.props.methods, methods)
+    }
+    if (item.props && item.props.computed && methods) {
+        Object.assign(item.props.computed, methods)
     }
     if (item.props && item.props.nativeOn && nativeOn) {
         for (let y in item.props.nativeOn) {

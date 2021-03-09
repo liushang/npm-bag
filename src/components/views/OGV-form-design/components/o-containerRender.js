@@ -17,7 +17,7 @@ let base = {
             basicData: {},
             container: {},
             containerId: '',
-            localData: {}
+            lcData: {}
         };
     },
     props: {
@@ -82,7 +82,7 @@ let base = {
         ...((this && this.methods) || {}),
         renderRender: (x) => {
             return x
-            // return [ x[0], ((this.localData || {}) || '').toString() ]
+            // return [ x[0], ((this.lcData || {}) || '').toString() ]
         }
     },
     provide() {
@@ -155,8 +155,7 @@ let base = {
         }
     },
     created() {
-        console.log(this.insData)
-        this.localData = deepClone1(this.insData)
+        this.lcData = deepClone1(this.insData)
     },
     mounted() {
         this.containerId = 'oContainer'

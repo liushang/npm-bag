@@ -45,7 +45,7 @@
                   :rootWord="i"
                   :initialType="i === 'children' ? 'array' : 'string'"
                   @changeComponentPanel="changeComponentPanel"
-                  :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods'].includes(i) ? 'text' : 'input'"
+                  :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed'].includes(i) ? 'text' : 'input'"
                   ></InfiniteObject>
               </el-collapse-item>
               </div>
@@ -83,8 +83,6 @@
       :form-conf="formConf"
       v-if="showPanel"
       @close="closePanelDialog"
-      @tag-change="tagChange"
-      @fetch-data="fetchData"
     />
     <codeEditor :dataStr="renderCode" v-if="activeData && activeData.props && activeData.props.renderFun && showFunctionDialog" :options="cmOptions" @close="changeFuncCode" ref="cmEditor"/>
   </div>
@@ -98,7 +96,6 @@ import { saveFormConf,
 } from '../../utils/db';
 import 'codemirror/mode/javascript/javascript.js';
 import { htmlNode, elNode, defaultKV } from './components/default';
-// import theme style
 import 'codemirror/theme/base16-dark.css';
 import BASEMAP from './base/map';
 import PanelDialog from './PanelDialog';
@@ -107,8 +104,6 @@ export default {
         InfiniteObject,
         CodeEditor,
         PanelDialog
-    // ComponentConfigDetail
-    // IconsDialog
     },
     props: ['showField', 'activeData', 'formConf', 'containerInject'],
     mounted() {
@@ -246,7 +241,7 @@ export default {
             this.showFunctionDialog = false;
             this.$emit('renderAgain');
             const [ data, property, subProperty ] = this.tempCodeArr;
-            const funcArr = ['on', 'nativeOn', 'methods']
+            const funcArr = ['on', 'nativeOn', 'methods', 'computed']
             if (data[property][subProperty] && !funcArr.includes(property)) {
                 data[property][subProperty] = code;
             } else {
@@ -256,12 +251,10 @@ export default {
                 data[property] = stringToFunc(code);
               }
             }
-            // this.activeData.props.renderFunStr = code
-            // this.activeData.props.renderFun = stringToFunc(code)
         },
         // 向上传递改变组件面板内容
         changeComponentPanel(type, data, property, subProperty) {
-            if (property === 'renderFun' || property === 'on' || property === 'nativeOn' || property === 'methods') {
+            if (['renderFun', 'on', 'nativeOn', 'methods', 'computed'].includes(property)) {
                 // 函数编辑窗
                 this.tempCodeArr = [data, property, subProperty];
                 this.showFunctionDialog = true;
@@ -306,16 +299,8 @@ export default {
             });
 
         },
-        // saveProperty(key, data = this.activeData) {
-        //     if (!(key in data)) this.$set(data, key, {});
-        //     this.$set(this.activeData[key], this.modifyItem[key].key, this.modifyItem[key].value);
-        //     console.log('新增属性');
-        //     console.log(this.activeData);
-        //     this.modifyItem = {};
-        // },
         delModifyItem(key, data = this.activeData) {
             this.$delete(this.modifyItem, key, '');
-            // delete this.modifyItem[key]
         }
     }
 };

@@ -3,6 +3,7 @@
   class="panel-dialog"
   :visible.sync="dialogVisible"
   width="80%"
+  top="8vh"
   @close="close">
   <el-tabs v-model="currentTab" class="center-tabs">
     <el-tab-pane label="组件属性" name="field" />
@@ -65,14 +66,13 @@ export default {
     watch: {
         formConf: {
             handler(val) {
-                console.log('formconfg', val);
                 saveFormConf(val);
             },
             deep: true
         },
         activeData: {
             handler(val) {
-                this.modeJson = val;
+                val && (this.modeJson = val);
             },
             deep: true,
             immediate: true
@@ -120,7 +120,7 @@ export default {
         },
         saveProperty(key, data = this.activeData) {
             if (!(key in data)) this.$set(data, key, {});
-            this.$set(this.activeData[key], this.modifyItem[key].key, this.modifyItem[key].value);
+            this.$set(this.activeData[key], this.modifyItem[key].key, this.modifyItem[key].value || '');
             this.modifyItem = {};
         },
         delModifyItem(key, data = this.activeData) {

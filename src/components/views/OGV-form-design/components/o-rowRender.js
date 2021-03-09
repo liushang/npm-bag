@@ -8,7 +8,7 @@ let base = {
             style: {
                 border: '1px solid #e4e7ed',
                 'min-height': '40px',
-                localData: {}
+                lcData: {}
             }
         };
     },
@@ -76,6 +76,7 @@ let base = {
                 },
                 children: this.children
             };
+            console.log(this.renderFun)
             let renderChildren = this.renderFun(children)
             let multiChildren = dealMultiChildren(renderChildren)
             return {
@@ -95,7 +96,7 @@ let base = {
         }
     },
     created() {
-        this.localData = deepClone1(this.insData)
+        this.lcData = deepClone1(this.insData)
     },
     mounted() {
     }

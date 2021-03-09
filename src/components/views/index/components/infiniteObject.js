@@ -23,7 +23,6 @@ export default {
         }];
         return {
             // 编辑对象
-            // modifyItem: {},
             options,
             valueTypeInitial: {
                 '1': '',
@@ -39,45 +38,8 @@ export default {
                               <el-radio label={true}>true</el-radio>
                               <el-radio label={false}>false</el-radio>
                           </el-radio-group>,
-                '4': e => (
-                    <el-form-item label-width="40px">
-                        <el-form-item>
-                            {this.getValue(e, 'value')}
-                        </el-form-item>
-                        {e.value.hasOwnProperty('key') ? <el-button  size="mini" onClick={() => this.delModifyItem(e, 'value')}>取消</el-button> : <el-button onClick={() => this.addProperty(e, 'value', '4')}>新建</el-button>}
-                    </el-form-item>
-                ),
-                '5': e => (
-                    <el-form-item label-width="40px">
-                        <el-form-item>
-                            {e.value.length ? e.value.map((x, i) => this.getValue(e.value, i)) : ''}
-                        </el-form-item>
-                        {
-                            !e.value.length
-                                ? <el-button  size="mini" onClick={() => this.addProperty(e, 'value', '5')}>创建</el-button>
-                                : e.value.hasOwnProperty('key') ? <el-button size="mini" onClick={() => this.delModifyItem(e, 'value')}>取消</el-button> : <el-button onClick={() => this.addProperty(e, 'value', '5')}>新增</el-button>
-                        }
-                    </el-form-item>
-                )
-            },
-            detailValueTypeMap: {
-                '1': e => <span>{e.value}</span>,
-                '2': e => <span>{e.value}</span>,
-                '3': e => <span>{e.value}</span>,
-                '4': e => (
-                    <el-form-item label-width="40px"  size="mini">
-                        <el-form-item>
-                            {this.getTrueValue(e, 'value')}
-                        </el-form-item>
-                    </el-form-item>
-                ),
-                '5': e => (
-                    <el-form-item label-width="40px">
-                        <el-form-item>
-                            {e.value.length ? e.value.map((x, i) => this.getTrueValue(e.value, i)) : ''}
-                        </el-form-item>
-                    </el-form-item>
-                )
+                '4': e => '',
+                '5': e => ''
             },
             // 默认是自定义属性
             addType: false,
@@ -116,52 +78,47 @@ export default {
             type: String,
             default: 'oContainer'
         },
-        // 属性-复杂对象详情
-        // attrDetail: {
-        //     type: Object | Array,
-        //     default: null
-        // }
     },
     computed: {
         defaultKeyValue() {
             return defaultKV[this.name] || {};
         }
     },
-    watch: {
-        // attrDetail: {
-        //     handler(val, old) {
-        //         console.log(val)
-        //         console.log(old)
-        //     },
-        //     deep: true
-        // }
-    },
+    watch: {},
     render() {
         const modifyItem = this.modifyItem;
+        // 获取渲染属性列表
         const propertyList = this.getList(this.rootWord);
+        // 根属性
         const rootWord = this.rootWord;
+        // 函数字符串、组件（值）渲染
         const funStrComSpan = (a, b, c) => {
             const val = a[b][c]
             if (val.name) {
                 // 为组件
                 return (<span class="value-string">
+                    {/* 转向组件编辑 */}
                     <span onClick={() => this.analysisProperty('turn', a, b, c)}>{val.name}</span>
+                    {/* 查看代码 */}
                     <span onClick={() => this.analysisProperty('code', a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">查看</span>
                 </span>)
             } else {
-                // 函数字符串渲染
+                // 函数字符串渲染，点击查看函数
                 return (<span onClick={() => this.analysisProperty('code', a, b, c)} class="value-string">
                 {JSON.stringify(val)}
             </span>)
             }
         }
+        // 字符串、数字、布尔值（值）渲染
         const strNumBoolSpan = (a, b, c) => {
             const val = a[b][c]
             if (typeof val === 'string') {
+                // 获取预设值
                 const insertAttrs = (this.defaultKeyValue[this.rootWord] || {})[c]
                 if (insertAttrs && insertAttrs.value.length) {
                     // 属性为内置属性
                     const defaultValue = insertAttrs.value
+                    // 设置预设值下拉菜单
                     const options = defaultValue.map((x, i) => {
                             return <el-option key={i} label={x} value={x}></el-option>
                     });
@@ -169,11 +126,14 @@ export default {
                     {options}
                 </el-select>;
                 } else {
+                    // 没有预设值则展示输入框
                     return (<el-input  size="mini" v-model={a[b][c]} placeholder="请输入字段名（v-model）s" style="width: 165px"/>)
                 }
             } else if (typeof val === 'number') {
+                // 数字类型的数值填写
                 return (<el-input-number size="mini" v-model={a[b][c]} placeholder="请输入字段名（v-model）s" style="width: 165px"/>)
             } else {
+                // 布尔值的数值填写
                 return (
                     <el-radio-group v-model={a[b][c]}  size="mini">
                         <el-radio label={true}>true</el-radio>
@@ -182,6 +142,7 @@ export default {
                 )
             }
         }
+        // 其他渲染
         const otherSpan = (a, b, c) => {
             const val = a[b][c]
             return <span onClick={() => this.analysisProperty('code', a, b, c)} class="value-string">{val ? val.toString() : a[b].toString()}</span>
@@ -190,14 +151,17 @@ export default {
             {propertyList.map(x => {
                 return (<div style="padding: 5px 0 5px 40px">
                     <span>
+                        {/* key为数字、字符串、布尔值、函数 不展示key，其他获取是否有别名后再展示 */}
                         {['string', 'number', 'boolean', 'function'].includes(typeof this.activeData[rootWord]) ? '' : this.getAlias(this.activeData, rootWord, x)}
                     </span>
                     <span>
                         {
+                            // 判断key是否展示x号 'string', 'number', 'boolean'不展示
                             ['string', 'number', 'boolean'].includes(typeof this.activeData[rootWord]) ? ''
                                 :
                                 <span className="el-icon-anti-tag-fill" onClick={() => this.delKey(x, rootWord)} style="margin-left: 5px;color: rgb(241 23 23);font-size: 15px">x&nbsp;&nbsp;</span>
                         }
+                        {/* 值的展示：值为'string', 'number', 'boolean'且初始值类型为input，则展示input输入框 */}
                         {['string', 'number', 'boolean'].includes(typeof this.activeData[rootWord]) && this.initialTypeShow === 'input' ? <el-input  size="mini" v-model={this.activeData[rootWord]} placeholder="请输入字段名（v-model）" style="width: 165px"/>
                             : ['array', 'object'].includes(typeof this.activeData[rootWord][x])
                             // 值为函数字符串/组件
@@ -205,12 +169,13 @@ export default {
                                 // 值为字符串/数字/bool选项
                                 : this.initialTypeShow === 'input'
                                     ? strNumBoolSpan(this.activeData, rootWord, x)
-                                    // 值为其他'renderFun', 'rawId', 'on', 'nativeOn', 'methods'
+                                    // 值为其他'renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed'
                                     : otherSpan(this.activeData, rootWord, x)
                         }
                     </span>
                 </div>)
             })}
+            {/* 新增kw的展示 */}
             <el-form-item label-width="26px">
                 {this.getValue(modifyItem, rootWord)}
             </el-form-item>
@@ -227,20 +192,18 @@ export default {
         },
         // 展示键值对
         getValue(data, keyword) {
-            /* eslint-disable */
             return data.hasOwnProperty(keyword) && data[keyword].type ? (<div><el-form-item label-width="0px">
+                {/* 获取新增的key */}
                 {this.getKey(data, keyword)}
+                {/* 获取新增的值 */}
                 &nbsp;: {this.getDefaultValue(data, keyword)}
             </el-form-item>
-            {data[keyword].type === '4' || data[keyword].type === '5' ? this.valueTypeMap[data[keyword].type](data[keyword]) : ''}
             </div>) : '';
-            /* eslint-enable */
         },
         getDefaultValue(data, keyword) {
             // 如果是添加预置属性
             if (this.addType) {
                 if (data[keyword].key) {
-                    /* eslint-disable */
                     let defaultValue = []
                     if (this.rootWord === 'children') {
                         // 如果像数组一样可以添加重复属性 则取第一个下拉选项
@@ -249,7 +212,6 @@ export default {
                         defaultValue = this.defaultKeyValue[this.rootWord][data[keyword].key].value
                     }
                     let valueType = 'select'
-                    console.log(defaultValue)
                     const options = defaultValue.map((x, i, arr) => {
                         if (typeof x === 'string') {
                             return <el-option key={i} label={x} value={x}></el-option>
@@ -280,7 +242,6 @@ export default {
                         // todo 为数字
                         return <el-input-number size="mini" v-model={data[keyword].value} placeholder="请输入字段名（v-model）s" style="width: 165px"/>
                     }
-                    /* eslint-enable */
                 } else {
                     return '';
                 }
@@ -291,35 +252,39 @@ export default {
         getKey(data, keyword) {
             if (this.addType) {
                 // 添加自带属性
-                /* eslint-disable */
                 let keys = []
+                // 获取自带的key并且过滤已经得到的设置的属性
                 keys = Object.keys(this.defaultKeyValue[this.rootWord] || {}).filter(y => !this.activeData[this.rootWord][y])
+                // 取第一个作为默认值
                 if (!data[keyword].key) data[keyword].key = keys[0]
+                // 将默认值改成下拉菜单设置
                 const options = keys.map((x, i) => <el-option key={i} label={(this.defaultKeyValue[this.rootWord] || {})[x].label} value={x}></el-option>);
                 if (this.rootWord !== 'children') {
+                    // 数组类不包含key 的设置
                     return <el-select size="mini" v-model={data[keyword].key} style="width: 120px" onChange={e => this.changeDefaultOptions(e, keyword, data)}>
                     {options}
                 </el-select>;
                 } else {
+                    // 数组类的key为默认索引
                     return <el-input size="mini" v-model={data[keyword].key} style="width: 60px" />
                 }
-                /* eslint-enable */
             } else {
                 // 添加自定义属性
-                /* eslint-disable */
                 const options = this.options.map((x, i) => <el-option key={i} label={x.label} value={x.value}></el-option>);
                 return <span>
+                    {/* 自定义属性的key默认为输入框 */}
                     <el-input size="mini" v-model={data[keyword].key} style="width: 60px" />&nbsp;
+                    {/* 类型改变时调用 */}
                     <el-select size="mini" v-model={data[keyword].type} style="width: 80px" onChange={e => this.changeOptions(e, keyword, data)}>
                         {options}
                     </el-select>
                 </span>;
-                /* eslint-enable */
             }
         },
         getList(key, data = this.activeData) {
             let list = [];
             if (data) {
+                // 获取属性列表，如果是对象类型则转换成对象数组 类似children对象直接导入
                 if (typeof data[key] === 'object') {
                     for (const i in data[key]) {
                         list.push(i);
@@ -331,10 +296,11 @@ export default {
             return list;
         },
         changeOptions(e, key, data) {
-            // data[key].type = e;
-            data[key].value = e === '5' ? [] : this.valueTypeInitial[e];
+            data[key].value = this.valueTypeInitial[e];
             if (['4', '5'].includes(e)) {
+                // 数组对象类属性 直接调出编辑器
                 this.showObjectPanel = true;
+                // 临时保存储存的key
                 this.tempAttrName = data[key].key
                 this.analysisProperty('att', this.activeData, this.rootWord, e)
             }
@@ -349,7 +315,7 @@ export default {
         changeDefaultOptions(e, key, data) {
             data[key].key = e;
             data[key].type = this.getType(e);
-            data[key].value = data[key].type === '5' ? [] : this.valueTypeInitial[data[key].type];
+            data[key].value = this.valueTypeInitial[data[key].type];
         },
         addProperty(data, key, type, rootName, addType) {
             // addType 1 添加默认属性 无为自定义属性
@@ -382,8 +348,9 @@ export default {
         },
         saveProperty(key, data = this.activeData) {
             if (!(key in data)) this.$set(data, key, {});
+            // 修改对象非数组、对象的情况
             if (this.modifyItem[key].type !== '4' && this.modifyItem[key].type !== '5') {
-                // 如果输入的是容器组件。则增加此组件的相关配置
+                // 如果输入的是容器组件名字。则增加容器组件的相关配置
                 if (this.$root.$options.components[this.modifyItem[key].value] && this.modifyItem[key].value.startsWith('o')) {
                     const comOptions = this.$root.$options.components[this.modifyItem[key].value].options;
                     // 填充初始props属性
@@ -391,13 +358,11 @@ export default {
                         name: this.modifyItem[key].value,
                         props: getDefaultProps(comOptions)
                     };
-                    if (!config.props.rawId) {
-                        config.props.rawId = getRawId(config.name);
-                        if (!this.containerInject[config.props.rawId]) this.containerInject[config.props.rawId] = {};
-                    }
+                    // 生成rawId
+                    config.props.rawId = getRawId(config.name);
                     this.$set(this.activeData[key], this.modifyItem[key].key, config);
                 } else if (htmlNode.includes(this.modifyItem[key].value) || this.$root.$options.components[this.modifyItem[key].value]) {
-                    // 如果输入的是节点html
+                    // 如果输入的是节点html/全局注册组件
                     const commonConfig = {
                         style: {},
                         class: {},
@@ -410,31 +375,25 @@ export default {
                     const config = {
                         name: this.modifyItem[key].value,
                         props: defaultNode[this.modifyItem[key].value] || commonConfig,
-                        ...(defaultNode[this.modifyItem[key].value] || commonConfig)
                     };
                     // 将标签元素的其他属性保持和props属性内存地址相同，用来适应组件配置数据
-                    // for (let i in config.props) {
-                    //     config[i] = config.props[i];
-                    // }
+                    for (let i in config.props) {
+                        config[i] = config.props[i];
+                    }
+                    // 对函数字符串做处理
                     config.props.renderFun = config.renderFun = stringToFunc(config.props.renderFun.toString().replace('_this', 'this'))
-                    for(let i in config.props.on) {
-                        config.props.on[i] = stringToFunc(config.props.on[i].toString().replace('_this', 'this'))
-                    }
                     for(let i in config.on) {
-                        config.on[i] = stringToFunc(config.on[i].toString().replace('_this', 'this'))
-                    }
-                    for(let i in config.props.nativeOn) {
-                        config.props.nativeOn[i] = stringToFunc(config.props.nativeOn[i].toString().replace('_this', 'this'))
+                        config.props.on[i] = config.on[i] = stringToFunc(config.on[i].toString().replace('_this', 'this'))
                     }
                     for(let i in config.nativeOn) {
-                        config.nativeOn[i] = stringToFunc(config.nativeOn[i].toString().replace('_this', 'this'))
+                        config.props.nativeOn[i] = config.nativeOn[i] = stringToFunc(config.nativeOn[i].toString().replace('_this', 'this'))
                     }
                     config.props.subRawId = getRawId(config.name);
                     this.$set(this.activeData[key], this.modifyItem[key].key, config);
                 } else {
                 // 简单属性直接保存
                     let value = this.modifyItem[key].value;
-                    if (key === 'on' || key === 'nativeOn' || key === 'methods') {
+                    if (['on', 'nativeOn', 'methods', 'computed'].includes(key)) {
                         value = stringToFunc(this.modifyItem[key].value);
                     }
                     // todo 属性改变需要关联的输入框类型一起改变
@@ -444,36 +403,8 @@ export default {
                 }
             } else if(['4', '5'].includes(this.modifyItem[key].type)) {
                 this.$set(this.activeData[key], this.tempAttrName, this.tempAttrValue);
-            } else {
-                // 复杂属性需要转换key、value变为对象 这段省略也不删
-                // const rootValue = this.modifyItem[key].value;
-                // const transformValue = this.transformKeyValue(rootValue, this.modifyItem[key].type);
-                // this.$set(this.activeData[key], this.modifyItem[key].key, transformValue);
             }
             this.$delete(this.modifyItem, key);
-            // this.modifyItem = {};
-        },
-        // key-value对象转化为正常对象
-        transformKeyValue(keyVal, type) {
-            if (type === '4') {
-                let afterVal = {};
-                afterVal[keyVal.key] = this.transformKeyValue(keyVal.value, keyVal.type);
-                return afterVal;
-            } else if (type === '5') {
-                let afterVal = [];
-                for (const i of keyVal) {
-                    if (i.type !== '5' && i.type !== '4') {
-                        afterVal.push(this.transformKeyValue(i.value, i.type));
-                    } else if (i.type === '4') {
-                        afterVal.push({
-                            [i.key]: this.transformKeyValue(i.value, i.type)
-                        });
-                    }
-                }
-                return afterVal;
-            } else {
-                return keyVal;
-            }
         },
         delModifyItem(data, key) {
             if (data.type) {
@@ -485,13 +416,7 @@ export default {
                     this.$delete(data, key);
                 }
             } else {
-                // if (data[key].type === '4') {
-                //     data[key].value = {}
-                // } else if (data[key].type === '5') {
-                //     data[key].value = []
-                // } else {
                 this.$delete(data, key);
-                // }
             }
         },
         delKey(key, property) {
@@ -499,15 +424,13 @@ export default {
                 const id = this.activeData[property][key].props.rawId
                 if (this.containerInject[id]) {
                     this.$delete(this.containerInject, id)
-                    console.log(this.containerInject)
                 }
             }
+            console.log('deal')
             this.$delete(this.activeData[property], key);
         },
         analysisProperty(type, data, property, subProperty) {
-            // if (['renderFun', 'on', 'nativeOn'].includes(property) || x && x.name) {
             this.$emit('changeComponentPanel', type, data, property, subProperty);
-            // }
         }
     }
 };

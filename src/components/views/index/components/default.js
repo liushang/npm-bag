@@ -95,6 +95,11 @@ export const defaultKV = {
                 value: ['small', 'mini']
             }
         },
+        children: {
+            0: {
+                value: ['ElForm', 'ElRow', 'ElCol']
+            } 
+        },
         ...commonComponent
     },
     oButton: {
@@ -135,10 +140,6 @@ export const defaultKV = {
                 label: '原生属性',
                 value: ['button', 'submit', 'reset']
             }
-            // icon: {
-            //     label: '图标',
-            //     value: []
-            // }
         }
     },
     oTable: {

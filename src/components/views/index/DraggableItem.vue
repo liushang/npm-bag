@@ -2,7 +2,9 @@
 import draggable from 'vuedraggable';
 import render from '../../components/render/render';
 import { analysisRenderConfig, analysisDataRender, analysisInjectData } from '../../schema/util';
-
+import {
+    deepClone
+} from '../../utils/index';
 const components = {
     itemBtns(h, currentItem, index, list) {
         const { copyItem, deleteItem, viewItem } = this.$listeners;
@@ -33,29 +35,17 @@ const components = {
 const layouts = {
     oFormItem(h, currentItem) {
         const { activeItem } = this.$listeners;
-        const config = currentItem.__config__;
-        // if (!config) return (<el-col></el-col>)
-        let className = this.activeId === config.formId ? 'drawing-item active-from-item' : 'drawing-item';
         if (this.formConf && this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
         if (!currentItem || !currentItem.props || !currentItem.props.rawId) return
-        // if (this.showType) {
-        //   currentItem.props.env = 'prod';
-        // } else {
-        //   currentItem.props.env = 'dev';
-        // }
-        console.log('injectDataItem')
-
         let configData = analysisDataRender([ currentItem ]);
         let configArr = analysisRenderConfig(configData, h);
-        /* eslint-disable */
         return (
-            <el-col span={config.span} class={className}
+            <el-col class='drawing-item'
                 nativeOnClick={event => { activeItem && activeItem(currentItem); event.stopPropagation(); }}>
                 {configArr[0]}
                 {!this.showType ? components.itemBtns.apply(this, arguments) : ''}
             </el-col>
         );
-        /* eslint-enable */
     },
 };
 
@@ -100,7 +90,7 @@ export default {
           }
           return this.currentItem
         };
-        return  this.currentItem.props && this.currentItem.props.rawId ? analysisInjectData(this.currentItem, this.configData[this.currentItem.props.rawId], 'oContainer', this.configData) : {__config__: {}}
+        return  this.currentItem.props && this.currentItem.props.rawId ? analysisInjectData(deepClone(this.currentItem), this.configData[this.currentItem.props.rawId], 'oContainer', this.configData) : {__config__: {}}
       }
     },
     mounted() {

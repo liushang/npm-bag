@@ -90,7 +90,7 @@
                   :configData="configData"
                   @activeItem="activeFormItem"
                   @copyItem="drawingItemCopy"
-                  @viewItem="drawingItemView"
+                  @viewItem="showViewModel = true;"
                   @deleteItem="drawingItemDelete"
                 />
                   </div>
@@ -108,8 +108,6 @@
       :containerInject="containerInject"
       :show-field="!!drawingList.length"
       ref="rightPanel"
-      @renderAgain="renderAgain"
-      @tag-change="tagChange"
       @clearBorderBlue="clearSubBorder(drawingList)"
       @panelContent="panelContent"
       @codeValueChange="codeValueChange"
@@ -119,7 +117,6 @@
       :form-conf="formConf"
       v-if="showPanel"
       @close="closePanelDialog"
-      @tag-change="tagChange"
     />
     <input id="copyNode" type="hidden">
     <view-model v-if="showViewModel" @closeViewModel="showViewModel=false" :drawingList="drawingList">
@@ -131,8 +128,6 @@
 import draggable from 'vuedraggable';
 import { debounce } from 'throttle-debounce';
 import render from '../../components/render/render';
-// import FormDrawer from './FormDrawer'
-// import JsonDrawer from './JsonDrawer'
 import RightPanel from './RightPanel';
 import PanelDialog from './PanelDialog';
 import ViewModel from './ViewModel';
@@ -153,8 +148,6 @@ import {
 import { getDefaultProps, getRawId } from '../../schema/util';
 import { defaultNode } from './components/default';
 
-let oldActiveId;
-let tempActiveData;
 const drawingListInDB = getDrawingList();
 const formConfInDB = getFormConf();
 const containerInject = getContainer();
@@ -162,8 +155,6 @@ export default {
     components: {
         draggable,
         render,
-        // FormDrawer,
-        // JsonDrawer,
         RightPanel,
         PanelDialog,
         CodeTypeDialog,
@@ -222,17 +213,16 @@ export default {
             showViewModel: false,
             configData: {
               'oContainer': {
-                renderFun: function(oooo) {
-                  return oooo
+                renderFun: function(o) {
+                  return o
                 },
                 attrMap: {
-                  tt: 'insData'
+                  'elInput_value': 'lcData.form.input'
                 },
                 methods: {
                   getAA: function(a) {
                     console.log(a)
-                  },
-                  getBB: () => {}
+                  }
                 },
                 insData: {
                   form: {
@@ -246,53 +236,21 @@ export default {
                     ],
                   }
                 },
-                'ElInput_925750': {
+                'ElInput_836365': {
                   attrMap: {
-                    'elInput_value': 'localData.form.input1',
-                    'elInput_vwe': 'localData.form.input1'
+                    'elInput_value': 'lcData.form.input',
                   },
                   renderFun: function(x) {
-                    x.value = this.localData.aa;
+
+                    x.value = this.lcData.form.input;
                     return x
                   }
                 }
               },
-              'oRow_712129': {
-                renderFun: function(oooo) {
-                  console.log(this.tt)
-                  return oooo
-                },
-              },
-              'oRow_719910': {
-                renderFun: function(oo) {
-                  return oo
-                },
-                insData: {
-                  aa: 0
-                }
-              }
             },
-
           };
     },
     watch: {
-    // eslint-disable-next-line func-names
-        'activeData.__config__.label': function (val, oldVal) {
-            if (
-                this.activeData.placeholder === undefined ||
-        !this.activeData.__config__.tag ||
-        oldActiveId !== this.activeId
-            ) {
-                return;
-            }
-            this.activeData.placeholder = this.activeData.placeholder.replace(oldVal, '') + val;
-        },
-        activeId: {
-            handler(val) {
-                oldActiveId = val;
-            },
-            immediate: true
-        },
         drawingList: {
             handler(val) {
                 this.saveDrawingListDebounce(val);
@@ -313,17 +271,10 @@ export default {
         } else {
             this.drawingList = drawingDefalut;
         }
-        // this.drawingList[0].style = {
-        //     border: '1px solid red'
-        // };
         this.activeFormItem(this.drawingList[0]);
         if (formConfInDB) {
             this.formConf = formConfInDB;
         }
-        // this.previewItem = this.drawingList[0]
-        // loadBeautifier(btf => {
-        //     beautifier = btf;
-        // });
         this.$root.$off('DEAL_CHOOSE');
         this.$root.$on('DEAL_CHOOSE', (item) => {
             if (this.previewItem) {
@@ -344,8 +295,6 @@ export default {
         codeValueChange(val) {
             this.containerInject = JSON.parse(val);
         },
-        renderAgain() {
-        },
         panelContent(data, property, subProperty) {
             this.dialogComponentDetail = {
                 data, property, subProperty
@@ -365,36 +314,7 @@ export default {
             });
             return json;
         },
-        setObjectValueByStringKeys(obj, strKeys, val) {
-            const arr = strKeys.split('.');
-            arr.reduce((pre, item, i) => {
-                if (arr.length === i + 1) {
-                    pre[item] = val;
-                } else if (Object.prototype.toString.call(pre[item]) !== '[Object Object]') {
-                    pre[item] = {};
-                }
-                return pre[item];
-            }, obj);
-        },
-        setRespData(component, respData) {
-            const { dataPath, renderKey, dataConsumer } = component.__config__;
-            if (!dataPath || !dataConsumer) return;
-            const data = dataPath.split('.').reduce((pre, item) => pre[item], respData);
-            this.setObjectValueByStringKeys(component, dataConsumer, data);
-            const i = this.drawingList.findIndex(item => item.__config__.renderKey === renderKey);
-            if (i > -1) this.$set(this.drawingList, i, component);
-        },
-        fetchData(component) {
-            const { dataType, method, url } = component.__config__;
-            if (dataType === 'dynamic' && method && url) {
-                this.$axios({
-                    method,
-                    url
-                }).then(resp => {
-                    this.setRespData(component, resp.data);
-                });
-            }
-        },
+        // 根据rawId获取对应的对象
         getRawIdItem(list, id) {
             if (!Array.isArray(list)) return;
             for (const i of list) {
@@ -402,8 +322,8 @@ export default {
                     return i;
                 } else {
                     if (i.props && i.props.children) {
-                        let oo = this.getRawIdItem(i.props.children, id);
-                        if (oo) return oo;
+                        let item = this.getRawIdItem(i.props.children, id);
+                        if (item) return item;
                     }
                 }
             }
@@ -444,32 +364,19 @@ export default {
                     if (!currentItem.props[i]) this.$set(currentItem.props, i, cofg[i]);
                     if (!currentItem[i]) this.$set(currentItem, i, cofg[i]);
                 }
-                // if (cofg.props) {
-                //   for (let i in cofg.props) {
-                //     this.$set(currentItem.props, i, cofg.props[i])
-                //   }
-                // }
-                // if (!currentItem.props) this.$set(currentItem.props, i, cofg[i]);
-              if (!currentItem.props.subRawId) {
-                  currentItem.props.subRawId = getRawId(currentItem.name);
-              }
-              
+                if (!currentItem.props.subRawId) {
+                    currentItem.props.subRawId = getRawId(currentItem.name);
+                }
             } else {
               if (this.$root.$options.components[currentItem.name]) {
                   const comOptions = getDefaultProps(this.$root.$options.components[currentItem.name].options);
                   for (let i in comOptions) {
                       if (!currentItem.props[i]) this.$set(currentItem.props, i, comOptions[i]);
-                      // this.$set(currentItem.props.attrs, i, comOptions[i])
                   }
                   if (!currentItem.props.rawId) currentItem.props.rawId = getRawId(currentItem.name);
               }
             }
             this.activeData = currentItem;
-        },
-        onEnd(obj) {
-            if (obj.from !== obj.to) {
-                this.activeData = tempActiveData;
-            }
         },
         // 添加组件 点击复制
         addComponent(item, index) {
@@ -478,29 +385,12 @@ export default {
             this.activeFormItem(clone, index);
         },
         cloneComponent(origin) {
-            const clone = deepClone(origin);
-            const config = clone.__config__;
-            config.span = this.formConf.span; // 生成代码时，会根据span做精简判断
-            this.createIdAndKey(clone);
-            clone.placeholder !== undefined && (clone.placeholder += config.label);
-            tempActiveData = clone;
-            return tempActiveData;
-        },
-        createIdAndKey(item) {
-            const config = item.__config__;
-            if (Array.isArray(config.children)) {
-                config.children = config.children.map(childItem => this.createIdAndKey(childItem));
-            }
-            return item;
+            return deepClone(origin);
         },
         drawingItemCopy(item, list) {
             let clone = deepClone(item);
-            clone = this.createIdAndKey(clone);
             list.push(clone);
             this.activeFormItem(clone);
-        },
-        drawingItemView(item, list) {
-            this.showViewModel = true;
         },
         drawingItemDelete(index, list) {
             list.splice(index, 1);
@@ -510,38 +400,7 @@ export default {
                     this.activeFormItem(this.drawingList[len - 1]);
                 }
             });
-            // this.drawingList[0].props.children = [];
         },
-        tagChange(newTag) {
-            newTag = this.cloneComponent(newTag);
-            const config = newTag.__config__;
-            // newTag.__vModel__ = this.activeData.__vModel__;
-            config.formId = this.activeId;
-            config.span = this.activeData.__config__.span;
-            this.activeData.__config__.tag = config.tag;
-            this.activeData.__config__.tagIcon = config.tagIcon;
-            this.activeData.__config__.document = config.document;
-            if (typeof this.activeData.__config__.defaultValue === typeof config.defaultValue) {
-                config.defaultValue = this.activeData.__config__.defaultValue;
-            }
-            Object.keys(newTag).forEach(key => {
-                if (this.activeData[key] !== undefined) {
-                    newTag[key] = this.activeData[key];
-                }
-            });
-            this.activeData = newTag;
-            this.updateDrawingList(newTag, this.drawingList);
-        },
-        updateDrawingList(newTag, list) {
-            const index = list.findIndex(item => item.__config__.formId === this.activeId);
-            if (index > -1) {
-                list.splice(index, 1, newTag);
-            } else {
-                list.forEach(item => {
-                    if (Array.isArray(item.__config__.children)) this.updateDrawingList(newTag, item.__config__.children);
-                });
-            }
-        }
     }
 };
 </script>
