@@ -120,7 +120,7 @@ import logo from '../../assets/logo.png';
 import CodeTypeDialog from './CodeTypeDialog';
 import DraggableItem from './DraggableItem';
 import {
-    getDrawingList, saveDrawingList, getIdGlobal, saveIdGlobal, getFormConf, getContainer, saveContainer
+    getDrawingList, saveDrawingList, saveIdGlobal, getFormConf, getContainer, saveContainer
 } from '../../utils/db';
 import { getDefaultProps, getRawId } from '../../schema/util';
 import { defaultNode } from './components/default';

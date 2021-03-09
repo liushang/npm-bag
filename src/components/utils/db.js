@@ -97,12 +97,6 @@ export function saveDrawingList(list) {
     localStorage.setItem(DRAWING_ITEMS, json);
 }
 
-export function getIdGlobal() {
-    const str = localStorage.getItem(DRAWING_ID);
-    if (str) return parseInt(str, 10);
-    return 100;
-}
-
 export function saveIdGlobal(id) {
     localStorage.setItem(DRAWING_ID, `${id}`);
 }
