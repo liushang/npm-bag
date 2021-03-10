@@ -120,7 +120,7 @@ import logo from '../../assets/logo.png';
 import CodeTypeDialog from './CodeTypeDialog';
 import DraggableItem from './DraggableItem';
 import {
-    getDrawingList, saveDrawingList, saveIdGlobal, getFormConf, getContainer, saveContainer
+    getDrawingList, saveDrawingList, getFormConf, getContainer, saveContainer
 } from '../../utils/db';
 import { getDefaultProps, getRawId } from '../../schema/util';
 import { defaultNode } from './components/default';
@@ -165,7 +165,6 @@ export default {
             activeData: drawingDefalut[1],
             containerInject: containerInject || {},
             saveDrawingListDebounce: debounce(340, saveDrawingList),
-            saveIdGlobalDebounce: debounce(340, saveIdGlobal),
             saveContainerDebounce: debounce(340, saveContainer),
             leftComponents: [
               {

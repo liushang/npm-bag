@@ -195,6 +195,13 @@ export const defaultKV = {
                 value: ['ElOption']
             }
         }
+    },
+    ElTable: {
+        children: {
+            0: {
+                value: ['ElTableColumn']
+            }
+        }
     }
 };
 
@@ -261,6 +268,15 @@ const elDefaultNode = {
             return x
         },
     },
+    ElTableColumn: {
+        attrs: {
+            prop: 'item',
+            label: '标签1'
+        },
+        renderFun: x => {
+            return x
+        },
+    },
     ElSelect: {
         children: [],
         style: {
@@ -271,11 +287,7 @@ const elDefaultNode = {
             input: e => e
         },
         nativeOn: {
-            input: e => {
-                // setTimeout(() => {
-                //     e.target.click()
-                // }, 100)
-            }
+            input: e => {}
         },
         renderFun: x => {
             x.value = '';

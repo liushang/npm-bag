@@ -60,7 +60,6 @@ _Vue.component('oContainer', oContainerRender)
 _Vue.component('oTable', oTableRender)
 _Vue.component('oTableColumn', oTableColumnRender)
 _Vue.component('oPagination', oPaginationRender)
-console.log(Main.name, Main)
 _Vue.component(Main.name, Main)
 }
 export default Main;
