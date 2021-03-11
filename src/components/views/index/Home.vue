@@ -3,7 +3,7 @@
     <div class="left-board">
       <div class="logo-wrapper">
         <div class="logo">
-          OGVForm
+          Form
         </div>
       </div>
       <el-scrollbar class="left-scrollbar">
@@ -67,6 +67,8 @@
                   :configData="configData"
                   @activeItem="activeFormItem"
                   @copyItem="drawingItemCopy"
+                  @basicItem="drawingItemBasic"
+                  @pageItem="drawingItemPage"
                   @viewItem="viewItem"
                   @deleteItem="drawingItemDelete"
                 />
@@ -139,6 +141,50 @@ export default {
         ViewModel
     },
     name: 'practice',
+    props: {
+      configData: {
+        type: Object,
+        default: () => {
+          return {
+              'oContainer': {
+                renderFun: function(o) {
+                  return o
+                },
+                attrMap: {
+                  'elInput_value': 'lcData.form.input'
+                },
+                methods: {
+                  getAA: function(a) {
+                    console.log(a)
+                  }
+                },
+                insData: {
+                  form: {
+                    input: '我11112',
+                    select: 1
+                  },
+                  rules: {
+                    input: [
+                      { required: true, message: '请输入活动名称', trigger: 'blur' },
+                      { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+                    ],
+                  }
+                },
+                'ElInput_836365': {
+                  attrMap: {
+                    'elInput_value': 'lcData.form.input',
+                  },
+                  renderFun: function(x) {
+
+                    x.value = this.lcData.form.input;
+                    return x
+                  }
+                }
+              },
+            }
+        }
+      }
+    },
     data() {
         return {
             // 重新展示
@@ -187,43 +233,6 @@ export default {
             previewItem: null,
             // 展示预览弹窗
             showViewModel: false,
-            configData: {
-              'oContainer': {
-                renderFun: function(o) {
-                  return o
-                },
-                attrMap: {
-                  'elInput_value': 'lcData.form.input'
-                },
-                methods: {
-                  getAA: function(a) {
-                    console.log(a)
-                  }
-                },
-                insData: {
-                  form: {
-                    input: '我11112',
-                    select: 1
-                  },
-                  rules: {
-                    input: [
-                      { required: true, message: '请输入活动名称', trigger: 'blur' },
-                      { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-                    ],
-                  }
-                },
-                'ElInput_836365': {
-                  attrMap: {
-                    'elInput_value': 'lcData.form.input',
-                  },
-                  renderFun: function(x) {
-
-                    x.value = this.lcData.form.input;
-                    return x
-                  }
-                }
-              },
-            },
             viewItemData: []
           };
     },
@@ -369,14 +378,15 @@ export default {
             list.push(clone);
             this.activeFormItem(clone);
         },
+        drawingItemBasic(item) {
+          console.log(item)
+        },
+        drawingItemPage(item) {
+          console.log(item)
+        },
         drawingItemDelete(index, list) {
-            list.splice(index, 1);
-            this.$nextTick(() => {
-                const len = this.drawingList.length;
-                if (len) {
-                    this.activeFormItem(this.drawingList[len - 1]);
-                }
-            });
+          console.log(list[0])
+          list[0].props.children = []
         },
         viewItem(viewItem) {
           this.viewItemData = [viewItem];
@@ -466,7 +476,7 @@ export default {
 .center-board {
   height: 100vh;
   width: auto;
-  margin: 0 450px 0 120px;
+  margin: 0 340px 0 120px;
   box-sizing: border-box;
 }
 .empty-info{
@@ -616,51 +626,6 @@ export default {
     color: #bbb;
     display: inline-block;
     padding: 0 6px;
-  }
-}
-.drawing-item, .drawing-row-item{
-  &:hover {
-    & > .el-form-item{
-      background: @selectedColor;
-      border-radius: 6px;
-    }
-    & > .drawing-item-copy, & > .drawing-item-delete{
-      display: initial;
-    }
-  }
-  & > .drawing-item-copy, & > .drawing-item-delete{
-    display: none;
-    position: absolute;
-    top: -10px;
-    width: 22px;
-    height: 22px;
-    line-height: 22px;
-    text-align: center;
-    border-radius: 50%;
-    font-size: 12px;
-    border: 1px solid;
-    cursor: pointer;
-    z-index: 1;
-  }
-  & > .drawing-item-copy{
-    right: 56px;
-    border-color: @lighterBlue;
-    color: @lighterBlue;
-    background: #fff;
-    &:hover{
-      background: @lighterBlue;
-      color: #fff;
-    }
-  }
-  & > .drawing-item-delete{
-    right: 24px;
-    border-color: #F56C6C;
-    color: #F56C6C;
-    background: #fff;
-    &:hover{
-      background: #F56C6C;
-      color: #fff;
-    }
   }
 }
 </style>

@@ -187,12 +187,31 @@ export const defaultKV = {
             0: {
                 value: ['ElFormItem', 'ElRow']
             }
+        },
+        attrs: {
+            size: {
+                label: '尺寸',
+                value: [ 'small', 'medium', 'mini' ]
+            }
+        }
+    },
+    ElFormItem: {
+        children: {
+            0: {
+                value: [ 'ElSelect', 'ElInput', 'ElRow', 'ElCol' ]
+            }
         }
     },
     ElSelect: {
         children: {
             0: {
                 value: ['ElOption']
+            }
+        },
+        attrMap: {
+            elSelect_value: {
+                label: '属性',
+                value: []
             }
         }
     },
@@ -225,7 +244,9 @@ const elDefaultNode = {
         style: {
             width: '200px',
         },
-        attrMap: {},
+        attrMap: {
+            elInput_value: ''
+        },
         attrs: {},
         children: [],
         on: {
@@ -245,7 +266,8 @@ const elDefaultNode = {
     },
     ElForm: {
         attrs: {
-            ref: 'form'
+            ref: 'form',
+            size: 'small'
         },
         children: [],
         on: {
@@ -261,7 +283,7 @@ const elDefaultNode = {
             prop: 'item',
             label: '标签1'
         },
-        children: [ 'ElSelect', 'ElInput', 'ElRow', 'ElCol' ],
+        children: [],
         on: {},
         nativeOn: {},
         renderFun: x => {
@@ -282,7 +304,11 @@ const elDefaultNode = {
         style: {
             width: '200px',
         },
-        attrs: {},
+        attrMap: {
+        },
+        attrs: {
+            value: '1'
+        },
         on: {
             input: e => e
         },
@@ -290,7 +316,7 @@ const elDefaultNode = {
             input: e => {}
         },
         renderFun: x => {
-            x.value = '';
+            x.value = this.elSelect_value;
             return x
         },
     },

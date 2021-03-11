@@ -144,18 +144,30 @@ function dealChild(child, cb) {
         )
     }
 }
-
+// () => {}
 export function stringToFunc(str) {
     if (typeof str === 'string') {
-        str = String(str)
-        let funLast = str.slice(str.indexOf('{') + 1);
-        let funMiddle = funLast.slice(0, funLast.lastIndexOf('}')).trim();
-        // 获取函数参数
-        let funPre = str.slice(str.indexOf('(') + 1);
-        let funNamePre = funPre.slice(0, funPre.indexOf(')'));
-        let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
-        /* eslint-disable */
-        return new Function(...funNameArr, funMiddle);
+        str = String(str).trim()
+        if (str.startsWith('function')) {
+            let funLast = str.slice(str.indexOf('{') + 1);
+            let funMiddle = funLast.slice(0, funLast.lastIndexOf('}')).trim();
+            // 获取函数参数
+            let funPre = str.slice(str.indexOf('(') + 1);
+            let funNamePre = funPre.slice(0, funPre.indexOf(')'));
+            let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
+            /* eslint-disable */
+            return new Function(...funNameArr, funMiddle);
+        } else {
+            let funLast = str.slice(str.indexOf('=>') + 2).trim();
+            // if (funLast.startsWith('{')) funLast = funLast.slice(1).slice(0, -1)
+            let funMiddle = funLast.startsWith('{') ? funLast.slice(1).slice(0, -1) : funLast;
+            // 获取函数参数
+            let funPre = str.slice(0, str.indexOf('=>')).trim();
+            let funNamePre = funPre.startsWith('(') ? funPre.slice(1).slice(0, -1) : funPre;
+            let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
+            /* eslint-disable */
+            return new Function(...funNameArr, funMiddle);
+        }
     } else {
         return str
     }
@@ -255,9 +267,11 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
         }
     }
     for (let i in constructor.attrMap) {
+        if (!constructor.attrMap[i]) break;
         if (!data.attrMap[i]) data.attrMap[i] = constructor.attrMap[i]
     }
     for (let i in constructor.props.attrMap) {
+        if (!constructor.attrMap[i]) break;
         if (!data.attrMap[i]) data.attrMap[i] = constructor.props.attrMap[i]
     }
     constructor.props.attrMap && Object.assign(constructor.props.attrMap, data.attrMap)
@@ -275,6 +289,7 @@ function injectData(item, dataItem) {
     if (attrMap) {
         const replaceFun = (func, key, val) => stringToFunc(func.toString().replace(key, val))
         for(let x in attrMap) {
+            if (!attrMap[x]) break;
             // this的坑点
             if (item.props && item.props.renderFun) item.props.renderFun = replaceFun(item.props.renderFun, x, attrMap[x])
             if (item.renderFun) item.renderFun = replaceFun(item.renderFun, x, attrMap[x])
@@ -342,7 +357,7 @@ function injectData(item, dataItem) {
         }
         if (attrMap) {
             for(let x in attrMap) {
-                if (func.includes(x)) func = func.replace(x, attrMap[x])
+                if (func.includes(x) && attrMap[x]) func = func.replace(x, attrMap[x])
             }
         }
         return stringToFunc(func)

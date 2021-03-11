@@ -93,7 +93,7 @@ import InfiniteObject from './components/infiniteObject.js';
 import CodeEditor from '../OGV-form-design/components/code-editor';
 import { saveFormConf,
     stringToFunc
-} from '../../utils/db';
+} from '../../schema/util';
 import 'codemirror/mode/javascript/javascript.js';
 import { htmlNode, elNode, defaultKV } from './components/default';
 import 'codemirror/theme/base16-dark.css';
@@ -328,7 +328,7 @@ export default {
 </style>
 <style lang="less" scoped>
 .right-board {
-  width: 400px;
+  width: 340px;
   position: absolute;
   right: 0;
   top: 0;

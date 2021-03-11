@@ -6,26 +6,26 @@ import {
     deepClone
 } from '../../utils/index';
 const components = {
-    itemBtns(h, currentItem, index, list) {
-        const { copyItem, deleteItem, viewItem } = this.$listeners;
+    itemBtns(h, injectDataItem ,currentItem) {
+        const { basicItem, pageItem, deleteItem, viewItem } = this.$listeners;
         return [
             <span class="drawing-item-view" onClick={event => {
-                viewItem(currentItem, list); event.stopPropagation();
+                viewItem(injectDataItem); event.stopPropagation();
             }}>
-                <span>预</span>
+                <span>预览</span>
             </span>,
             <span class="drawing-item-export" onClick={event => {
-                copyItem(currentItem, list); event.stopPropagation();
+                basicItem(currentItem); event.stopPropagation();
             }}>
-                <span>导</span>
+                <span>基本配置</span>
             </span>,
             <span class="drawing-item-copy" title="复制" onClick={event => {
-                copyItem(currentItem, list); event.stopPropagation();
+                pageItem(injectDataItem); event.stopPropagation();
             }}>
-                <span>+</span>
+                <span>页面配置</span>
             </span>,
             <span class="drawing-item-delete" title="删除" onClick={event => {
-                deleteItem(index, list); event.stopPropagation();
+                deleteItem(); event.stopPropagation();
             }}>
                 <span class="el-icon-delete"></span>
             </span>
@@ -33,15 +33,15 @@ const components = {
     }
 };
 const layouts = {
-    oFormItem(h, currentItem) {
+    oFormItem(h, injectDataItem, currentItem) {
         const { activeItem } = this.$listeners;
         if (this.formConf && this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
-        if (!currentItem || !currentItem.props || !currentItem.props.rawId) return
-        let configData = analysisDataRender([ currentItem ]);
+        if (!injectDataItem || !injectDataItem.props || !injectDataItem.props.rawId) return
+        let configData = analysisDataRender([ injectDataItem ]);
         let configArr = analysisRenderConfig(configData, h);
         return (
             <el-col class='drawing-item'
-                nativeOnClick={event => { activeItem && activeItem(currentItem); event.stopPropagation(); }}>
+                nativeOnClick={event => { activeItem && activeItem(injectDataItem); event.stopPropagation(); }}>
                 {configArr[0]}
                 {!this.showType ? components.itemBtns.apply(this, arguments) : ''}
             </el-col>
@@ -112,7 +112,7 @@ export default {
         const layout = layouts[this.currentItem.__config__.layout];
 
         if (layout && this.injectDataItem) {
-            return layout.call(this, h, this.injectDataItem, this.index, this.drawingList, this.containerInject);
+            return layout.call(this, h, this.injectDataItem, this.currentItem);
         }
         return layoutIsNotFound.call(this);
     }
@@ -195,7 +195,7 @@ export default {
 .center-board {
   height: 100vh;
   width: auto;
-  margin: 0 400px 0 120px;
+  margin: 0 340px 0 120px;
   box-sizing: border-box;
 }
 .empty-info{
@@ -365,14 +365,14 @@ export default {
     height: 22px;
     line-height: 22px;
     text-align: center;
-    border-radius: 50%;
     font-size: 12px;
     border: 1px solid;
     cursor: pointer;
     z-index: 1;
   }
   & > .drawing-item-copy{
-    right: 56px;
+    right: 126px;
+    width: 60px;
     border-color: @lighterBlue;
     color: @lighterBlue;
     background: #fff;
@@ -382,7 +382,8 @@ export default {
     }
   }
   & > .drawing-item-export{
-    right: 88px;
+    right: 56px;
+    width: 60px;
     border-color: @lighterBlue;
     color: @lighterBlue;
     background: #fff;
@@ -392,7 +393,8 @@ export default {
     }
   }
   & > .drawing-item-view{
-    right: 120px;
+    right: 200px;
+    width: 40px;
     border-color: @lighterBlue;
     color: @lighterBlue;
     background: #fff;

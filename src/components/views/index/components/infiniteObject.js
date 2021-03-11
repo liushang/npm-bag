@@ -1,7 +1,7 @@
 import { getDefaultProps, getRawId } from '../../../schema/util';
 import {
     stringToFunc
-} from '../../../utils/db';
+} from '../../../schema/util';
 import { defaultKV, htmlNode, defaultNode } from './default';
 export default {
     data() {
@@ -360,6 +360,7 @@ export default {
                     };
                     // 生成rawId
                     config.props.rawId = getRawId(config.name);
+                    
                     this.$set(this.activeData[key], this.modifyItem[key].key, config);
                 } else if (htmlNode.includes(this.modifyItem[key].value) || this.$root.$options.components[this.modifyItem[key].value]) {
                     // 如果输入的是节点html/全局注册组件
@@ -372,7 +373,7 @@ export default {
                         on: {},
                         renderFun: x => x
                     }
-                    const config = {
+                    let config = {
                         name: this.modifyItem[key].value,
                         props: defaultNode[this.modifyItem[key].value] || commonConfig,
                     };
@@ -389,7 +390,9 @@ export default {
                         config.props.nativeOn[i] = config.nativeOn[i] = stringToFunc(config.nativeOn[i].toString().replace('_this', 'this'))
                     }
                     config.props.subRawId = getRawId(config.name);
+                    console.log(this.modifyItem[key].key)
                     this.$set(this.activeData[key], this.modifyItem[key].key, config);
+                    config = null
                 } else {
                 // 简单属性直接保存
                     let value = this.modifyItem[key].value;
