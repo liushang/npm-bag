@@ -166,7 +166,7 @@ export function stringToFunc(str) {
             let funNamePre = funPre.startsWith('(') ? funPre.slice(1).slice(0, -1) : funPre;
             let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
             /* eslint-disable */
-            return new Function(...funNameArr, funMiddle);
+            return new Function(...funNameArr, funLast.startsWith('{') ? funMiddle : 'return ' + funMiddle);
         }
     } else {
         return str

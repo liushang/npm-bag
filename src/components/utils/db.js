@@ -7,16 +7,16 @@ const DRAWING_CONTAINER = 'containerInject';
 const TREE_NODE_ID = 'treeNodeId';
 const FORM_CONF = 'formConf';
 import { stringToFunc } from '../schema/util'
-export function getDrawingList() {
+export function getDrawingList(detailStr) {
     // 加入缓存版本的概念，保证缓存数据与程序匹配
-    const version = localStorage.getItem(DRAWING_ITEMS_VERSION_KEY);
-    if (version !== DRAWING_ITEMS_VERSION) {
-        localStorage.setItem(DRAWING_ITEMS_VERSION_KEY, DRAWING_ITEMS_VERSION);
-        saveDrawingList([]);
-        return null;
-    }
+    // const version = localStorage.getItem(DRAWING_ITEMS_VERSION_KEY);
+    // if (version !== DRAWING_ITEMS_VERSION) {
+    //     localStorage.setItem(DRAWING_ITEMS_VERSION_KEY, DRAWING_ITEMS_VERSION);
+    //     saveDrawingList([]);
+    //     return null;
+    // }
 
-    const str = localStorage.getItem(DRAWING_ITEMS);
+    const str = detailStr || localStorage.getItem(DRAWING_ITEMS);
     // if (str) return propertyStringToFunc(JSON.parse(str))
     if (str) {
         let abc = onToFunc(onToFunc(onToFunc(onToFunc(propertyStringToFunc(JSON.parse(str)), 'on'), 'methods'), 'nativeOn'), 'computed')

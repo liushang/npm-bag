@@ -127,7 +127,7 @@ import {
 import { getDefaultProps, getRawId } from '../../schema/util';
 import { defaultNode } from './components/default';
 
-const drawingListInDB = getDrawingList();
+let drawingListInDB = getDrawingList();
 const formConfInDB = getFormConf();
 const containerInject = getContainer();
 export default {
@@ -142,6 +142,7 @@ export default {
     },
     name: 'practice',
     props: {
+      // 手动注入数据
       configData: {
         type: Object,
         default: () => {
@@ -175,7 +176,6 @@ export default {
                     'elInput_value': 'lcData.form.input',
                   },
                   renderFun: function(x) {
-
                     x.value = this.lcData.form.input;
                     return x
                   }
@@ -183,6 +183,10 @@ export default {
               },
             }
         }
+      },
+      moduleChangeDetail: {
+        type: String,
+        default: ''
       }
     },
     data() {
@@ -233,7 +237,8 @@ export default {
             previewItem: null,
             // 展示预览弹窗
             showViewModel: false,
-            viewItemData: []
+            viewItemData: [],
+            // showRightPanel: true
           };
     },
     watch: {
@@ -250,34 +255,51 @@ export default {
                 this.saveContainerDebounce(val);
             }
         },
+        moduleChangeDetail: {
+            handler(val) {
+              if (val) {
+                console.log(val)
+                drawingListInDB = getDrawingList(val)
+                // this.showRightPanel = false
+                setTimeout(() => {
+                  this.activeData = drawingListInDB[0]
+                  this.init()
+                  // this.showRightPanel = true
+                }, 100)
+              }
+            },
+            deep: true
+        },
     },
     mounted() {
-        if (Array.isArray(drawingListInDB) && drawingListInDB.length > 0) {
-            this.drawingList = drawingListInDB;
-        } else {
-            this.drawingList = drawingDefalut;
-        }
-        this.activeFormItem(this.drawingList[0]);
-        if (formConfInDB) {
-            this.formConf = formConfInDB;
-        }
-        this.$root.$off('DEAL_CHOOSE');
-        this.$root.$on('DEAL_CHOOSE', (item) => {
-            if (this.previewItem) {
-                this.previewItem.style.border = '1px solid #e4e7ed';
-                if (this.previewItem.rawId !== item.rawId) this.clearSubBorder(this.drawingList);
-            }
-            this.$set(item.style, 'border', '1px solid red');
-            let rawId = item.rawId;
-            setTimeout(() => {
-                let activeSubItem = this.getRawIdItem(this.drawingList, rawId);
-                if (activeSubItem) this.activeFormItem(activeSubItem);
-            }, 0);
-            this.previewItem = item;
-        });
+      this.init()
     },
-
     methods: {
+        init() {
+          if (Array.isArray(drawingListInDB) && drawingListInDB.length > 0) {
+              this.drawingList = drawingListInDB;
+          } else {
+              this.drawingList = drawingDefalut;
+          }
+          this.activeFormItem(this.drawingList[0]);
+          if (formConfInDB) {
+              this.formConf = formConfInDB;
+          }
+          this.$root.$off('DEAL_CHOOSE');
+          this.$root.$on('DEAL_CHOOSE', (item) => {
+              if (this.previewItem) {
+                  this.previewItem.style.border = '1px solid #e4e7ed';
+                  if (this.previewItem.rawId !== item.rawId) this.clearSubBorder(this.drawingList);
+              }
+              this.$set(item.style, 'border', '1px solid red');
+              let rawId = item.rawId;
+              setTimeout(() => {
+                  let activeSubItem = this.getRawIdItem(this.drawingList, rawId);
+                  if (activeSubItem) this.activeFormItem(activeSubItem);
+              }, 0);
+              this.previewItem = item;
+          });
+        },
         codeValueChange(val) {
             this.containerInject = JSON.parse(val);
         },
