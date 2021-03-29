@@ -283,6 +283,7 @@ const elDefaultNode = {
             prop: 'item',
             label: '标签1'
         },
+        style: {},
         children: [],
         on: {},
         nativeOn: {},
@@ -295,6 +296,12 @@ const elDefaultNode = {
             prop: 'item',
             label: '标签1'
         },
+        style: {},
+        children: [],
+        on: {},
+        nativeOn: {},
+        // scopedSlots: {},
+        // slot: {},
         renderFun: x => {
             return x
         },

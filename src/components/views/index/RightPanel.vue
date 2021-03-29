@@ -105,7 +105,7 @@ export default {
         CodeEditor,
         PanelDialog
     },
-    props: ['showField', 'activeData', 'formConf', 'containerInject'],
+    props: ['showField', 'activeData', 'formConf', 'containerInject', 'basicDataChange'],
     mounted() {
     },
     data() {
@@ -197,6 +197,10 @@ export default {
                 this.elementList = [];
                 this.elementList.push(this.activeData);
             }
+        },
+        basicDataChange() {
+                this.elementList = [];
+                this.elementList.push(this.activeData);
         },
         formConf: {
             handler(val) {

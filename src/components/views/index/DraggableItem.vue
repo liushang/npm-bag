@@ -121,9 +121,9 @@ export default {
 <style lang="less">
 @selectedColor: #f6f7ff;
 @lighterBlue: #409EFF;
-.el-dialog__body{
-  height:700px;
-}
+// .el-dialog__body{
+//   height:700px;
+// }
 .container {
   position: relative;
   width: 100%;

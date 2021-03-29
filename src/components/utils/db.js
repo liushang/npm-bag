@@ -85,6 +85,7 @@ export function saveDrawingList(list) {
         }
     });
     localStorage.setItem(DRAWING_ITEMS, json);
+    return json
 }
 
 export function saveIdGlobal(id) {

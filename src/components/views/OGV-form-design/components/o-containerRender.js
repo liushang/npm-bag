@@ -80,6 +80,7 @@ let base = {
     render,
     methods: {
         ...((this && this.methods) || {}),
+        deepClone: deepClone1,
         renderRender: (x) => {
             return x
             // return [ x[0], ((this.lcData || {}) || '').toString() ]

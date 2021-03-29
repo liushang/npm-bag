@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
-import axios from 'axios';
+import axios from './components/utils/axios-v3';
 import iicarus from 'iicarus'
 import VueCodemirror from 'vue-codemirror'
 import 'codemirror/lib/codemirror.css'
@@ -57,9 +57,9 @@ window.$axios = axios;
 Vue.use(ElementUI);
 Vue.use(iicarus)
 
-// import somelibrarysss from 'somelibrarysss'
+import somelibrarysss from 'somelibrarysss'
 
-// Vue.use(somelibrarysss)
+Vue.use(somelibrarysss)
 
 new Vue({
   el: '#app',

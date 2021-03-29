@@ -87,6 +87,7 @@
       :containerInject="containerInject"
       :show-field="!!drawingList.length"
       ref="rightPanel"
+      :basicDataChange="basicDataChange"
       @clearBorderBlue="clearSubBorder(drawingList)"
       @panelContent="panelContent"
       @codeValueChange="codeValueChange"
@@ -146,42 +147,7 @@ export default {
       configData: {
         type: Object,
         default: () => {
-          return {
-              'oContainer': {
-                renderFun: function(o) {
-                  return o
-                },
-                attrMap: {
-                  'elInput_value': 'lcData.form.input'
-                },
-                methods: {
-                  getAA: function(a) {
-                    console.log(a)
-                  }
-                },
-                insData: {
-                  form: {
-                    input: '我11112',
-                    select: 1
-                  },
-                  rules: {
-                    input: [
-                      { required: true, message: '请输入活动名称', trigger: 'blur' },
-                      { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-                    ],
-                  }
-                },
-                'ElInput_836365': {
-                  attrMap: {
-                    'elInput_value': 'lcData.form.input',
-                  },
-                  renderFun: function(x) {
-                    x.value = this.lcData.form.input;
-                    return x
-                  }
-                }
-              },
-            }
+          return {}
         }
       },
       moduleChangeDetail: {
@@ -238,10 +204,18 @@ export default {
             // 展示预览弹窗
             showViewModel: false,
             viewItemData: [],
+            basicDataChange: false
             // showRightPanel: true
           };
     },
     watch: {
+        configData: {
+            handler(val) {
+                console.log('配置更新')
+                console.log(val)
+            },
+            deep: true
+        },
         drawingList: {
             handler(val) {
                 this.saveDrawingListDebounce(val);
@@ -264,6 +238,7 @@ export default {
                 setTimeout(() => {
                   this.activeData = drawingListInDB[0]
                   this.init()
+                  this.basicDataChange = !this.basicDataChange
                   // this.showRightPanel = true
                 }, 100)
               }
@@ -404,7 +379,8 @@ export default {
           console.log(item)
         },
         drawingItemPage(item) {
-          console.log(item)
+          console.log(saveDrawingList([item]))
+          this.$emit('exportPageConfig', item)
         },
         drawingItemDelete(index, list) {
           console.log(list[0])

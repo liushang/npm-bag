@@ -66,7 +66,8 @@ module.exports = {
   devServer: {
     historyApiFallback: true,
     noInfo: true,
-    overlay: true
+    overlay: true,
+    disableHostCheck: true, //  新增该配置项
   },
   performance: {
     hints: false

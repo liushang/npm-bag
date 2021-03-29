@@ -2,6 +2,8 @@ import { getDefaultProps, getRawId } from '../../../schema/util';
 import {
     stringToFunc
 } from '../../../schema/util';
+import { deepClone } from '../../../utils/index';
+
 import { defaultKV, htmlNode, defaultNode } from './default';
 export default {
     data() {
@@ -373,9 +375,10 @@ export default {
                         on: {},
                         renderFun: x => x
                     }
+                    // const defaultConfig = JSON.parse(JSON.stringify(defaultNode[this.modifyItem[key].value]))
                     let config = {
                         name: this.modifyItem[key].value,
-                        props: defaultNode[this.modifyItem[key].value] || commonConfig,
+                        props: deepClone(defaultNode[this.modifyItem[key].value]) || commonConfig,
                     };
                     // 将标签元素的其他属性保持和props属性内存地址相同，用来适应组件配置数据
                     for (let i in config.props) {

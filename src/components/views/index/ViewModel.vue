@@ -1,11 +1,12 @@
 <template>
 <el-dialog
-  class="panel-dialog"
+  class="view-model-dialog"
   :visible.sync="dialogVisible"
   width="90%"
   center
   top="5vh"
   @close="close">
+  <!-- <div style="min-height:600px"> -->
   <draggable-item
       :drawing-list="viewData"
       :current-item="viewData[0]"
@@ -13,6 +14,7 @@
       showType="view"
       :containerInject="containerInject"
     />
+  <!-- </div> -->
 </el-dialog>
 </template>
 
@@ -43,6 +45,13 @@ export default {
 };
 </script>
 <style lang="less">
+.view-model-dialog{
+  .el-dialog__body{
+    display: inline-block;
+    height: 100%;
+    width: 80%;
+  }
+}
 </style>
 <style lang="less" scoped>
 </style>
