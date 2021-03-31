@@ -392,6 +392,9 @@ export default {
                     for(let i in config.nativeOn) {
                         config.props.nativeOn[i] = config.nativeOn[i] = stringToFunc(config.nativeOn[i].toString().replace('_this', 'this'))
                     }
+                    for(let i in config.scopedSlots) {
+                        config.props.scopedSlots[i] = config.scopedSlots[i] = stringToFunc(config.scopedSlots[i].toString().replace('_this', 'this'))
+                    }
                     config.props.subRawId = getRawId(config.name);
                     console.log(this.modifyItem[key].key)
                     this.$set(this.activeData[key], this.modifyItem[key].key, config);
@@ -399,7 +402,7 @@ export default {
                 } else {
                 // 简单属性直接保存
                     let value = this.modifyItem[key].value;
-                    if (['on', 'nativeOn', 'methods', 'computed'].includes(key)) {
+                    if (['on', 'nativeOn', 'methods', 'computed', 'scopedSlots'].includes(key)) {
                         value = stringToFunc(this.modifyItem[key].value);
                     }
                     // todo 属性改变需要关联的输入框类型一起改变

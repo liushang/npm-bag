@@ -57,9 +57,9 @@ window.$axios = axios;
 Vue.use(ElementUI);
 Vue.use(iicarus)
 
-import somelibrarysss from 'somelibrarysss'
+// import somelibrarysss from 'somelibrarysss'
 
-Vue.use(somelibrarysss)
+// Vue.use(somelibrarysss)
 
 new Vue({
   el: '#app',

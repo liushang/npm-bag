@@ -19,11 +19,33 @@ export function getDrawingList(detailStr) {
     const str = detailStr || localStorage.getItem(DRAWING_ITEMS);
     // if (str) return propertyStringToFunc(JSON.parse(str))
     if (str) {
-        let abc = onToFunc(onToFunc(onToFunc(onToFunc(propertyStringToFunc(JSON.parse(str)), 'on'), 'methods'), 'nativeOn'), 'computed')
+        let abc = onToFunc(onToFunc(onToFunc(onToFunc(onToFunc(propertyStringToFunc(JSON.parse(str)), 'on'), 'methods'), 'nativeOn'), 'computed'), 'scopedSlots')
         console.log(abc)
-        return abc
+        return [dealLcData(abc[0])]
     };
     return null;
+}
+function dealLcData (obj) {
+    // 还要增加对子inData的处理
+    if (obj.props && obj.props.insData) {
+        const data = obj.props.insData
+        const dealChild = (data) => {
+            for(let i in data) {
+                if (typeof data[i] === 'object' && data[i] !== null) {
+                    dealChild(data[i])
+                } else if (typeof data[i] === 'string' && data[i].startsWith('function')) {
+                    data[i] = stringToFunc(data[i])
+                }
+            }
+        }
+        dealChild(data)
+    }
+    if (obj.props && obj.props.children) {
+        for (let i of obj.props.children) {
+            dealLcData(i)
+        }
+    }
+    return obj
 }
 export function onToFunc(iarr, on) {
     for (const i of iarr) {

@@ -97,7 +97,7 @@ export const defaultKV = {
         },
         children: {
             0: {
-                value: ['ElForm', 'ElRow', 'ElCol']
+                value: ['ElForm', 'ElRow', 'ElCol', 'ElDialog', 'ElButton']
             } 
         },
         ...commonComponent
@@ -229,13 +229,17 @@ const htmlDefaultNode = {
         style: {},
         attrs: {},
         children: [],
-        renderFun: x => x
+        renderFun: x => x,
+        scopedSlots: {},
+        slot: ''
     },
     span: {
         style: {},
         attrs: {},
         children: [],
-        renderFun: x => x
+        renderFun: x => x,
+        scopedSlots: {},
+        slot: ''
     },
 }
 
@@ -286,7 +290,11 @@ const elDefaultNode = {
         style: {},
         children: [],
         on: {},
-        nativeOn: {},
+        nativeOn: {
+            change: e => {
+                console.log(e)
+            }
+        },
         renderFun: x => {
             return x
         },
@@ -300,7 +308,7 @@ const elDefaultNode = {
         children: [],
         on: {},
         nativeOn: {},
-        // scopedSlots: {},
+        scopedSlots: {},
         // slot: {},
         renderFun: x => {
             return x
@@ -338,12 +346,12 @@ const elDefaultNode = {
         },
         nativeOn: {
             click: e => {
-                console.log(e.target.value)
+                console.log(e.currentTarget.value)
             }
         },
         renderFun: x => {
-            x.value = '1';
-            x.label='选项'
+            x.value = "1";
+            x.label="选项";
             return x
         },
     },
@@ -353,6 +361,49 @@ const elDefaultNode = {
             type: 'primary'
         },
         children: [ '确定' ],
+        on: {},
+        nativeOn: {},
+        renderFun: x => {
+            return x
+        },
+    },
+    ElDialog: {
+        children: [],
+        style: {
+        },
+        attrMap: {
+            showDialog: ''
+        },
+        attrs: {
+            title: '提示' 
+        },
+        on: {
+            close: e => {
+                console.log('关闭');
+                this.showDialog = false
+            }
+        },
+        nativeOn: {
+        },
+        renderFun: x => {
+            x.visible=this.showDialog;
+            return x;
+        },
+    },
+    ElDatePicker: {
+        attrs: {
+            size: 'small',
+            type: 'primary',
+            type: "daterange",
+            align: "right",
+            unlinkPanels: true,
+            valueFormat: "yyyy-MM-dd HH:mm:ss",
+            format: "yyyy-MM-dd HH:mm:ss",
+            rangeSeparator: "至",
+            startPlaceholder: "开始日期",
+            endPlaceholder: "结束日期",
+        },
+        children: [],
         on: {},
         nativeOn: {},
         renderFun: x => {

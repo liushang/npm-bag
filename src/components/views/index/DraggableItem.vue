@@ -25,7 +25,7 @@ const components = {
                 <span>页面配置</span>
             </span>,
             <span class="drawing-item-delete" title="删除" onClick={event => {
-                deleteItem(); event.stopPropagation();
+                deleteItem(currentItem); event.stopPropagation();
             }}>
                 <span class="el-icon-delete"></span>
             </span>

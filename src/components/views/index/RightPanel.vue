@@ -45,7 +45,7 @@
                   :rootWord="i"
                   :initialType="i === 'children' ? 'array' : 'string'"
                   @changeComponentPanel="changeComponentPanel"
-                  :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed'].includes(i) ? 'text' : 'input'"
+                  :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots'].includes(i) ? 'text' : 'input'"
                   ></InfiniteObject>
               </el-collapse-item>
               </div>
@@ -245,7 +245,7 @@ export default {
             this.showFunctionDialog = false;
             this.$emit('renderAgain');
             const [ data, property, subProperty ] = this.tempCodeArr;
-            const funcArr = ['on', 'nativeOn', 'methods', 'computed']
+            const funcArr = ['on', 'nativeOn', 'methods', 'computed', 'scopedSlots']
             if (data[property][subProperty] && !funcArr.includes(property)) {
                 data[property][subProperty] = code;
             } else {
@@ -258,7 +258,7 @@ export default {
         },
         // 向上传递改变组件面板内容
         changeComponentPanel(type, data, property, subProperty) {
-            if (['renderFun', 'on', 'nativeOn', 'methods', 'computed'].includes(property)) {
+            if (['renderFun', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots'].includes(property)) {
                 // 函数编辑窗
                 this.tempCodeArr = [data, property, subProperty];
                 this.showFunctionDialog = true;

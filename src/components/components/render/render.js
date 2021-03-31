@@ -27,7 +27,7 @@ function mountSlotFiles(h, confClone, children) {
 }
 
 function emitEvents(confClone) {
-    ['on', 'nativeOn'].forEach(attr => {
+    ['on', 'nativeOn', 'scopedSlots'].forEach(attr => {
         const eventKeyList = Object.keys(confClone[attr] || {});
         eventKeyList.forEach(key => {
             const val = confClone[attr][key];

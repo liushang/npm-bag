@@ -232,7 +232,7 @@ export default {
         moduleChangeDetail: {
             handler(val) {
               if (val) {
-                console.log(val)
+                // console.log(val)
                 drawingListInDB = getDrawingList(val)
                 // this.showRightPanel = false
                 setTimeout(() => {
@@ -338,6 +338,8 @@ export default {
                     children: [],
                     on: {},
                     nativeOn: {},
+                    scopedSlots: {},
+                    slot: '',
                     props: {},
                     renderFun: x => x
                 }
@@ -363,6 +365,7 @@ export default {
         },
         // 添加组件 点击复制
         addComponent(item, index) {
+          console.log('addcomponent')
             const clone = this.cloneComponent(item);
             this.activeData.props.children.push(clone);
             this.activeFormItem(clone, index);
@@ -382,9 +385,14 @@ export default {
           console.log(saveDrawingList([item]))
           this.$emit('exportPageConfig', item)
         },
-        drawingItemDelete(index, list) {
-          console.log(list[0])
-          list[0].props.children = []
+        drawingItemDelete(item, list) {
+          this.drawingList = drawingDefalut
+          this.$nextTick(() => {
+            const len = this.drawingList.length
+            if (len) {
+              this.activeFormItem(this.drawingList[len - 1])
+            }
+          })
         },
         viewItem(viewItem) {
           this.viewItemData = [viewItem];

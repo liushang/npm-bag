@@ -56,6 +56,23 @@ export function analysisDataRender(configComponents) {
                     };
                 }
             }
+            if (rawData.scopedSlots) {
+                rawData.scopedSlotsFunc = {}
+                for (let x in rawData.scopedSlots) {
+                    let funcs = stringToFunc(rawData.scopedSlots[x]);
+                    // 多copy一个插槽函数
+                    rawData.scopedSlotsFunc[x] = (e) => {
+                        // return func(e, this);
+                        let oo = funcs.bind(this)
+                        return oo(e);
+                    };
+                    rawData.scopedSlots[x] = (e) => {
+                        // return func(e, this);
+                        let oo = funcs.bind(this)
+                        return oo(e);
+                    };
+                }
+            }
             if (rawData.renderFun) {
                 let funcss = stringToFunc(rawData.renderFun)
                 childrenArr = funcss.bind(this)(childrenData)
@@ -94,11 +111,39 @@ export function analysisRenderConfig(configData, createElement) {
         return renderArr;
     }
 }
+function cloneFunction(func) {
+    const bodyReg = /(?<={)(.|\n)+(?=})/m
+    const paramReg = /(?<=\().+(?=\)\s+{)/
+    const funcString = func.toString()
+    if (func.prototype) {
+    const param = paramReg.exec(funcString)
+    const body = bodyReg.exec(funcString)
+    if (body) {
+    if (param) {
+    const paramArr = param[0].split(',')
+    return new Function(...paramArr, body[0])
+    } else {
+    return new Function(body[0])
+    }
+    } else {
+    return null
+    }
+    } else {
+    return eval(funcString)
+    }
+    }
 function dealChild(child, cb) {
     // console.log(child)
     if (!child || !child.values) { // 简单类型
         return child;
     } else {
+        // if (child.raw.scopedSlots) {
+        //     for (let i in child.raw.scopedSlots) {
+        //         console.log('我是slot标签')
+        //         console.log(child.raw.scopedSlots[i])
+        //         child.raw.scopedSlots[i] = cb('div', {}, '我是个好人')
+        //     }
+        // }
         let item = {
             'class': child.raw['class'] || {},
             style: child.raw.style,
@@ -108,12 +153,33 @@ function dealChild(child, cb) {
             on: child.raw.on,
             nativeOn: child.raw.nativeOn,
             directives: child.raw.directives,
-            scopedSlots: child.raw.scopedSlots,
+            // scopedSlots: child.raw.scopedSlots,
             slot: child.raw.slot,
             key: child.raw.key,
             ref: child.raw.ref,
             refInFor: child.raw.refInFor
         };
+        if (!item.scopedSlots) {
+            item.scopedSlots = {}
+            for (let i in child.raw.scopedSlots) {
+                let o = child.raw.scopedSlots[i]
+                item.scopedSlots[i] = a => {
+                    if (a) {
+                        let ee = o(a)
+                        if (ee) {
+                            let oo = dealSlotNode(ee, cb)
+                            console.log('结果')
+                            console.log(oo)
+                            return oo
+                            // return cb(ee.name, { on: ee.on }, ee.children )
+                        }
+                    }
+                }
+                if (i === 'aa') {
+                    console.log(child.raw.scopedSlots[i])
+                }
+            }
+        }
         if (item.style && item.style.border && item.style.border === '1px solid red') {
             item.class['border-red'] = true
         } else {
@@ -144,6 +210,22 @@ function dealChild(child, cb) {
         )
     }
 }
+function dealSlotNode(obj, cb) {
+    if (obj.children && obj.children.length) {
+        let children = []
+        for(let i of obj.children) {
+            // if (typeof i === 'object' && i.name) {
+                children.push(dealSlotNode(i, cb))
+            // }
+        }
+        return cb(obj.name, obj.attr|| {}, children)
+    } else if (obj.name){
+        return cb(obj.name, obj.attr || {})
+    } else {
+        return obj
+    }
+    // return cb(obj.name, obj.attr, )
+}
 // () => {}
 export function stringToFunc(str) {
     if (typeof str === 'string') {
@@ -159,7 +241,6 @@ export function stringToFunc(str) {
             return new Function(...funNameArr, funMiddle);
         } else {
             let funLast = str.slice(str.indexOf('=>') + 2).trim();
-            // if (funLast.startsWith('{')) funLast = funLast.slice(1).slice(0, -1)
             let funMiddle = funLast.startsWith('{') ? funLast.slice(1).slice(0, -1) : funLast;
             // 获取函数参数
             let funPre = str.slice(0, str.indexOf('=>')).trim();
@@ -280,7 +361,7 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
     return constructor;
 }
 function injectData(item, dataItem) {
-    const { insData, renderFun, attrMap, on, nativeOn, methods } = dataItem || {};
+    const { insData, renderFun, attrMap, on, nativeOn, methods, scopedSlots } = dataItem || {};
     if (item.props.insData && insData) {
         for (let i in dataItem.insData) {
             item.props.insData[i] = insData[i]
@@ -307,13 +388,15 @@ function injectData(item, dataItem) {
             for(let i in item.on) {
                 // 元素on方法
                 item.props.on[i] = item.on[i] = stringToFunc(item.on[i].toString().replace(x, attrMap[x]))
-                console.log(item.on[i].toString())
             }
             // for(let i in item.nativeOn) {
             //     item.nativeOn[i] = replaceFun(item.nativeOn[i], x, attrMap[x])
             // }
             for(let i in item.nativeOn) {
                 item.props.nativeOn[i] = item.nativeOn[i] = replaceFun(item.nativeOn[i], x, attrMap[x])
+            }
+            for(let i in item.scopedSlots) {
+                item.props.scopedSlots[i] = item.scopedSlots[i] = replaceFun(item.scopedSlots[i], x, attrMap[x])
             }
             if (item.props.methods) {
                 for(let i in item.props.methods) {
@@ -349,6 +432,15 @@ function injectData(item, dataItem) {
             }
         }
         Object.assign(item.props.nativeOn, nativeOn)
+    }
+    if (item.props && item.props.scopedSlots && scopedSlots) {
+        for (let y in item.props.scopedSlots) {
+            if (scopedSlots[y]) {
+                item.props.scopedSlots[y] = getFunctionReplace(scopedSlots[y])
+                if (item.scopedSlots[y]) item.scopedSlots[y] = getFunctionReplace(scopedSlots[y])
+            }
+        }
+        Object.assign(item.props.scopedSlots, scopedSlots)
     }
     function getFunctionReplace(func) {
         // 函数替换配置中的变量map

@@ -39,6 +39,10 @@ let base = {
             type: Object,
             default: () => {}
         },
+        scopedSlots: {
+            type: Object,
+            default: () => {}
+        },
         children: {
             type: Array,
             default: () => []
@@ -60,6 +64,10 @@ let base = {
             type: String,
             default: 'oContainer'
         },
+        // slot: {
+        //     type: String,
+        //     default: ''
+        // },
         computed: {
             type: Object,
             default: () => {}
@@ -79,7 +87,6 @@ let base = {
     },
     render,
     methods: {
-        ...((this && this.methods) || {}),
         deepClone: deepClone1,
         renderRender: (x) => {
             return x
@@ -117,6 +124,12 @@ let base = {
                     return func(e, this);
                 };
             }
+            for (let i in this.scopedSlots) {
+                let func = this.scopedSlots[i];
+                this.scopedSlots[i] = (e) => {
+                    return func(e, this);
+                };
+            }
             const  cc = dealMultiChildren(this.renderFun({
                 name: 'ElCard',
                 ref: 'oContainer',
@@ -143,6 +156,9 @@ let base = {
                     },
                     ...this.nativeOn
                 },
+                scopedSlots: {
+                    ...this.scopedSlots
+                },
                 style: Object.assign(this.style, this.styles),
                 props: {
                     value: this.value,
@@ -157,6 +173,10 @@ let base = {
     },
     created() {
         this.lcData = deepClone1(this.insData)
+        console.log(this.methods)
+        for(let i in this.methods) {
+            this[i] = this.methods[i]
+        }
     },
     mounted() {
         this.containerId = 'oContainer'
@@ -165,6 +185,7 @@ let base = {
         }
         this.$set(this.rootData[this.containerId], 'methods', this.methods);
         this.on && this.on['mounted'] && this.on['mounted'](this);
+        this.mounted()
     }
 };
 export default base;
