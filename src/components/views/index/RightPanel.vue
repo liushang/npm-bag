@@ -258,6 +258,7 @@ export default {
         },
         // 向上传递改变组件面板内容
         changeComponentPanel(type, data, property, subProperty) {
+          // console.log(type, data, property, subProperty)
             if (['renderFun', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots'].includes(property)) {
                 // 函数编辑窗
                 this.tempCodeArr = [data, property, subProperty];

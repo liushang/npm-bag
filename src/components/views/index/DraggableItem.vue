@@ -22,7 +22,7 @@ const components = {
             <span class="drawing-item-copy" title="复制" onClick={event => {
                 pageItem(injectDataItem); event.stopPropagation();
             }}>
-                <span>页面配置</span>
+                <span>导出配置</span>
             </span>,
             <span class="drawing-item-delete" title="删除" onClick={event => {
                 deleteItem(currentItem); event.stopPropagation();

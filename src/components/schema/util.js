@@ -57,15 +57,15 @@ export function analysisDataRender(configComponents) {
                 }
             }
             if (rawData.scopedSlots) {
-                rawData.scopedSlotsFunc = {}
+                // rawData.scopedSlotsFunc = {}
                 for (let x in rawData.scopedSlots) {
                     let funcs = stringToFunc(rawData.scopedSlots[x]);
-                    // 多copy一个插槽函数
-                    rawData.scopedSlotsFunc[x] = (e) => {
-                        // return func(e, this);
-                        let oo = funcs.bind(this)
-                        return oo(e);
-                    };
+                    // // 多copy一个插槽函数
+                    // rawData.scopedSlotsFunc[x] = (e) => {
+                    //     // return func(e, this);
+                    //     let oo = funcs.bind(this)
+                    //     return oo(e);
+                    // };
                     rawData.scopedSlots[x] = (e) => {
                         // return func(e, this);
                         let oo = funcs.bind(this)
@@ -80,15 +80,6 @@ export function analysisDataRender(configComponents) {
                     childrenArr = [childrenArr]
                 }
             }
-            // 组件 renderfun 字符串注入处理为函数
-            // if (rawData.props && rawData.props.renderFun) {
-            //     console.log(typeof rawData.props.renderFun)
-            //     let funcss = stringToFunc(rawData.props.renderFun)
-            //     rawData.props.renderFun = funcss
-            // }
-            // if (rawData.props && rawData.props.insData) {
-            //     rawData.props.insData = JSON.parse(rawData.props.insData)
-            // }
             configData.push(...childrenArr);
         }
     }
@@ -133,7 +124,6 @@ function cloneFunction(func) {
     }
     }
 function dealChild(child, cb) {
-    // console.log(child)
     if (!child || !child.values) { // 简单类型
         return child;
     } else {
@@ -167,10 +157,7 @@ function dealChild(child, cb) {
                     if (a) {
                         let ee = o(a)
                         if (ee) {
-                            let oo = dealSlotNode(ee, cb)
-                            console.log('结果')
-                            console.log(oo)
-                            return oo
+                            return dealSlotNode(cb, ee)
                             // return cb(ee.name, { on: ee.on }, ee.children )
                         }
                     }
@@ -184,9 +171,6 @@ function dealChild(child, cb) {
             item.class['border-red'] = true
         } else {
             delete item.class['border-red']
-        }
-        if (child.name === 'ElInput') {
-            // if (child.raw.on) console.log(child.raw.on.input.toString())
         }
         if (child.raw.attr) {
             let attrs = {};
@@ -210,19 +194,31 @@ function dealChild(child, cb) {
         )
     }
 }
-function dealSlotNode(obj, cb) {
-    if (obj.children && obj.children.length) {
-        let children = []
-        for(let i of obj.children) {
-            // if (typeof i === 'object' && i.name) {
-                children.push(dealSlotNode(i, cb))
-            // }
+function dealSlotNode(cb, item) {
+    const { name, on, props, attrs, nativeOn, directives, style, scopedSlots, children, slot } = item
+    if (children && children.length) {
+        let childrens = []
+        for(let i of children) {
+            childrens.push(dealSlotNode(cb, i))
         }
-        return cb(obj.name, obj.attr|| {}, children)
-    } else if (obj.name){
-        return cb(obj.name, obj.attr || {})
+        return cb(name, {
+            on: on || {},
+            props: props || {},
+            attrs: attrs || {},
+            nativeOn: nativeOn || {},
+            style: style || {},
+            scopedSlots: scopedSlots || {},
+        }, childrens)
+    } else if (name){
+        return cb(name, {
+            on: on || {},
+            props: props || {},
+            attrs: attrs || {},
+            nativeOn: nativeOn || {},
+            style: style,
+        })
     } else {
-        return obj
+        return item
     }
     // return cb(obj.name, obj.attr, )
 }

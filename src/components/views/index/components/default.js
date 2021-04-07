@@ -254,7 +254,9 @@ const elDefaultNode = {
         attrs: {},
         children: [],
         on: {
-            input: e => this.elInput_value = e
+            input: function (e) {
+                this.elInput_value = e
+            }
         },
         nativeOn: {
             input: e => {
@@ -263,7 +265,8 @@ const elDefaultNode = {
                 }, 100)
             }
         },
-        renderFun: x => {
+        renderFun: function (x) {
+            // 这里如果是箭头函数某些情况下 this会变成_this
             x.value = this.elInput_value;
             return x
         },
@@ -411,7 +414,7 @@ const elDefaultNode = {
         },
     }
 }
-
+// export const allHtmlNode = [ '!DOCTYPE', 'html', 'title', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr', 'abbr', 'address', 'b', 'bdi', 'bdo', 'blockquote', 'cite', 'code', 'del', 'dfn', 'em', 'i', 'ins', 'kbd', 'mark', 'meter', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'small', 'srong', 'sub', 'time', 'u', 'var', 'wbr', 'from', 'input', 'textarea', 'button', 'select', 'optgroup', 'option', 'label', 'fieldset', 'legend', 'datalist', 'keygen', 'output', 'iframe', 'img', 'map', 'area', 'canvas', 'figcaption', 'figure', 'audio', 'source', 'track', 'video', 'a', 'link', 'nav', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'menu', 'command', 'table', 'caption', 'th', 'tr', 'td', 'thead', 'tbody', 'tfoot', 'col', 'colgroup', 'style', 'div', 'span', 'header', 'footer', 'section', 'article', 'aside', 'details', 'dialog', 'summary', 'head', 'meta', 'base', 'basefont', 'script', 'noscript', 'applet', 'enbed', 'object', 'param']
 // todo 增加其他元素
 export const defaultNode = {
     ...htmlDefaultNode,
