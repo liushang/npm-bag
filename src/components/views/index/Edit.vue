@@ -55,8 +55,9 @@
   </div>
 </template>
 
-<script>
+<script type="module">
 import Home from "./Home.vue"
+import Vue from 'vue'
 export default {
     name: "index",
     data() {
@@ -87,7 +88,7 @@ export default {
                 },
                 methods: {
                     mounted() {
-                        console.log('哒哒哒哒哒哒多');console.log(this.getData())
+                        console.log("哒哒哒哒哒哒多");console.log(this.getData())
                     },
                     downloadCode({ batch_token }) {
                         window.open(`http://${window.location.href.indexOf("uat-") > -1 ? "uat-" : ""}${couponCodeDownloadUrl}?batch_token=${batch_token}`);
@@ -99,7 +100,7 @@ export default {
                             cancelButtonText: "取消",
                             type: "warning"
                         }).then(() => {
-                            this.doAxios({
+                            this.$axios({
                                 method: "post",
                                 url: type === 1 ? couponIssueFreezeUrl : couponUseFreezeUrl,
                                 params: {
@@ -108,8 +109,8 @@ export default {
                                     freeze_status: 1
                                 },
                                 include: true
-                            }, this).then(({ status, data }) => {
-                                if (status === 200 && data && data.code === 0) {
+                            }).then(({ code, data }) => {
+                                if (data && code === 0) {
                                     this.$message.success(`冻结成功`);
                                     this.getData();
                                 } else {
@@ -187,20 +188,20 @@ export default {
                         });
                     },
                     reset() {
-                        this.form = {
+                        this.lcData.form = {
                             batch_title: "",
                             timeRange: [],
-                            batch_status: "",
+                            batch_status: -1,
                             id: "",
                             operator: "",
-                            status: "",
+                            status: -1,
                             order_by_id: 0,
                             order_by_receive_start: 0
                         };
                     },
                     review({ id, batch_status }, type) {
                         if (type === 2) {
-                            this.doAxios({
+                            this.$axios({
                                 method: "post",
                                 url: couponSubmitUrl,
                                 params: {
@@ -418,17 +419,6 @@ export default {
                       }
                   }
                 },
-                "ElInput_741168": {
-                //   attrMap: {},
-                //   renderFun: function(x) {
-                //     x.value = this.lcData.filter.keyword
-                //   },
-                //   on: {
-                //       input: function(e) {
-                //           this.lcData.filter.keyword = e
-                //       }
-                //   }
-                },
                 "ElTableColumn_600689": {
                   renderFun: function(x) {
                     x.value = this.lcData.filter.keyword
@@ -451,6 +441,7 @@ export default {
         };
     },
     mounted() {
+        console.log(Vue.compile('<div><span>{{ msg }}</span></div>'))
         this.getProjects();
         this.getConfig();
         this.getPage(this.projectId);

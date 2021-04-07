@@ -41,7 +41,7 @@
       </el-scrollbar>
     </div>
 
-    <div class="center-board">
+    <div class="center-board" @click="e => e.preventDefault()">
       <el-scrollbar class="center-scrollbar">
         <el-row class="center-board-row" :gutter="formConf.gutter">
           <el-form
@@ -104,7 +104,7 @@
   </div>
 </template>
 
-<script>
+<script type="module">
 import draggable from 'vuedraggable';
 import { debounce } from 'throttle-debounce';
 import render from '../../components/render/render';
@@ -290,12 +290,18 @@ export default {
             this.showPanel = false;
         },
         convertConstrutor(e) {
-            let json = this.activeData.props[e.property][e.subProperty];
+          console.log(this.activeData.props)
+          let json;
+          if (e.data[e.property][e.subProperty].props.subRawId) {
+            json = e.data[e.property][e.subProperty]
+          } else {
+            json = this.activeData.props[e.property][e.subProperty];
             !json.props && json.name && (json.props = {
                 attrs: {},
                 children: []
             });
-            return json;
+          }
+          return json;
         },
         // 根据rawId获取对应的对象
         getRawIdItem(list, id) {
@@ -331,6 +337,7 @@ export default {
         },
         activeFormItem(currentItem, type) {
             if (type) {
+              // 非容器组件
                 const commonConfig = {
                     style: {},
                     attrs: {},
@@ -353,6 +360,7 @@ export default {
                     currentItem.props.subRawId = getRawId(currentItem.name);
                 }
             } else {
+              // 容器组件
               if (this.$root.$options.components[currentItem.name]) {
                   const comOptions = getDefaultProps(this.$root.$options.components[currentItem.name].options);
                   for (let i in comOptions) {
@@ -367,8 +375,16 @@ export default {
         addComponent(item, index) {
           console.log('addcomponent')
             const clone = this.cloneComponent(item);
-            this.activeData.props.children.push(clone);
-            this.activeFormItem(clone, index);
+            console.log(clone)
+            if (!clone.name.startsWith('o')) {
+              // 非容器组件 元素等
+              this.$refs.rightPanel.editItem.props.children.push(clone)
+              this.activeFormItem(clone, index);
+            } else {
+              // 容器组件
+              this.activeData.props.children.push(clone);
+              this.activeFormItem(clone, index);
+            }
         },
         cloneComponent(origin) {
             return deepClone(origin);
