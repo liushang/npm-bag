@@ -265,8 +265,8 @@ const elDefaultNode = {
                 }, 100)
             }
         },
+        // 这里如果是箭头函数某些情况下 this会变成_this
         renderFun: function (x) {
-            // 这里如果是箭头函数某些情况下 this会变成_this
             x.value = this.elInput_value;
             return x
         },
