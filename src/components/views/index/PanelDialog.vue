@@ -92,6 +92,7 @@ export default {
             console.log('err', e);
         },
         close() {
+          console.log(this.modeJson)
             this.$emit('close', this.modeJson);
         },
         // 向上传递改变组件面板内容

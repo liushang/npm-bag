@@ -103,6 +103,7 @@ export default {
                     <span onClick={() => this.analysisProperty('turn', a, b, c)}>{val.name}</span>
                     {/* 查看代码 */}
                     <span onClick={() => this.analysisProperty('code', a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">查看</span>
+                    <span onClick={() => this.saveModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">存储</span>
                 </span>)
             } else {
                 // 函数字符串渲染，点击查看函数
@@ -440,6 +441,10 @@ export default {
         },
         analysisProperty(type, data, property, subProperty) {
             this.$emit('changeComponentPanel', type, data, property, subProperty);
+        },
+        saveModuleCode(data, property, subProperty) {
+            console.log(data[property][subProperty])
+            this.$emit('saveModuleCode', data[property][subProperty])
         }
     }
 };

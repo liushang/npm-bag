@@ -44,6 +44,7 @@
                   :name="editItem.name"
                   :rootWord="i"
                   :initialType="i === 'children' ? 'array' : 'string'"
+                  @saveModuleCode="saveModuleCode"
                   @changeComponentPanel="changeComponentPanel"
                   :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots'].includes(i) ? 'text' : 'input'"
                   ></InfiniteObject>
@@ -306,6 +307,9 @@ export default {
         },
         delModifyItem(key, data = this.activeData) {
             this.$delete(this.modifyItem, key, '');
+        },
+        saveModuleCode(code) {
+          this.$emit('saveModuleCode', code)
         }
     }
 };

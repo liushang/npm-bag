@@ -8,6 +8,10 @@
       </div>
       <el-scrollbar class="left-scrollbar">
         <div class="components-list">
+          <div style="margin: 4px 0">
+            <FuzzySearch value-key="node_name" style="width: 80px" v-model="searchNode" size="mini" type='select' searchType='node'></FuzzySearch>
+            <el-button @click="injectNode" size="mini">确定</el-button>
+          </div>
           <div v-for="(item, listIndex) in leftComponents" :key="listIndex">
             <el-collapse>
               <el-collapse-item :title="item.title">
@@ -40,7 +44,6 @@
         </div>
       </el-scrollbar>
     </div>
-
     <div class="center-board" @click="e => e.preventDefault()">
       <el-scrollbar class="center-scrollbar">
         <el-row class="center-board-row" :gutter="formConf.gutter">
@@ -91,6 +94,7 @@
       @clearBorderBlue="clearSubBorder(drawingList)"
       @panelContent="panelContent"
       @codeValueChange="codeValueChange"
+      @saveModuleCode="saveModuleCode"
     />
     <panel-dialog
       :active-data="convertConstrutor(dialogComponentDetail)"
@@ -101,6 +105,7 @@
     <input id="copyNode" type="hidden">
     <view-model v-if="showViewModel" @closeViewModel="showViewModel=false" :drawingList="viewItemData">
     </view-model>
+    <NodeModal v-if="showNodeModal" @close="showNodeModal= false" @confirm="saveNode"></NodeModal>
   </div>
 </template>
 
@@ -120,8 +125,11 @@ import {
 } from '../../utils/index';
 import drawingDefalut from '../../components/generator/drawingDefalut';
 import logo from '../../assets/logo.png';
-import CodeTypeDialog from './CodeTypeDialog';
 import DraggableItem from './DraggableItem';
+import NodeModal from './components/NodeModal';
+import FuzzySearch from './components/FuzzySearch';
+
+
 import {
     getDrawingList, saveDrawingList, getFormConf, getContainer, saveContainer
 } from '../../utils/db';
@@ -137,9 +145,10 @@ export default {
         render,
         RightPanel,
         PanelDialog,
-        CodeTypeDialog,
         DraggableItem,
-        ViewModel
+        ViewModel,
+        NodeModal,
+        FuzzySearch
     },
     name: 'practice',
     props: {
@@ -204,7 +213,10 @@ export default {
             // 展示预览弹窗
             showViewModel: false,
             viewItemData: [],
-            basicDataChange: false
+            basicDataChange: false,
+            showNodeModal: false,
+            waitNode: {},
+            searchNode: ''
             // showRightPanel: true
           };
     },
@@ -285,12 +297,18 @@ export default {
             this.showPanel = true;
         },
         closePanelDialog(e) {
+            console.log('close')
             const { property, subProperty } = this.dialogComponentDetail;
-            this.$set(this.activeData.props[property], subProperty, e);
+            if (property === 'children') {
+              this.$refs.rightPanel.editItem.props[property][subProperty] = e;
+              this.$refs.rightPanel.editItem[property] && (this.$refs.rightPanel.editItem[property][subProperty] = e)
+            }else {
+              this.$set(this.$refs.rightPanel.editItem.props[property], subProperty, e)
+            }
+            // this.$set(this.activeData.props[property], subProperty, e);
             this.showPanel = false;
         },
         convertConstrutor(e) {
-          console.log(this.activeData.props)
           let json;
           if (e.data[e.property][e.subProperty].props.subRawId) {
             json = e.data[e.property][e.subProperty]
@@ -301,6 +319,7 @@ export default {
                 children: []
             });
           }
+          console.log(json)
           return json;
         },
         // 根据rawId获取对应的对象
@@ -372,13 +391,20 @@ export default {
             this.activeData = currentItem;
         },
         // 添加组件 点击复制
-        addComponent(item, index) {
+        addComponent(item, index, whole) {
           console.log('addcomponent')
-            const clone = this.cloneComponent(item);
+          console.log(item)
+            let clone
+            if (whole) {
+              clone = item
+            } else {
+              clone = this.cloneComponent(item);
+            }
             console.log(clone)
             if (!clone.name.startsWith('o')) {
               // 非容器组件 元素等
               this.$refs.rightPanel.editItem.props.children.push(clone)
+              this.$refs.rightPanel.editItem.children && this.$refs.rightPanel.editItem.children.push(clone)
               this.activeFormItem(clone, index);
             } else {
               // 容器组件
@@ -414,6 +440,21 @@ export default {
           this.viewItemData = [viewItem];
           console.log(this.viewItemData)
           this.showViewModel = true;
+        },
+        saveModuleCode(code) {
+          console.log('saveModuleCode')
+          console.log(code)
+          this.waitNode = code
+          this.showNodeModal = true;
+        },
+        saveNode({ name, type }) {
+          this.$emit('saveModuleCode', this.waitNode, name, type)
+        },
+        injectNode(e) {
+          console.log(this.searchNode)
+          let str = '[' + decodeURIComponent(this.searchNode.node_config) + ']'
+          console.log(getDrawingList(str))
+          this.addComponent(getDrawingList(str)[0], 1, 1)
         }
     }
 };
@@ -434,7 +475,6 @@ export default {
 }
 
 .components-list {
-  padding: 8px;
   box-sizing: border-box;
   height: 100%;
   .components-item {
@@ -478,7 +518,7 @@ export default {
 }
 
 .left-board {
-  width: 120px;
+  width: 150px;
   position: absolute;
   left: 0;
   top: 0;
@@ -498,7 +538,7 @@ export default {
 .center-board {
   height: 100vh;
   width: auto;
-  margin: 0 340px 0 120px;
+  margin: 0 340px 0 150px;
   box-sizing: border-box;
 }
 .empty-info{

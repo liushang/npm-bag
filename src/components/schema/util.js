@@ -144,11 +144,12 @@ function dealChild(child, cb) {
             nativeOn: child.raw.nativeOn,
             directives: child.raw.directives,
             // scopedSlots: child.raw.scopedSlots,
-            slot: child.raw.slot,
+            // slot: child.raw.slot,
             key: child.raw.key,
             ref: child.raw.ref,
             refInFor: child.raw.refInFor
         };
+        if (child.raw.slot) item.slot = child.raw.slot
         if (!item.scopedSlots) {
             item.scopedSlots = {}
             for (let i in child.raw.scopedSlots) {

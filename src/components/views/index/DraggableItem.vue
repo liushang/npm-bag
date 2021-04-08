@@ -131,7 +131,6 @@ export default {
 }
 
 .components-list {
-  padding: 8px;
   box-sizing: border-box;
   height: 100%;
   .components-item {
@@ -175,7 +174,7 @@ export default {
 }
 
 .left-board {
-  width: 120px;
+  width: 150px;
   position: absolute;
   left: 0;
   top: 0;
@@ -195,7 +194,7 @@ export default {
 .center-board {
   height: 100vh;
   width: auto;
-  margin: 0 340px 0 120px;
+  margin: 0 340px 0 150px;
   box-sizing: border-box;
 }
 .empty-info{

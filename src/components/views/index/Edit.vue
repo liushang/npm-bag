@@ -36,7 +36,7 @@
             </el-col>
         </el-row>
       </div>
-      <Home :moduleChangeDetail="moduCf" :configData="configData"></Home>
+      <Home :moduleChangeDetail="moduCf" :configData="configData" @saveModuleCode="saveModuleCode"></Home>
       <!-- <practice :moduleChangeDetail="moduCf" :configData="{}"></practice> -->
       <el-dialog :visible.sync="showAddName" width="500px" title="添加名字" @close="closeWeight">
           <el-form style="text-align:center" label-width="120px">
@@ -69,7 +69,7 @@ export default {
                 label: "-- 新增 --",
                 value: 0
             }],
-            moduleId: 53,
+            moduleId: 50,
             modules: [{
                 label: "-- 新增 --",
                 value: 0
@@ -455,6 +455,28 @@ export default {
         }
     },
     methods: {
+        saveModuleCode(code, name) {
+            code = JSON.stringify(code, function(key, value) {
+                if (typeof value === 'function') {
+                    return value.toString();
+                } else {
+                    return value;
+                }
+            })
+            this.$axios({
+                method: "post",
+                url: "http://uat-bangumi-mng.bilibili.co/api/node/saveNode",
+                params: {
+                    projectId: +this.projectId,
+                    nodeName: name,
+                    nodeConfig: encodeURIComponent(code)
+                }
+            }).then(({ data, code }) => {
+                if (code === 0) {
+                    this.$message.success('保存成功')
+                }
+            });
+        },
         getProjects() {
             this.$axios({
                 url: "http://uat-bangumi-mng.bilibili.co/api/getProjects"
@@ -553,11 +575,6 @@ export default {
             });
         },
         saveModule() {
-            // if (!this.moduleName || !this.moduleId) {
-            //     this.showAddName = true;
-            // }
-            // const module = localStorage.getItem("drawingItems");
-            // console.log(module);
             const module = localStorage.getItem("drawingItems");
             this.$axios({
                 method: "post",

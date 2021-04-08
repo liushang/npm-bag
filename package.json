@@ -1,7 +1,7 @@
 {
   "name": "somelibrarysss",
   "description": "A Vue.js project",
-  "version": "1.1.12",
+  "version": "1.1.13",
   "author": "刘朝阳 <liuzhaoyang@bilibili.com>",
   "license": "MIT",
   "private": false,
@@ -14,7 +14,7 @@
     "element-ui": "^2.14.1",
     "file-saver": "^2.0.2",
     "iicarus": "^1.0.21",
-    "somelibrarysss": "^1.1.12",
+    "somelibrarysss": "^1.1.13",
     "vue": "^2.5.11",
     "vue-codemirror": "^4.0.6",
     "vue-json-editor": "^1.4.3",
