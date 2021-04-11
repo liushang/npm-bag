@@ -420,11 +420,11 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
         }
     }
     for (let i in constructor.attrMap) {
-        if (!constructor.attrMap[i]) break;
+        if (constructor.attrMap && !constructor.attrMap[i]) break;
         if (!data.attrMap[i]) data.attrMap[i] = constructor.attrMap[i]
     }
     for (let i in constructor.props.attrMap) {
-        if (!constructor.attrMap[i]) break;
+        if (constructor.attrMap && !constructor.attrMap[i]) break;
         if (!data.attrMap[i]) data.attrMap[i] = constructor.props.attrMap[i]
     }
     constructor.props.attrMap && Object.assign(constructor.props.attrMap, data.attrMap)

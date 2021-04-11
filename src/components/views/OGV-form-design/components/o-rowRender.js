@@ -1,28 +1,40 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../../../schema/api';
-import baseAttr from '../base/attrs';
 import { dealMultiChildren, deepClone } from '../../../schema/util';
+import baseAttr from '../base/attrs';
 let base = {
     data() {
         return {
             style: {
                 border: '1px solid #e4e7ed',
-                'min-height': '40px',
-                lcData: {}
-            }
+                'min-height': '40px'
+            },
+            attr: {
+                size: 'small',
+            },
+            lcData: {}
         };
     },
     props: {
         ...baseAttr.props,
+        // 以下属性正式环境下皆为 data
+        attrs: {
+            type: Object,
+            default: () => {
+                return {
+                    size: 'small'
+                };
+            }
+        },
         on: {
             type: Object,
             default: () => {}
         },
-        classes: {
+        nativeOn: {
             type: Object,
             default: () => {}
         },
-        attrs: {
+        scopedSlots: {
             type: Object,
             default: () => {}
         },
@@ -30,13 +42,43 @@ let base = {
             type: Array,
             default: () => []
         },
+        renderFun: {
+            type: Function,
+            default: x => x
+        },
         styles: {
             type: Object,
-            default: () => {}
+            default: () => {
+                return {};
+            }
         },
         rawId: {
             type: String,
             default: ''
+        },
+        // slot: {
+        //     type: String,
+        //     default: ''
+        // },
+        computed: {
+            type: Object,
+            default: () => {}
+        },
+        watch: {
+            type: Object,
+            default: () => {}
+        },
+        env: {
+            type: String,
+            default: 'dev'
+        },
+        methods: {
+            type: Object,
+            default: () => {}
+        },
+        insData: {
+            type: Object,
+            default: () => {}
         }
     },
     render,
@@ -49,8 +91,6 @@ let base = {
         }
     },
     methods: {
-        updateMsg() {
-        },
         click() {
             this.$root.$emit('DEAL_CHOOSE', this);
         }
@@ -61,6 +101,18 @@ let base = {
             for (let i in this.on) {
                 let func = this.on[i];
                 this.on[i] = (e) => {
+                    return func(e, this);
+                };
+            }
+            for (let i in this.nativeOn) {
+                let func = this.nativeOn[i];
+                this.nativeOn[i] = (e) => {
+                    return func(e, this);
+                };
+            }
+            for (let i in this.scopedSlots) {
+                let func = this.scopedSlots[i];
+                this.scopedSlots[i] = (e) => {
                     return func(e, this);
                 };
             }
@@ -76,7 +128,6 @@ let base = {
                 },
                 children: this.children
             };
-            console.log(this.renderFun)
             let renderChildren = this.renderFun(children)
             let multiChildren = dealMultiChildren(renderChildren)
             return {
@@ -97,8 +148,16 @@ let base = {
     },
     created() {
         this.lcData = deepClone(this.insData)
+        for(let i in this.methods) {
+            this[i] = this.methods[i]
+        }
+        for(let i in this.watch) {
+            console.log('lcData.' + i)
+            this.$watch('lcData.' + i, this.watch[i].bind(this))
+        }
     },
     mounted() {
+        this.on && this.on['mounted'] && this.on['mounted'](this);
     }
 };
 export default base;

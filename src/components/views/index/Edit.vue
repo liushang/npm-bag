@@ -69,7 +69,7 @@ export default {
                 label: "-- 新增 --",
                 value: 0
             }],
-            moduleId: 53,
+            moduleId: 55,
             modules: [{
                 label: "-- 新增 --",
                 value: 0

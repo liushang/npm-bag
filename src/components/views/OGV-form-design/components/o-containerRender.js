@@ -1,5 +1,4 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
-import Vue from 'vue';
 import { render, computed } from '../../../schema/api';
 import { dealMultiChildren, deepClone } from '../../../schema/util';
 import baseAttr from '../base/attrs';
@@ -163,7 +162,7 @@ let base = {
                 };
             }
             const  cc = dealMultiChildren(this.renderFun({
-                name: 'ElCard',
+                name: 'ElRow',
                 ref: 'oContainer',
                 on: {
                     click: e => {
@@ -224,7 +223,6 @@ let base = {
         }
         this.$set(this.rootData[this.containerId], 'methods', this.methods);
         this.on && this.on['mounted'] && this.on['mounted'](this);
-        this.mounted()
     }
 };
 export default base;

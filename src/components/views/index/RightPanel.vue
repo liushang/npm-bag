@@ -32,11 +32,12 @@
                     <span class='' v-if="!modifyItem[i] && haveFixedAttrs(editItemProperty[i], i)" style="color:#409eff;font-size:14px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord', 1)">添加</span>
                     <span v-if="!modifyItem[i]" style="color:#409eff;font-size:12px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord')">自定义</span>
                     <span class='' v-else style="color:#409eff;font-size:14px;margin-right:10px;margin-left:30px" @click.stop="$refs['infiniteObj'][index].saveProperty(i)">确定</span>
-                    <span v-if="Object.keys(modifyItem).length > 0" style="color:#409eff;font-size:14px" @click.stop="$refs['infiniteObj'][index].delModifyItem(modifyItem, i)">x</span>
+                    <span v-if="Object.keys(modifyItem).length > 0 && modifyItem[i]" style="color:#409eff;font-size:14px" @click.stop="$refs['infiniteObj'][index].delModifyItem(modifyItem, i)">x</span>
                 </div>
                   </span>
                 </template>
-                <InfiniteObject
+                <component
+                  :is="i === 'attrMap' ? 'Alias' : 'InfiniteObject'"
                   ref="infiniteObj"
                   :modifyItem="modifyItem"
                   :activeData="editItemProperty"
@@ -47,7 +48,7 @@
                   @saveModuleCode="saveModuleCode"
                   @changeComponentPanel="changeComponentPanel"
                   :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(i) ? 'text' : 'input'"
-                  ></InfiniteObject>
+                  ></component>
               </el-collapse-item>
               </div>
             </el-collapse>
@@ -100,11 +101,13 @@ import { htmlNode, elNode, defaultKV } from './components/default';
 import 'codemirror/theme/base16-dark.css';
 import BASEMAP from './base/map';
 import PanelDialog from './PanelDialog';
+import Alias from './attrConfig/alias'
 export default {
     components: {
         InfiniteObject,
         CodeEditor,
-        PanelDialog
+        PanelDialog,
+        Alias
     },
     props: ['showField', 'activeData', 'formConf', 'containerInject', 'basicDataChange'],
     mounted() {

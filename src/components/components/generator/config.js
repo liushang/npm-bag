@@ -75,17 +75,10 @@ export function getHtmlLabel() {
 
 export const oComponents = [
     {
-        name: 'oContainer',
-        props: {},
-        __config__: {
-            label: '容器',
-            layout: 'oFormItem'
-        }
-    }, {
         name: 'oRow',
         props: {},
         __config__: {
-            label: '行',
+            label: 'row',
             layout: 'oFormItem'
         }
     // }, {
