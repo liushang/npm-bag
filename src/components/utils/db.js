@@ -19,7 +19,7 @@ export function getDrawingList(detailStr) {
     const str = detailStr || localStorage.getItem(DRAWING_ITEMS);
     // if (str) return propertyStringToFunc(JSON.parse(str))
     if (str) {
-        let abc = onToFunc(onToFunc(onToFunc(onToFunc(onToFunc(propertyStringToFunc(JSON.parse(str)), 'on'), 'methods'), 'nativeOn'), 'computed'), 'scopedSlots')
+        let abc = onToFunc(onToFunc(onToFunc(onToFunc(onToFunc(onToFunc(propertyStringToFunc(JSON.parse(str)), 'on'), 'methods'), 'nativeOn'), 'computed'), 'scopedSlots'), 'watch')
         console.log(abc)
         return [dealLcData(abc[0])]
     };

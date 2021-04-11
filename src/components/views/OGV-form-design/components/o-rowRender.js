@@ -1,7 +1,7 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../../../schema/api';
 import baseAttr from '../base/attrs';
-import { dealMultiChildren, deepClone1 } from '../../../schema/util';
+import { dealMultiChildren, deepClone } from '../../../schema/util';
 let base = {
     data() {
         return {
@@ -96,7 +96,7 @@ let base = {
         }
     },
     created() {
-        this.lcData = deepClone1(this.insData)
+        this.lcData = deepClone(this.insData)
     },
     mounted() {
     }

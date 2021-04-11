@@ -403,7 +403,7 @@ export default {
                 } else {
                 // 简单属性直接保存
                     let value = this.modifyItem[key].value;
-                    if (['on', 'nativeOn', 'methods', 'computed', 'scopedSlots'].includes(key)) {
+                    if (['on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(key)) {
                         value = stringToFunc(this.modifyItem[key].value);
                     }
                     // todo 属性改变需要关联的输入框类型一起改变

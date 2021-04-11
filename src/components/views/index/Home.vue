@@ -237,14 +237,12 @@ export default {
         containerInject: {
             deep: true,
             handler(val) {
-                console.log('保存结构')
                 this.saveContainerDebounce(val);
             }
         },
         moduleChangeDetail: {
             handler(val) {
               if (val) {
-                // console.log(val)
                 drawingListInDB = getDrawingList(val)
                 // this.showRightPanel = false
                 setTimeout(() => {
@@ -310,7 +308,7 @@ export default {
         },
         convertConstrutor(e) {
           let json;
-          if (e.data[e.property][e.subProperty].props.subRawId) {
+          if (e.data[e.property][e.subProperty].props && e.data[e.property][e.subProperty].props.subRawId) {
             json = e.data[e.property][e.subProperty]
           } else {
             json = this.activeData.props[e.property][e.subProperty];

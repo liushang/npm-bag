@@ -1,4 +1,5 @@
-export function deepClone1(obj) {
+export const allHtmlNode = [ '!DOCTYPE', 'html', 'title', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr', 'abbr', 'address', 'b', 'bdi', 'bdo', 'blockquote', 'cite', 'code', 'del', 'dfn', 'em', 'i', 'ins', 'kbd', 'mark', 'meter', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'small', 'srong', 'sub', 'time', 'u', 'var', 'wbr', 'from', 'input', 'textarea', 'button', 'select', 'optgroup', 'option', 'label', 'fieldset', 'legend', 'datalist', 'keygen', 'output', 'iframe', 'img', 'map', 'area', 'canvas', 'figcaption', 'figure', 'audio', 'source', 'track', 'video', 'a', 'link', 'nav', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'menu', 'command', 'table', 'caption', 'th', 'tr', 'td', 'thead', 'tbody', 'tfoot', 'col', 'colgroup', 'style', 'div', 'span', 'header', 'footer', 'section', 'article', 'aside', 'details', 'dialog', 'summary', 'head', 'meta', 'base', 'basefont', 'script', 'noscript', 'applet', 'enbed', 'object', 'param']
+export function deepClone(obj) {
     // 判断拷贝的要进行深拷贝的是数组还是对象，是数组的话进行数组拷贝，对象的话进行对象拷贝
     let objClone = Array.isArray(obj) ? [] : {};
     // 进行深拷贝的不能为空，并且是对象或者是
@@ -6,7 +7,7 @@ export function deepClone1(obj) {
         for (let key in obj) {
             if (obj.hasOwnProperty(key)) {
                 if (obj[key] && typeof obj[key] === 'object') {
-                    objClone[key] = deepClone1(obj[key]);
+                    objClone[key] = deepClone(obj[key]);
                 } else {
                     objClone[key] = obj[key];
                 }
@@ -20,7 +21,7 @@ export function analysisDataRender(configComponents) {
     // 构建组件数据
     const configData = [];
     for (let i = 0; i < configComponents.length; i++) {
-        const rawData = deepClone1(configComponents[i]);
+        const rawData = deepClone(configComponents[i]);
         delete rawData.children;
         if (typeof configComponents[i] !== 'object') { // 简单类型
             configData.push(configComponents[i]);
@@ -60,13 +61,29 @@ export function analysisDataRender(configComponents) {
                 // rawData.scopedSlotsFunc = {}
                 for (let x in rawData.scopedSlots) {
                     let funcs = stringToFunc(rawData.scopedSlots[x]);
-                    // // 多copy一个插槽函数
-                    // rawData.scopedSlotsFunc[x] = (e) => {
-                    //     // return func(e, this);
-                    //     let oo = funcs.bind(this)
-                    //     return oo(e);
-                    // };
                     rawData.scopedSlots[x] = (e) => {
+                        // return func(e, this);
+                        let oo = funcs.bind(this)
+                        return oo(e);
+                    };
+                }
+            }
+            if (rawData.computed) {
+                // rawData.scopedSlotsFunc = {}
+                for (let x in rawData.computed) {
+                    let funcs = stringToFunc(rawData.computed[x]);
+                    rawData.computed[x] = (e) => {
+                        // return func(e, this);
+                        let oo = funcs.bind(this)
+                        return oo(e);
+                    };
+                }
+            }
+            if (rawData.watch) {
+                // rawData.scopedSlotsFunc = {}
+                for (let x in rawData.watch) {
+                    let funcs = stringToFunc(rawData.watch[x]);
+                    rawData.watch[x] = (e) => {
                         // return func(e, this);
                         let oo = funcs.bind(this)
                         return oo(e);
@@ -157,8 +174,9 @@ function dealChild(child, cb) {
                 item.scopedSlots[i] = a => {
                     if (a) {
                         let ee = o(a)
+                        console.log(this)
                         if (ee) {
-                            return dealSlotNode(cb, ee)
+                            return dealSlotNode.bind(this)(cb, ee)
                             // return cb(ee.name, { on: ee.on }, ee.children )
                         }
                     }
@@ -196,34 +214,93 @@ function dealChild(child, cb) {
     }
 }
 function dealSlotNode(cb, item) {
+    console.log(item)
+    if (item.on) {
+        for (let x in item.on) {
+            console.log('绑定数据', x)
+            let funcs = stringToFunc(item.on[x]);
+            // console.log(rawData.on['input'].toString())
+            item.on[x] = (e) => {
+                // return func(e, this);
+                console.log(this)
+                let oo = funcs.bind(this)
+                return oo(e);
+            };
+        }
+    }
+    if (item.nativeOn) {
+        for (let x in item.nativeOn) {
+            let funcs = stringToFunc(item.nativeOn[x]);
+            item.nativeOn[x] = (e) => {
+                // return func(e, this);
+                let oo = funcs.bind(this)
+                return oo(e);
+            };
+        }
+    }
     const { name, on, props, attrs, nativeOn, directives, style, scopedSlots, children, slot } = item
     if (children && children.length) {
         let childrens = []
         for(let i of children) {
-            childrens.push(dealSlotNode(cb, i))
+            childrens.push(dealSlotNode.bind(this)(cb, i))
         }
-        return cb(name, {
+        const param = {
             on: on || {},
             props: props || {},
             attrs: attrs || {},
-            nativeOn: nativeOn || {},
+            // nativeOn: nativeOn || {},
             style: style || {},
             scopedSlots: scopedSlots || {},
-        }, childrens)
+        }
+        console.log(this)
+        if (!allHtmlNode.includes(name)) {
+            param.nativeOn = on || {}
+        // } else {
+        //     param.nativeOn = nativeOn || {}
+        }
+        // console.log(name, param)
+        return cb(name, param, childrens)
     } else if (name){
-        return cb(name, {
+        const param = {
             on: on || {},
             props: props || {},
             attrs: attrs || {},
-            nativeOn: nativeOn || {},
-            style: style,
-        })
+            // nativeOn: nativeOn || {},
+            style: style || {},
+            scopedSlots: scopedSlots || {},
+        }
+        console.log(param.on)
+        console.log(this)
+        if (!allHtmlNode.includes(name)) {
+            param.nativeOn = on || {}
+        // } else {
+        //     param.nativeOn = nativeOn || {}
+        }
+        // console.log(name, param)
+        return cb(name, param)
     } else {
         return item
     }
     // return cb(obj.name, obj.attr, )
 }
 // () => {}
+window.deepClone = function deepClone(obj) {
+    // 判断拷贝的要进行深拷贝的是数组还是对象，是数组的话进行数组拷贝，对象的话进行对象拷贝
+    let objClone = Array.isArray(obj) ? [] : {};
+    // 进行深拷贝的不能为空，并且是对象或者是
+    if (obj && typeof obj === 'object') {
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                if (obj[key] && typeof obj[key] === 'object') {
+                    objClone[key] = deepClone(obj[key]);
+                } else {
+                    objClone[key] = obj[key];
+                }
+            }
+        }
+    }
+    return objClone;
+}
 export function stringToFunc(str) {
     if (typeof str === 'string') {
         str = String(str).trim()
@@ -325,7 +402,6 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
                 // 如果检测到的是组件，按组件注入
                 analysisInjectData(i, all[i.props.rawId], rawId, all)
             } else if (i.props && i.props.subRawId) {
-                console.log('注入元素树形,依旧注入组件属性', i.name, data[i.props.subRawId], all)
                 analysisInjectData(i, data[i.props.subRawId], rawId, all)
             }
         }
@@ -338,7 +414,6 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
                 analysisInjectData(i, all[i.props.rawId], parentRawId, all)
             } else if (i.props.subRawId) {
                 if (i.props.subRawId === 'ElInput_925750') {
-                    console.log('注入元素树形', i.name, data, parentRawId, i.name, all)
                 }
                 analysisInjectData(i, (all[parentRawId] || {})[i.props.subRawId], parentRawId, all)
             }
@@ -358,7 +433,7 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
     return constructor;
 }
 function injectData(item, dataItem) {
-    const { insData, renderFun, attrMap, on, nativeOn, methods, scopedSlots } = dataItem || {};
+    const { insData, renderFun, attrMap, on, nativeOn, methods, scopedSlots, computed, watch } = dataItem || {};
     if (item.props.insData && insData) {
         for (let i in dataItem.insData) {
             item.props.insData[i] = insData[i]
@@ -405,6 +480,11 @@ function injectData(item, dataItem) {
                     item.props.computed[i] = replaceFun(item.props.computed[i], x, attrMap[x])
                 }
             }
+            if (item.props.watch) {
+                for(let i in item.props.watch) {
+                    item.props.watch[i] = replaceFun(item.props.watch[i], x, attrMap[x])
+                }
+            }
         }
     }
 
@@ -418,8 +498,11 @@ function injectData(item, dataItem) {
     if (item.props && item.props.methods && methods) {
         Object.assign(item.props.methods, methods)
     }
-    if (item.props && item.props.computed && methods) {
-        Object.assign(item.props.computed, methods)
+    if (item.props && item.props.computed && computed) {
+        Object.assign(item.props.computed, computed)
+    }
+    if (item.props && item.props.watch && watch) {
+        Object.assign(item.props.watch, watch)
     }
     if (item.props && item.props.nativeOn && nativeOn) {
         for (let y in item.props.nativeOn) {
