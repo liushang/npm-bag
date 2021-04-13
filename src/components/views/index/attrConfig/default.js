@@ -229,6 +229,7 @@ const htmlDefaultNode = {
         style: {},
         attrs: {},
         children: [],
+        on: {},
         renderFun: x => x,
         scopedSlots: {},
         slot: ''
@@ -237,6 +238,7 @@ const htmlDefaultNode = {
         style: {},
         attrs: {},
         children: [],
+        on: {},
         renderFun: x => x,
         scopedSlots: {},
         slot: ''

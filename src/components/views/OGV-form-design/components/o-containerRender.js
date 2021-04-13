@@ -222,7 +222,8 @@ let base = {
             this.$set(this.rootData, this.containerId, {});
         }
         this.$set(this.rootData[this.containerId], 'methods', this.methods);
-        this.on && this.on['mounted'] && this.on['mounted'](this);
+        // this.on && this.on['mounted'] && this.on['mounted'](this);
+        this.mounted()
     }
 };
 export default base;

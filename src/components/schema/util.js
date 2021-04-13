@@ -303,26 +303,30 @@ window.deepClone = function deepClone(obj) {
 }
 export function stringToFunc(str) {
     if (typeof str === 'string') {
-        str = String(str).trim()
-        if (str.startsWith('function')) {
-            let funLast = str.slice(str.indexOf('{') + 1);
-            let funMiddle = funLast.slice(0, funLast.lastIndexOf('}')).trim();
-            // 获取函数参数
-            let funPre = str.slice(str.indexOf('(') + 1);
-            let funNamePre = funPre.slice(0, funPre.indexOf(')'));
-            let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
-            /* eslint-disable */
-            return new Function(...funNameArr, funMiddle);
-        } else {
-            let funLast = str.slice(str.indexOf('=>') + 2).trim();
-            let funMiddle = funLast.startsWith('{') ? funLast.slice(1).slice(0, -1) : funLast;
-            // 获取函数参数
-            let funPre = str.slice(0, str.indexOf('=>')).trim();
-            let funNamePre = funPre.startsWith('(') ? funPre.slice(1).slice(0, -1) : funPre;
-            let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
-            /* eslint-disable */
-            return new Function(...funNameArr, funLast.startsWith('{') ? funMiddle : 'return ' + funMiddle);
-        }
+        let newStr = `return ${str.replace('[native code]', '')}`
+        let newFun = new Function(newStr)
+        let newnew = newFun()
+        return newnew
+        // str = String(str).trim()
+        // if (str.startsWith('function')) {
+        //     let funLast = str.slice(str.indexOf('{') + 1);
+        //     let funMiddle = funLast.slice(0, funLast.lastIndexOf('}')).trim();
+        //     // 获取函数参数
+        //     let funPre = str.slice(str.indexOf('(') + 1);
+        //     let funNamePre = funPre.slice(0, funPre.indexOf(')'));
+        //     let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
+        //     /* eslint-disable */
+        //     return new Function(...funNameArr, funMiddle);
+        // } else {
+        //     let funLast = str.slice(str.indexOf('=>') + 2).trim();
+        //     let funMiddle = funLast.startsWith('{') ? funLast.slice(1).slice(0, -1) : funLast;
+        //     // 获取函数参数
+        //     let funPre = str.slice(0, str.indexOf('=>')).trim();
+        //     let funNamePre = funPre.startsWith('(') ? funPre.slice(1).slice(0, -1) : funPre;
+        //     let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
+        //     /* eslint-disable */
+        //     return new Function(...funNameArr, funLast.startsWith('{') ? funMiddle : 'return ' + funMiddle);
+        // }
     } else {
         return str
     }
@@ -398,10 +402,16 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
     if (rawId && constructor.props && constructor.props.children && constructor.props.children.length) {
         // 组件子元素注入
         for (let i of constructor.props.children) {
-            if (i.props && i.props.rawId && all[i.props.rawId]) {
+            if (i.props && i.props.rawId) {
                 // 如果检测到的是组件，按组件注入
+                if (i.props.rawId === 'oRow_523528') {
+                    console.log('捉到你吗啦 滋eee')
+                }
                 analysisInjectData(i, all[i.props.rawId], rawId, all)
             } else if (i.props && i.props.subRawId) {
+                if (i.props.subRawId === 'ElInput_148333') {
+                    console.log('捉到你吗啦 滋滋')
+                }
                 analysisInjectData(i, data[i.props.subRawId], rawId, all)
             }
         }
@@ -413,7 +423,8 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
                 // 如果检测到的是组件，按组件注入
                 analysisInjectData(i, all[i.props.rawId], parentRawId, all)
             } else if (i.props.subRawId) {
-                if (i.props.subRawId === 'ElInput_925750') {
+                if (i.props.subRawId === 'ElInput_148333') {
+                    console.log('捉到你吗啦 ')
                 }
                 analysisInjectData(i, (all[parentRawId] || {})[i.props.subRawId], parentRawId, all)
             }
@@ -444,45 +455,58 @@ function injectData(item, dataItem) {
         for(let x in attrMap) {
             if (!attrMap[x]) break;
             // this的坑点
-            if (item.props && item.props.renderFun) item.props.renderFun = replaceFun(item.props.renderFun, x, attrMap[x])
-            if (item.renderFun) item.renderFun = replaceFun(item.renderFun, x, attrMap[x])
-            // for(let i in item.props.on) {
-            //     item.props.on[i] = replaceFun(item.props.on[i], x, attrMap[x])
-            // }
-            // for(let i in item.props.on) {
-            //     // 组件on方法
-            //     if (item.name === 'ElInput') {
-            //         console.log('123123')
-            //         console.log(item.props.on[i].toString())
-            //     }
-            //     item.props.on[i] = stringToFunc(item.props.on[i].toString().replace(x, attrMap[x]))
-            // }
+            console.log(attrMap[x])
+            if (item.props && item.props.renderFun) {
+                if (!item.props.renderRawFun && item.props.renderFun.toString().indexOf(x) > -1) item.props.renderRawFun = item.props.renderFun.toString()
+                item.props.renderFun = replaceFun(item.props.renderRawFun || item.props.renderFun, x, attrMap[x])
+            }
+            if (item.renderFun) {
+                if (!item.renderRawFun && item.renderFun.toString().indexOf(x) > -1) item.renderRawFun = item.renderFun.toString()
+                item.renderFun = replaceFun(item.renderRawFun || item.renderFun, x, attrMap[x])
+            }
             for(let i in item.on) {
                 // 元素on方法
-                item.props.on[i] = item.on[i] = stringToFunc(item.on[i].toString().replace(x, attrMap[x]))
+                if (item.on[i].toString().indexOf(x) > -1) {
+                    if (!item.rawOn) item.rawOn = {}
+                    item.rawOn[i] = item.on[i].toString()
+                }
+                item.props.on[i] = item.on[i] = replaceFun(item.rawOn && item.rawOn[i] || item.on[i], x, attrMap[x])
             }
-            // for(let i in item.nativeOn) {
-            //     item.nativeOn[i] = replaceFun(item.nativeOn[i], x, attrMap[x])
-            // }
             for(let i in item.nativeOn) {
-                item.props.nativeOn[i] = item.nativeOn[i] = replaceFun(item.nativeOn[i], x, attrMap[x])
+                if (item.nativeOn[i].toString().indexOf(x) > -1) {
+                    if (!item.rawNativeOn) item.rawNativeOn = {}
+                    item.rawNativeOn[i] = item.nativeOn[i].toString()
+                }
+                item.props.nativeOn[i] = item.nativeOn[i] = replaceFun(item.rawNativeOn && item.rawNativeOn[i] || item.nativeOn[i], x, attrMap[x])
             }
             for(let i in item.scopedSlots) {
-                item.props.scopedSlots[i] = item.scopedSlots[i] = replaceFun(item.scopedSlots[i], x, attrMap[x])
+                if (item.scopedSlots[i].toString().indexOf(x) > -1) {
+                    if (!item.rawScopedSlots) item.rawScopedSlots = {}
+                    item.rawScopedSlots[i] = item.scopedSlots[i].toString()
+                }
+                item.props.scopedSlots[i] = item.scopedSlots[i] = replaceFun(item.rawScopedSlots && item.rawScopedSlots[i] || item.scopedSlots[i], x, attrMap[x])
             }
             if (item.props.methods) {
                 for(let i in item.props.methods) {
-                    item.props.methods[i] = replaceFun(item.props.methods[i], x, attrMap[x])
+                    if (item.props.methods[i].toString().indexOf(x) > -1) {
+                        if (!item.props.rawMethods) item.props.rawMethods = {}
+                        item.props.rawMethods[i] = item.props.methods[i].toString()
+                    }
+                    item.props.methods[i] = replaceFun(item.props.rawMethods && item.props.rawMethods[i] || item.props.methods[i], x, attrMap[x])
                 }
             }
-            if (item.props.computed) {
-                for(let i in item.props.computed) {
-                    item.props.computed[i] = replaceFun(item.props.computed[i], x, attrMap[x])
-                }
-            }
+            // if (item.props.computed) {
+            //     for(let i in item.props.computed) {
+            //         item.props.computed[i] = replaceFun(item.props.computed[i], x, attrMap[x])
+            //     }
+            // }
             if (item.props.watch) {
                 for(let i in item.props.watch) {
-                    item.props.watch[i] = replaceFun(item.props.watch[i], x, attrMap[x])
+                    if (item.props.watch[i].toString().indexOf(x) > -1) {
+                        if (!item.props.rawWatch) item.props.rawWatch = {}
+                        item.props.rawWatch[i] = item.props.watch[i].toString()
+                    }
+                    item.props.watch[i] = replaceFun(item.props.rawWatch && item.props.rawWatch[i] || item.props.watch[i], x, attrMap[x])
                 }
             }
         }
