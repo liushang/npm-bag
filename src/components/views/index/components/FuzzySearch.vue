@@ -23,7 +23,6 @@
 </template>
 
 <script>
-// import { seasonSuggestAllUrl, filmOccupationUrl } from '@/config/ajaxUrl/seasonUrl';
 export default {
     name: 'FuzzySearch',
     props: {

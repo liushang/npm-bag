@@ -40,9 +40,7 @@ export function analysisDataRender(configComponents) {
                 if (rawData.props.on) {
                     for (let x in rawData.props.on) {
                         let funcs = stringToFunc(rawData.props.on[x]);
-                        // console.log(rawData.on['input'].toString())
                         rawData.props.on[x] = (e) => {
-                            // return func(e, this);
                             let oo = funcs.bind(this)
                             return oo(e);
                         };

@@ -205,9 +205,6 @@ let base = {
     created() {
         this.lcData = deepClone(this.insData)
         console.log(this.methods)
-        console.log('我是method')
-        console.log(this)
-        // console.log(this.computed.nnn)
         for(let i in this.methods) {
             this[i] = this.methods[i]
         }
@@ -222,8 +219,7 @@ let base = {
             this.$set(this.rootData, this.containerId, {});
         }
         this.$set(this.rootData[this.containerId], 'methods', this.methods);
-        // this.on && this.on['mounted'] && this.on['mounted'](this);
-        this.mounted()
+        this.mounted && this.mounted()
     }
 };
 export default base;
