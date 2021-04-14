@@ -34,8 +34,8 @@ export default {
                 '5': []
             },
             valueTypeMap: {
-                '1': e => <el-input size="mini" v-model={e.value} style="width: 100px" />,
-                '2': e => <el-input-number size="mini" v-model={e.value} style="width: 100px" />,
+                '1': e => <a-input size="small" v-model={e.value} style="width: 100px" />,
+                '2': e => <a-input-number size="small" v-model={e.value} style="width: 100px" />,
                 '3': e => <el-radio-group v-model={e.value}  size="mini">
                               <el-radio label={true}>true</el-radio>
                               <el-radio label={false}>false</el-radio>
@@ -130,11 +130,11 @@ export default {
                 </el-select>;
                 } else {
                     // 没有预设值则展示输入框
-                    return (<el-input  size="mini" v-model={a[b][c]} placeholder="请输入字段名（v-model）s" style="width: 165px"/>)
+                    return (<a-input  size="small" v-model={a[b][c]} placeholder="请输入字段名（v-model）s" style="width: 165px"/>)
                 }
             } else if (typeof val === 'number') {
                 // 数字类型的数值填写
-                return (<el-input-number size="mini" v-model={a[b][c]} placeholder="请输入字段名（v-model）s" style="width: 165px"/>)
+                return (<a-input-number size="small" v-model={a[b][c]} placeholder="请输入字段名（v-model）s" style="width: 165px"/>)
             } else {
                 // 布尔值的数值填写
                 return (
@@ -165,7 +165,7 @@ export default {
                                 <span className="el-icon-anti-tag-fill" onClick={() => this.delKey(x, rootWord)} style="margin-left: 5px;color: rgb(241 23 23);font-size: 15px">x&nbsp;&nbsp;</span>
                         }
                         {/* 值的展示：值为'string', 'number', 'boolean'且初始值类型为input，则展示input输入框 */}
-                        {['string', 'number', 'boolean'].includes(typeof this.activeData[rootWord]) && this.initialTypeShow === 'input' ? <el-input  size="mini" v-model={this.activeData[rootWord]} placeholder="请输入字段名（v-model）" style="width: 165px"/>
+                        {['string', 'number', 'boolean'].includes(typeof this.activeData[rootWord]) && this.initialTypeShow === 'input' ? <a-input  size="small" v-model={this.activeData[rootWord]} placeholder="请输入字段名（v-model）" style="width: 165px"/>
                             : ['array', 'object'].includes(typeof this.activeData[rootWord][x])
                             // 值为函数字符串/组件
                                 ? funStrComSpan(this.activeData, rootWord, x)
@@ -230,7 +230,7 @@ export default {
                     if (data[keyword].value === '') data[keyword].value = defaultValue[0] || ''
                     if (!defaultValue.length) {
                         // 无默认选择值则使用input输入框
-                        return <el-input v-model={data[keyword].value} style="width: 100px"></el-input>
+                        return <a-input v-model={data[keyword].value} style="width: 100px"></a-input>
                     } else if (valueType === 'select') {
                         // 下拉模式为下拉菜单
                         return <el-select size="mini" v-model={data[keyword].value} style="width: 120px">
@@ -243,7 +243,7 @@ export default {
                     </el-radio-group>
                     } else if(valueType === 'number') {
                         // todo 为数字
-                        return <el-input-number size="mini" v-model={data[keyword].value} placeholder="请输入字段名（v-model）s" style="width: 165px"/>
+                        return <a-input-number size="mini" v-model={data[keyword].value} placeholder="请输入字段名（v-model）s" style="width: 165px"/>
                     }
                 } else {
                     return '';
@@ -269,14 +269,14 @@ export default {
                 </el-select>;
                 } else {
                     // 数组类的key为默认索引
-                    return <el-input size="mini" v-model={data[keyword].key} style="width: 60px" />
+                    return <a-input size="small" v-model={data[keyword].key} style="width: 60px" />
                 }
             } else {
                 // 添加自定义属性
                 const options = this.options.map((x, i) => <el-option key={i} label={x.label} value={x.value}></el-option>);
                 return <span>
                     {/* 自定义属性的key默认为输入框 */}
-                    <el-input size="mini" v-model={data[keyword].key} style="width: 60px" />&nbsp;
+                    <a-input size="small" v-model={data[keyword].key} style="width: 60px" />&nbsp;
                     {/* 类型改变时调用 */}
                     <el-select size="mini" v-model={data[keyword].type} style="width: 80px" onChange={e => this.changeOptions(e, keyword, data)}>
                         {options}

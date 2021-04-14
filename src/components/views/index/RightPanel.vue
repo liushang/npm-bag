@@ -20,7 +20,7 @@
         <el-form v-show="currentTab==='field' && showField" v-if="editItem" size="small" label-width="90px">
           <div v-if="editItem.name" style="margin: 8px 0 0 0px">
             <span>{{editItem.props.rawId ? '模块' : '元素'}}别名</span>
-            <elInput v-model="editItem.props.rawId" style="width: 140px;margin-bottom: 10px" size="mini" v-if="editItem.props.rawId" />
+            <a-input v-model="editItem.props.rawId" style="width: 140px;margin-bottom: 10px" size="small" v-if="editItem.props.rawId" ></a-input>
             <elInput v-model="editItem.props.subRawId" style="width: 140px;margin-bottom: 10px" size="mini" v-if="editItem.props.subRawId" />
             <el-collapse v-model="activeItems" @change="handleChange">
               <div v-for="(i, index) in propertiesList.filter(x => !['rawId', 'renderFunStr', 'subRawId'].includes(x))" :key="index">

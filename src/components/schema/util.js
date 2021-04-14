@@ -36,6 +36,19 @@ export function analysisDataRender(configComponents) {
                 childrenData.values = [];
             }
             let childrenArr = [childrenData]
+            if (configComponents[i].name === 'oRow') {
+                if (rawData.props.on) {
+                    for (let x in rawData.props.on) {
+                        let funcs = stringToFunc(rawData.props.on[x]);
+                        // console.log(rawData.on['input'].toString())
+                        rawData.props.on[x] = (e) => {
+                            // return func(e, this);
+                            let oo = funcs.bind(this)
+                            return oo(e);
+                        };
+                    }
+                }
+            }
             if (rawData.on) {
                 for (let x in rawData.on) {
                     let funcs = stringToFunc(rawData.on[x]);
@@ -209,9 +222,9 @@ function dealChild(child, cb) {
         if(child.name === 'oRow') {
             // todo 对容器类组件自身属性测试优化
             item.on = item.props.on
-            console.log(item.props.on)
-            console.log(item.on.emitout)
-            console.log(item)
+            // console.log(item.props.on)
+            // console.log(item.on.emitout)
+            // console.log(item)
         }
         return cb(
             child.name,
