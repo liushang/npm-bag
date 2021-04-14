@@ -130,40 +130,12 @@ export function analysisRenderConfig(configData, createElement) {
         return renderArr;
     }
 }
-function cloneFunction(func) {
-    const bodyReg = /(?<={)(.|\n)+(?=})/m
-    const paramReg = /(?<=\().+(?=\)\s+{)/
-    const funcString = func.toString()
-    if (func.prototype) {
-    const param = paramReg.exec(funcString)
-    const body = bodyReg.exec(funcString)
-    if (body) {
-    if (param) {
-    const paramArr = param[0].split(',')
-    return new Function(...paramArr, body[0])
-    } else {
-    return new Function(body[0])
-    }
-    } else {
-    return null
-    }
-    } else {
-    return eval(funcString)
-    }
-    }
 function dealChild(child, cb) {
     if (!child || !child.values) { // 简单类型
         return child;
     } else {
-        // if (child.raw.scopedSlots) {
-        //     for (let i in child.raw.scopedSlots) {
-        //         console.log('我是slot标签')
-        //         console.log(child.raw.scopedSlots[i])
-        //         child.raw.scopedSlots[i] = cb('div', {}, '我是个好人')
-        //     }
-        // }
         let item = {
-            'class': child.raw['class'] || {},
+            'class': child.raw['classes'] || {},
             style: child.raw.style,
             attrs: child.raw.attrs,
             props: child.name.startsWith('o') ? child.raw.props : child.raw.attrs,
@@ -212,7 +184,7 @@ function dealChild(child, cb) {
             item.props = Object.assign(item.props || {}, props);
         }
         for (let x in child) {
-            if (!['values', 'children', 'name', 'raw'].includes(x) && child[x]) item.props[x] = child[x];
+            if (!['values', 'children', 'directives', 'name', 'raw'].includes(x) && child[x]) item.props[x] = child[x];
         }
         if (item.ref) {} else {
             if (item.props && item.props.ref) item.ref = item.props.ref
@@ -220,9 +192,13 @@ function dealChild(child, cb) {
         if(child.name === 'oRow') {
             // todo 对容器类组件自身属性测试优化
             item.on = item.props.on
-            // console.log(item.props.on)
-            // console.log(item.on.emitout)
-            // console.log(item)
+        }
+        if (item.directives) {
+            let att = []
+            for(let i in item.directives) {
+                att.push(item.directives[i])
+            }
+            item.directives = att.filter(x => x)
         }
         return cb(
             child.name,

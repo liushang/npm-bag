@@ -46,6 +46,10 @@ let base = {
             type: Function,
             default: x => x
         },
+        directives: {
+            type: Array,
+            default: () => []
+        },
         styles: {
             type: Object,
             default: () => {
@@ -122,6 +126,9 @@ let base = {
                 style: Object.assign(this.style, this.styles),
                 ref: 'oRow',
                 class: this.classes,
+                directives: {
+                    ...this.directives
+                },
                 on: {
                     click: this.click,
                     ...this.on
@@ -155,9 +162,12 @@ let base = {
             console.log('lcData.' + i)
             this.$watch('lcData.' + i, this.watch[i].bind(this))
         }
+        if (!this.containerInject[this.rawId]) this.$set(this.containerInject, this.rawId, {});
+        this.$set(this.containerInject[this.rawId], 'methods', this.methods || {});
+        this.$set(this.containerInject[this.rawId], 'lcData', this.lcData); 
     },
     mounted() {
-        this.on && this.on['mounted'] && this.on['mounted'](this);
+        this['mounted'] && this['mounted']();
     }
 };
 export default base;

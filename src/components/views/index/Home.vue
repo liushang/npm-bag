@@ -134,7 +134,7 @@ import {
     getDrawingList, saveDrawingList, getFormConf, getContainer, saveContainer
 } from '../../utils/db';
 import { getDefaultProps, getRawId } from '../../schema/util';
-import { defaultNode } from './components/default';
+import { defaultNode, allHtmlNode } from './components/default';
 
 let drawingListInDB = getDrawingList();
 const formConfInDB = getFormConf();
@@ -297,7 +297,7 @@ export default {
         closePanelDialog(e) {
             console.log('close')
             const { property, subProperty } = this.dialogComponentDetail;
-            if (property === 'children') {
+            if (property === 'children' || property === 'directives') {
               this.$refs.rightPanel.editItem.props[property][subProperty] = e;
               this.$refs.rightPanel.editItem[property] && (this.$refs.rightPanel.editItem[property][subProperty] = e)
             }else {
@@ -310,12 +310,14 @@ export default {
           let json;
           if (e.data[e.property][e.subProperty].props && e.data[e.property][e.subProperty].props.subRawId) {
             json = e.data[e.property][e.subProperty]
+          } else if (e.property === 'directives') {
+            json = e.data[e.property][e.subProperty]
           } else {
             json = this.activeData.props[e.property][e.subProperty];
-            !json.props && json.name && (json.props = {
-                attrs: {},
-                children: []
-            });
+            // !json.props && json.name && (json.props = {
+            //     attrs: {},
+            //     children: []
+            // });
           }
           console.log(json)
           return json;
@@ -368,6 +370,7 @@ export default {
                     renderFun: x => x
                 }
                 const cofg = defaultNode[currentItem.name] || commonConfig
+                if (allHtmlNode.includes(currentItem.name)) delete commonConfig.nativeOn
                 if (!currentItem.props) this.$set(currentItem, 'props', {})
                 for (let i in cofg) {
                     if (!currentItem.props[i]) this.$set(currentItem.props, i, cofg[i]);
@@ -390,8 +393,6 @@ export default {
         },
         // 添加组件 点击复制
         addComponent(item, index, whole) {
-          console.log('addcomponent')
-          console.log(item)
             let clone
             if (whole) {
               clone = item

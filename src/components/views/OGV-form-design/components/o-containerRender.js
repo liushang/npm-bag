@@ -22,6 +22,14 @@ let base = {
     },
     props: {
         ...baseAttr.props,
+        classes: {
+            type: Object,
+            default: () => {
+                return {
+                    'abcde': true
+                };
+            }
+        },
         // 以下属性正式环境下皆为 data
         attrs: {
             type: Object,
@@ -42,6 +50,10 @@ let base = {
         scopedSlots: {
             type: Object,
             default: () => {}
+        },
+        directives: {
+            type: Array,
+            default: () => []
         },
         children: {
             type: Array,
@@ -167,9 +179,12 @@ let base = {
                 on: {
                     click: e => {
                         e.stopPropagation();
-                        this.$set(this.container[this.containerId], 'methods', this.methods);
+                        // this.$set(this.container[this.containerId], 'methods', this.methods);
                     },
                     ...this.on
+                },
+                classes: {
+                    ...this.classes
                 },
                 attrs: {
                     ...this.attrs
@@ -181,14 +196,15 @@ let base = {
                         }
                         if (!this.container[this.containerId]) {
                             this.$set(this.container, this.containerId, {});
-                        }
-                        this.$set(this.container[this.containerId], 'methods', this.methods);
-                        
+                        }                        
                     },
                     ...this.nativeOn
                 },
                 scopedSlots: {
                     ...this.scopedSlots
+                },
+                directives: {
+                    ...this.directives
                 },
                 style: Object.assign(this.style, this.styles),
                 props: {
@@ -212,14 +228,25 @@ let base = {
             console.log('lcData.' + i)
             this.$watch('lcData.' + i, this.watch[i].bind(this))
         }
-    },
-    mounted() {
         this.containerId = 'oContainer'
         if (!this.rootData[this.containerId]) {
             this.$set(this.rootData, this.containerId, {});
         }
         this.$set(this.rootData[this.containerId], 'methods', this.methods);
+        this.$set(this.rootData[this.containerId], 'lcData', this.lcData);
+    },
+    mounted() {
         this.mounted && this.mounted()
+        setTimeout(() => {
+            // this.containerInject = {}
+            // for(let i in this.containerInject) {
+            //     this.$set(this.containerInject, i, undefined);
+            // }
+            for(let i in this.rootData) {
+                this.$set(this.containerInject, i, this.rootData[i])
+            }
+            console.log(this.$set(this.containerInject))
+        }, 2000)
     }
 };
 export default base;

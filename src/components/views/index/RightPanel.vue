@@ -44,7 +44,7 @@
                   :containerInject="containerInject"
                   :name="editItem.name"
                   :rootWord="i"
-                  :initialType="i === 'children' ? 'array' : 'string'"
+                  :initialType="i === 'children' || i === 'directives' ? 'array' : 'string'"
                   @saveModuleCode="saveModuleCode"
                   @changeComponentPanel="changeComponentPanel"
                   :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(i) ? 'text' : 'input'"
@@ -227,7 +227,7 @@ export default {
         haveFixedAttrs(item, name) {
             // 判断是否还可以添加固有属性
             let attrs = Object.keys((defaultKV[this.editItem.name] || {})[name] || {});
-            if (name !== 'children') attrs = attrs.filter(y => !item[y]);
+            if (name !== 'children' && name !== 'directives') attrs = attrs.filter(y => !item[y]);
             return attrs.length;
         },
         changeTab(index) {

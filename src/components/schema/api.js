@@ -7,17 +7,12 @@ export function created() {
 
 export const computed = {
     configData() {
-        // console.log('this.configComponents.children')
-        // console.log(this.configComponents.children)
         return analysisDataRender.bind(this)(this.configComponents.children);
-    }, 
+    },
 };
 
 export function render(h) {
-    // this.configData = analysisDataRender(this.configComponents.children);
-    // console.log(this.configData)
     let configArr = analysisRenderConfig.bind(this)(this.configData, h);
-    // console.log(configArr)
     if (configArr.length > 1) {
         return h(
             'span',

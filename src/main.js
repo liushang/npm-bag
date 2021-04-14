@@ -62,7 +62,23 @@ Vue.prototype.$axios = axios;
 window.$axios = axios;
 Vue.use(ElementUI);
 Vue.use(iicarus)
-
+Vue.directive('my-directive', {
+  bind: function () {
+    console.log('我是bind')
+  },
+  inserted: function () {
+    console.log('我是inserted')
+  },
+  update: function () {
+    console.log('我是update')
+  },
+  componentUpdated: function () {
+    console.log('我是componentUpdated')
+  },
+  unbind: function () {
+    console.log('我是unbind')
+  }
+})
 // import somelibrarysss from 'somelibrarysss'
 
 // Vue.use(somelibrarysss)

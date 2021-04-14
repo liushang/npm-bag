@@ -1,3 +1,5 @@
+export const allHtmlNode = [ '!DOCTYPE', 'html', 'title', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr', 'abbr', 'address', 'b', 'bdi', 'bdo', 'blockquote', 'cite', 'code', 'del', 'dfn', 'em', 'i', 'ins', 'kbd', 'mark', 'meter', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'small', 'srong', 'sub', 'time', 'u', 'var', 'wbr', 'from', 'input', 'textarea', 'button', 'select', 'optgroup', 'option', 'label', 'fieldset', 'legend', 'datalist', 'keygen', 'output', 'iframe', 'img', 'map', 'area', 'canvas', 'figcaption', 'figure', 'audio', 'source', 'track', 'video', 'a', 'link', 'nav', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'menu', 'command', 'table', 'caption', 'th', 'tr', 'td', 'thead', 'tbody', 'tfoot', 'col', 'colgroup', 'style', 'div', 'span', 'header', 'footer', 'section', 'article', 'aside', 'details', 'dialog', 'summary', 'head', 'meta', 'base', 'basefont', 'script', 'noscript', 'applet', 'enbed', 'object', 'param']
+
 const styleProperty = {
     'min-height': {
         label: '最小高度',
@@ -68,7 +70,7 @@ const styleProperty = {
         value: []
     }
 };
-export const htmlNode = [ 'div', 'span', 'img', 'a' ];
+export const htmlNode = allHtmlNode;
 export const elNode = name => name.startsWith('El');
 
 let htmlNodeWrapper = htmlNode.map(x => {
@@ -225,20 +227,23 @@ export const defaultKV = {
 };
 
 const htmlDefaultNode = {
-    div: {
+    ...htmlNode.map(x => {
+        return {
+            style: {},
+            attrs: {},
+            classes: {},
+            on: {},
+            children: [],
+            renderFun: x => x,
+            scopedSlots: {},
+            slot: ''
+        }
+    }),
+    style: {
         style: {},
         attrs: {},
-        children: [],
         on: {},
-        renderFun: x => x,
-        scopedSlots: {},
-        slot: ''
-    },
-    span: {
-        style: {},
-        attrs: {},
-        on: {},
-        children: [],
+        children: [".abcde{color: red}"],
         renderFun: x => x,
         scopedSlots: {},
         slot: ''
@@ -415,7 +420,6 @@ const elDefaultNode = {
         },
     }
 }
-export const allHtmlNode = [ '!DOCTYPE', 'html', 'title', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr', 'abbr', 'address', 'b', 'bdi', 'bdo', 'blockquote', 'cite', 'code', 'del', 'dfn', 'em', 'i', 'ins', 'kbd', 'mark', 'meter', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'small', 'srong', 'sub', 'time', 'u', 'var', 'wbr', 'from', 'input', 'textarea', 'button', 'select', 'optgroup', 'option', 'label', 'fieldset', 'legend', 'datalist', 'keygen', 'output', 'iframe', 'img', 'map', 'area', 'canvas', 'figcaption', 'figure', 'audio', 'source', 'track', 'video', 'a', 'link', 'nav', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'menu', 'command', 'table', 'caption', 'th', 'tr', 'td', 'thead', 'tbody', 'tfoot', 'col', 'colgroup', 'style', 'div', 'span', 'header', 'footer', 'section', 'article', 'aside', 'details', 'dialog', 'summary', 'head', 'meta', 'base', 'basefont', 'script', 'noscript', 'applet', 'enbed', 'object', 'param']
 // todo 增加其他元素
 export const defaultNode = {
     ...htmlDefaultNode,

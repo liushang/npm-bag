@@ -72,9 +72,7 @@ export default {
         }
     },
     mounted() {
-    // console.log('the current CodeMirror instance object:', this.codemirror)
         this.code = this.dataStr;
-    // you can use this.codemirror to do something...
     }
 };
 </script>
