@@ -151,7 +151,7 @@ function dealChild(child, cb) {
         //         child.raw.scopedSlots[i] = cb('div', {}, '我是个好人')
         //     }
         // }
-        let item = {
+        item = {
             'class': child.raw['class'] || {},
             style: child.raw.style,
             attrs: child.raw.attrs,
@@ -205,6 +205,13 @@ function dealChild(child, cb) {
         }
         if (item.ref) {} else {
             if (item.props && item.props.ref) item.ref = item.props.ref
+        }
+        if(child.name === 'oRow') {
+            // todo 对容器类组件自身属性测试优化
+            item.on = item.props.on
+            console.log(item.props.on)
+            console.log(item.on.emitout)
+            console.log(item)
         }
         return cb(
             child.name,
