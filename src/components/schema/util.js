@@ -151,7 +151,7 @@ function dealChild(child, cb) {
         //         child.raw.scopedSlots[i] = cb('div', {}, '我是个好人')
         //     }
         // }
-        item = {
+        let item = {
             'class': child.raw['class'] || {},
             style: child.raw.style,
             attrs: child.raw.attrs,
