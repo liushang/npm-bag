@@ -67,7 +67,7 @@
                   :active-id="activeId"
                   :containerInject="containerInject"
                   :form-conf="formConf"
-                  :configData="configData"
+                  :configData="lcConfigData"
                   @activeItem="activeFormItem"
                   @copyItem="drawingItemCopy"
                   @basicItem="drawingItemBasic"
@@ -91,6 +91,8 @@
       :show-field="!!drawingList.length"
       ref="rightPanel"
       :basicDataChange="basicDataChange"
+      :configData="lcConfigData"
+      @configValChange="configValChange"
       @clearBorderBlue="clearSubBorder(drawingList)"
       @panelContent="panelContent"
       @codeValueChange="codeValueChange"
@@ -216,7 +218,13 @@ export default {
             basicDataChange: false,
             showNodeModal: false,
             waitNode: {},
-            searchNode: ''
+            searchNode: '',
+            lcConfigData: {
+              oContainer: {
+                insData: {
+                }
+              }
+            },
             // showRightPanel: true
           };
     },
@@ -225,6 +233,7 @@ export default {
             handler(val) {
                 console.log('配置更新')
                 console.log(val)
+                this.lcConfigData = val
             },
             deep: true
         },
@@ -242,13 +251,16 @@ export default {
         },
         moduleChangeDetail: {
             handler(val) {
+
               if (val) {
                 drawingListInDB = getDrawingList(val)
+                this.showNew = false
                 // this.showRightPanel = false
                 setTimeout(() => {
                   this.activeData = drawingListInDB[0]
                   this.init()
                   this.basicDataChange = !this.basicDataChange
+                  this.showNew = true
                   // this.showRightPanel = true
                 }, 100)
               }
@@ -287,6 +299,11 @@ export default {
         },
         codeValueChange(val) {
             this.containerInject = JSON.parse(val);
+            console.log(this.containerInject)
+        },
+        configValChange(val) {
+            this.lcConfigData = JSON.parse(val);
+            console.log(this.lcConfigData)
         },
         panelContent(data, property, subProperty) {
             this.dialogComponentDetail = {
@@ -369,7 +386,7 @@ export default {
                     props: {},
                     renderFun: x => x
                 }
-                const cofg = defaultNode[currentItem.name] || commonConfig
+                const cofg = defaultNode[currentItem.name] && deepClone(defaultNode[currentItem.name]) || commonConfig
                 if (allHtmlNode.includes(currentItem.name)) delete commonConfig.nativeOn
                 if (!currentItem.props) this.$set(currentItem, 'props', {})
                 for (let i in cofg) {
@@ -402,14 +419,23 @@ export default {
             console.log(clone)
             if (!clone.name.startsWith('o')) {
               // 非容器组件 元素等
+              let num = this.$refs.rightPanel.editItem.props.children.length
+              // if (allHtmlNode.includes(clone.name)) {
+                // if (this.$refs.rightPanel.editItem.children !== this.$refs.rightPanel.editItem.props.children) {
+                  this.$refs.rightPanel.editItem.children && this.$refs.rightPanel.editItem.children.push(clone)
+                // }
+              // }
               this.$refs.rightPanel.editItem.props.children.push(clone)
-              this.$refs.rightPanel.editItem.children && this.$refs.rightPanel.editItem.children.push(clone)
+              if (this.$refs.rightPanel.editItem.props.children.length - num === 2) {
+                this.$refs.rightPanel.editItem.props.children.pop()
+              }
               this.activeFormItem(clone, index);
             } else {
               // 容器组件
               this.activeData.props.children.push(clone);
               this.activeFormItem(clone, index);
             }
+            console.log(this.$refs.rightPanel.editItem)
         },
         cloneComponent(origin) {
             return deepClone(origin);

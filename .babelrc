@@ -3,5 +3,10 @@
     ["env", { "modules": false }],
     "stage-3"
   ],
-  "plugins": ["transform-vue-jsx", "babel-plugin-jsx-v-model"]
+  "plugins": ["transform-vue-jsx", "babel-plugin-jsx-v-model", ["transform-runtime", {
+    "helpers": false,
+    "polyfill": false,
+    "regenerator": true,
+    "moduleName": "babel-runtime"
+  }]]
 }

@@ -3,7 +3,9 @@
     <el-tabs v-model="currentTab" class="center-tabs">
       <el-tab-pane label="组件属性" name="field" />
       <!-- <el-tab-pane label="关联配置" name="relation" /> -->
-      <el-tab-pane label="表单属性" name="form" />
+      <el-tab-pane label="模块数据" name="form" />
+      <!-- <el-tab-pane label="数据注入" name="inject" /> -->
+      <el-tab-pane label="属性配置" name="attrSet" />
     </el-tabs>
     <div class="field-box">
       <el-scrollbar class="right-scrollbar" v-if="elementList && elementList.length">
@@ -55,28 +57,19 @@
           </div>
           <!-- <codemirror v-model="activeData.props.renderFun" :options="cmOptions" ref="cmEditor"/> -->
         </el-form>
-        <div v-if="currentTab === 'relation'">
-          <!-- <el-form>
-          <InfiniteObject
-            ref="infiniteObj"
-            :modifyItem="modifyItem"
-            :activeData="editItemProperty"
-            :containerInject="containerInject"
-            :name="editItem.name"
-            rootWord="attrMap"
-            initialType="string"
-            @changeComponentPanel="changeComponentPanel"
-            initialTypeShow="input"
-            ></InfiniteObject>
-          </el-form> -->
+        <div v-if="currentTab === 'attrSet'">
+          <div style="margin: 10px 0 15px">
+            使用 <el-input v-model="moduledId" size="mini" style="width: 120px" placeholder="输入配置页面id"></el-input> 配置此页面
+          </div>
+          <!-- <ogvdesign :constructure="dataConfig" v-if="dataConfig" :propData="configData"></ogvdesign> -->
         </div>
         <!-- 表单属性 -->
         <el-form v-if="currentTab === 'form'" size="small" label-width="90px">
-          <!-- <el-form-item label="表单名" v-for="(i, index) in formConf" :key="index">
-            {{i}}
-          </el-form-item> -->
-          <!-- <codeEditor :dataStr="renderCode" v-if="activeData && activeData.props && activeData.props.renderFun && showFunctionDialog" :options="cmOptions" @close="changeFuncCode" ref="cmEditor"/> -->
           <codemirror :value="valueCode" v-if="containerInject"  @input="onCmCodeChange" :options="cmOptions" ref="cmEditor"/>
+        </el-form>
+        <el-form v-if="currentTab === 'inject'" size="small" label-width="90px">
+          <el-button @click="confirm" size="small" style="margin-bottom: 10px">注入</el-button>
+          <codemirror :value="configCode" v-if="configData"  @input="configValChange" :options="cmOptions" ref="cmEditor"/>
         </el-form>
       </el-scrollbar>
     </div>
@@ -96,6 +89,9 @@ import CodeEditor from '../OGV-form-design/components/code-editor';
 import { saveFormConf,
     stringToFunc
 } from '../../schema/util';
+import {
+    getDrawingList,
+} from '../../utils/db';
 import 'codemirror/mode/javascript/javascript.js';
 import { htmlNode, elNode, defaultKV } from './components/default';
 import 'codemirror/theme/base16-dark.css';
@@ -109,8 +105,11 @@ export default {
         PanelDialog,
         Alias
     },
-    props: ['showField', 'activeData', 'formConf', 'containerInject', 'basicDataChange'],
+    props: ['showField', 'activeData', 'formConf', 'containerInject', 'basicDataChange', 'configData' ],
     mounted() {
+      console.log('我是注入数据')
+      console.log(this.configData);
+      this.getModuleDetail(this.moduleId);
     },
     data() {
         return {
@@ -141,7 +140,7 @@ export default {
                 label: '数组'
             }],
             cmOptions: {
-                tabSize: 4,
+                tabSize: 2,
                 mode: 'text/javascript',
                 theme: 'base16-dark',
                 lineNumbers: true,
@@ -154,7 +153,10 @@ export default {
             elementList: [],
             attrDetail: {},
             showPanel: false,
-            attrName: ''
+            attrName: '',
+            lcConVal: '',
+            dataConfig: null,
+            moduledId: 57
         };
     },
     computed: {
@@ -163,6 +165,16 @@ export default {
         },
         editItemProperty() {
             return !this.editItem.props.subRawId ? this.editItem.props : this.editItem;
+        },
+        configCode() {
+            let aa = JSON.stringify(this.configData, function(key, value) {
+                if (typeof value === 'function' && key !== 'renderFun') {
+                    return value.toString();
+                } else {
+                    return value;
+                }
+            }, 4);
+            return aa;
         },
         valueCode() {
             let aa = JSON.stringify(this.containerInject, function(key, value) {
@@ -192,6 +204,9 @@ export default {
         }
     },
     watch: {
+        moduledId(val) {
+          this.getModuleDetail(val)
+        },
         'activeData.props.rawId'(val) {
             this.activeItems = [];
             Object.keys(this.activeData.props).forEach(i => {
@@ -214,6 +229,24 @@ export default {
         }
     },
     methods: {
+        getModuleDetail(val) {
+            this.$axios({
+                url: 'http://uat-bangumi-mng.bilibili.co/api/getModuleDetailByModuleId',
+                params: {
+                    moduleId: val || 57
+                }
+            }).then(({ data, code }) => {
+                if (data && code === 0) {
+                    if (data[0] && data[0].basic_config) {
+                        // this.moduCf = data[0].basic_config.replace(/\s/g, "");
+                        this.moduCf = decodeURIComponent(data[0].basic_config);
+                        console.log(this.moduCf);
+                        this.dataConfig = getDrawingList(this.moduCf)[0];
+                        // localStorage.setItem("drawingItems", this.moduCf);
+                    }
+                }
+            });
+        },
         closePanelDialog(e) {
           let component = this.$refs.infiniteObj.filter(x => x.tempAttrName)[0]
           component.tempAttrValue = JSON.parse(JSON.stringify(e))
@@ -243,7 +276,14 @@ export default {
             return 0;
         },
         onCmCodeChange(code) {
+          console.log(code);
             this.$emit('codeValueChange', code);
+        },
+        confirm() {
+          this.$emit('configValChange', this.lcConVal);
+        },
+        configValChange(code) {
+          this.lcConVal = code
         },
         changeFuncCode(code) {
             this.showFunctionDialog = false;

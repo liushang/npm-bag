@@ -18,7 +18,6 @@ export function deepClone(obj) {
 }
 
 export function analysisDataRender(configComponents) {
-    // 构建组件数据
     const configData = [];
     for (let i = 0; i < configComponents.length; i++) {
         const rawData = deepClone(configComponents[i]);
@@ -47,6 +46,17 @@ export function analysisDataRender(configComponents) {
                     }
                 }
             }
+            // ['on', 'nativeOn', 'scopedSlots', 'watch'].forEach((i) => {
+            //     if (rawData[i]) {
+            //         for (let x in rawData[i]) {
+            //             let funcs = stringToFunc(rawData[i][x]);
+            //             rawData[i][x] = (e) => {
+            //                 let oo = funcs.bind(this)
+            //                 return oo(e);
+            //             };
+            //         }
+            //     }
+            // })
             if (rawData.on) {
                 for (let x in rawData.on) {
                     let funcs = stringToFunc(rawData.on[x]);
@@ -150,6 +160,8 @@ function dealChild(child, cb) {
             refInFor: child.raw.refInFor
         };
         if (child.raw.slot) item.slot = child.raw.slot
+        // console.log(child.raw, child.name)
+        // if (child.raw.slot) console.log(child.raw.slot, '我我我我我我')
         if (!item.scopedSlots) {
             item.scopedSlots = {}
             for (let i in child.raw.scopedSlots) {
@@ -157,15 +169,11 @@ function dealChild(child, cb) {
                 item.scopedSlots[i] = a => {
                     if (a) {
                         let ee = o(a)
-                        console.log(this)
                         if (ee) {
                             return dealSlotNode.bind(this)(cb, ee)
                             // return cb(ee.name, { on: ee.on }, ee.children )
                         }
                     }
-                }
-                if (i === 'aa') {
-                    console.log(child.raw.scopedSlots[i])
                 }
             }
         }
@@ -208,15 +216,10 @@ function dealChild(child, cb) {
     }
 }
 function dealSlotNode(cb, item) {
-    console.log(item)
     if (item.on) {
         for (let x in item.on) {
-            console.log('绑定数据', x)
             let funcs = stringToFunc(item.on[x]);
-            // console.log(rawData.on['input'].toString())
             item.on[x] = (e) => {
-                // return func(e, this);
-                console.log(this)
                 let oo = funcs.bind(this)
                 return oo(e);
             };
@@ -226,13 +229,12 @@ function dealSlotNode(cb, item) {
         for (let x in item.nativeOn) {
             let funcs = stringToFunc(item.nativeOn[x]);
             item.nativeOn[x] = (e) => {
-                // return func(e, this);
                 let oo = funcs.bind(this)
                 return oo(e);
             };
         }
     }
-    const { name, on, props, attrs, nativeOn, directives, style, scopedSlots, children, slot } = item
+    const { name, on, props, attrs, nativeOn, style, scopedSlots, children, slot } = item
     if (children && children.length) {
         let childrens = []
         for(let i of children) {
@@ -246,38 +248,26 @@ function dealSlotNode(cb, item) {
             style: style || {},
             scopedSlots: scopedSlots || {},
         }
-        console.log(this)
         if (!allHtmlNode.includes(name)) {
             param.nativeOn = on || {}
-        // } else {
-        //     param.nativeOn = nativeOn || {}
         }
-        // console.log(name, param)
         return cb(name, param, childrens)
     } else if (name){
         const param = {
             on: on || {},
             props: props || {},
             attrs: attrs || {},
-            // nativeOn: nativeOn || {},
             style: style || {},
             scopedSlots: scopedSlots || {},
         }
-        console.log(param.on)
-        console.log(this)
         if (!allHtmlNode.includes(name)) {
             param.nativeOn = on || {}
-        // } else {
-        //     param.nativeOn = nativeOn || {}
         }
-        // console.log(name, param)
         return cb(name, param)
     } else {
         return item
     }
-    // return cb(obj.name, obj.attr, )
 }
-// () => {}
 window.deepClone = function deepClone(obj) {
     // 判断拷贝的要进行深拷贝的是数组还是对象，是数组的话进行数组拷贝，对象的话进行对象拷贝
     let objClone = Array.isArray(obj) ? [] : {};
@@ -301,26 +291,6 @@ export function stringToFunc(str) {
         let newFun = new Function(newStr)
         let newnew = newFun()
         return newnew
-        // str = String(str).trim()
-        // if (str.startsWith('function')) {
-        //     let funLast = str.slice(str.indexOf('{') + 1);
-        //     let funMiddle = funLast.slice(0, funLast.lastIndexOf('}')).trim();
-        //     // 获取函数参数
-        //     let funPre = str.slice(str.indexOf('(') + 1);
-        //     let funNamePre = funPre.slice(0, funPre.indexOf(')'));
-        //     let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
-        //     /* eslint-disable */
-        //     return new Function(...funNameArr, funMiddle);
-        // } else {
-        //     let funLast = str.slice(str.indexOf('=>') + 2).trim();
-        //     let funMiddle = funLast.startsWith('{') ? funLast.slice(1).slice(0, -1) : funLast;
-        //     // 获取函数参数
-        //     let funPre = str.slice(0, str.indexOf('=>')).trim();
-        //     let funNamePre = funPre.startsWith('(') ? funPre.slice(1).slice(0, -1) : funPre;
-        //     let funNameArr = funNamePre.trim().replace(/[\r\n]/g, '').split(',');
-        //     /* eslint-disable */
-        //     return new Function(...funNameArr, funLast.startsWith('{') ? funMiddle : 'return ' + funMiddle);
-        // }
     } else {
         return str
     }
@@ -398,14 +368,8 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
         for (let i of constructor.props.children) {
             if (i.props && i.props.rawId) {
                 // 如果检测到的是组件，按组件注入
-                if (i.props.rawId === 'oRow_523528') {
-                    console.log('捉到你吗啦 滋eee')
-                }
                 analysisInjectData(i, all[i.props.rawId], rawId, all)
             } else if (i.props && i.props.subRawId) {
-                if (i.props.subRawId === 'ElInput_148333') {
-                    console.log('捉到你吗啦 滋滋')
-                }
                 analysisInjectData(i, data[i.props.subRawId], rawId, all)
             }
         }
@@ -417,9 +381,6 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
                 // 如果检测到的是组件，按组件注入
                 analysisInjectData(i, all[i.props.rawId], parentRawId, all)
             } else if (i.props.subRawId) {
-                if (i.props.subRawId === 'ElInput_148333') {
-                    console.log('捉到你吗啦 ')
-                }
                 analysisInjectData(i, (all[parentRawId] || {})[i.props.subRawId], parentRawId, all)
             }
         }
@@ -438,7 +399,7 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
     return constructor;
 }
 function injectData(item, dataItem) {
-    const { insData, renderFun, attrMap, on, nativeOn, methods, scopedSlots, computed, watch } = dataItem || {};
+    const { insData, renderFun, attrMap, on, nativeOn, methods, scopedSlots, watch } = dataItem || {};
     if (item.props.insData && insData) {
         for (let i in dataItem.insData) {
             item.props.insData[i] = insData[i]
@@ -449,7 +410,6 @@ function injectData(item, dataItem) {
         for(let x in attrMap) {
             if (!attrMap[x]) break;
             // this的坑点
-            console.log(attrMap[x])
             if (item.props && item.props.renderFun) {
                 if (!item.props.renderRawFun && item.props.renderFun.toString().indexOf(x) > -1) item.props.renderRawFun = item.props.renderFun.toString()
                 item.props.renderFun = replaceFun(item.props.renderRawFun || item.props.renderFun, x, attrMap[x])
@@ -489,11 +449,6 @@ function injectData(item, dataItem) {
                     item.props.methods[i] = replaceFun(item.props.rawMethods && item.props.rawMethods[i] || item.props.methods[i], x, attrMap[x])
                 }
             }
-            // if (item.props.computed) {
-            //     for(let i in item.props.computed) {
-            //         item.props.computed[i] = replaceFun(item.props.computed[i], x, attrMap[x])
-            //     }
-            // }
             if (item.props.watch) {
                 for(let i in item.props.watch) {
                     if (item.props.watch[i].toString().indexOf(x) > -1) {
@@ -515,9 +470,6 @@ function injectData(item, dataItem) {
     }
     if (item.props && item.props.methods && methods) {
         Object.assign(item.props.methods, methods)
-    }
-    if (item.props && item.props.computed && computed) {
-        Object.assign(item.props.computed, computed)
     }
     if (item.props && item.props.watch && watch) {
         Object.assign(item.props.watch, watch)

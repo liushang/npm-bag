@@ -115,33 +115,12 @@ let base = {
     inject: {
         containerInject: {
             default: () => {}
+        },
+        prData: {
+            default: () => {}
         }
     },
     watch: {
-        // 'lcData.form.status':function(val){
-        //     console.log('status变化')
-        //     console.log(val)
-        // },
-        // lcData: {
-        //     handler: function(val, old) {
-        //         console.log('lcData变化')
-        //         console.log(val.form.batch_status)
-        //         console.log(old.form.batch_status)
-        //         console.log(val.form.status)
-        //         console.log(old.form.status)
-        //         // todo 属性变化绑定
-        //         for(let i in this.watch) {
-        //             if (val[i] !== old[i]) {
-        //                 this.watch[i].bind(this)()
-        //             }
-        //         }
-        //         // console.log(this.computed.nnn.bind(this)())
-        //     },
-        //     deep: true
-        // },
-        // 'lcData.form.status': (val, old) => {
-        //     console.log(val, old)
-        // }
     },
     computed: {
         ...computed,
@@ -220,7 +199,7 @@ let base = {
     },
     created() {
         this.lcData = deepClone(this.insData)
-        console.log(this.methods)
+        console.log(this.lcData)
         for(let i in this.methods) {
             this[i] = this.methods[i]
         }
@@ -243,10 +222,10 @@ let base = {
             //     this.$set(this.containerInject, i, undefined);
             // }
             for(let i in this.rootData) {
-                this.$set(this.containerInject, i, this.rootData[i])
+                this.containerInject && this.$set(this.containerInject, i, this.rootData[i])
             }
-            console.log(this.$set(this.containerInject))
         }, 2000)
+        console.log(this.prData)
     }
 };
 export default base;
