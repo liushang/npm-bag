@@ -321,6 +321,10 @@ export default {
             data[key].value = this.valueTypeInitial[data[key].type];
         },
         addProperty(data, key, type, rootName, addType) {
+            console.log(data, key, type, rootName, addType)
+            console.log(this.initialType)
+            console.log(this.name)
+            console.log(this.rootWord)
             // addType 1 添加默认属性 无为自定义属性
             this.addType = !!addType;
             // type 不存在 查看原属性类型，object则为object 否则为数组/字符串

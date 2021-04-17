@@ -20,13 +20,13 @@
         </el-breadcrumb>
         <!-- 组件属性 -->
         <el-form v-show="currentTab==='field' && showField" v-if="editItem" size="small" label-width="90px">
-          <div v-if="editItem.name" style="margin: 8px 0 0 0px">
+          <div v-if="editItem.name && upDateRight" style="margin: 8px 0 0 0px">
             <span>{{editItem.props.rawId ? '模块' : '元素'}}别名</span>
             <a-input v-model="editItem.props.rawId" style="width: 140px;margin-bottom: 10px" size="small" v-if="editItem.props.rawId" ></a-input>
             <elInput v-model="editItem.props.subRawId" style="width: 140px;margin-bottom: 10px" size="mini" v-if="editItem.props.subRawId" />
             <el-collapse v-model="activeItems" @change="handleChange">
-              <div v-for="(i, index) in propertiesList.filter(x => !['rawId', 'renderFunStr', 'subRawId'].includes(x))" :key="index">
-              <el-collapse-item  :name="valueNameMap[i]" v-if="!['rawId', 'renderFunStr', 'subRawId'].includes(i)">
+              <div v-for="(i, index) in propertiesList.filter(x => !['rawId', 'renderFunStr', 'subRawId', 'renderRawFun'].includes(x))" :key="index">
+              <el-collapse-item  :name="valueNameMap[i]" v-if="!['rawId', 'renderFunStr', 'subRawId', 'renderRawFun'].includes(i)">
                 <template slot="title">
                   {{valueNameMap[i] || i}}({{getValueLength(editItemProperty[i])}})
                   <span>
@@ -38,8 +38,11 @@
                 </div>
                   </span>
                 </template>
-                <component
-                  :is="i === 'attrMap' ? 'Alias' : 'InfiniteObject'"
+                {{i}}
+                {{index}}
+                <!-- {{$refs['infiniteObj'].length}} -->
+                <Alias
+                v-if="i === 'attrMap'"
                   ref="infiniteObj"
                   :modifyItem="modifyItem"
                   :activeData="editItemProperty"
@@ -50,18 +53,32 @@
                   @saveModuleCode="saveModuleCode"
                   @changeComponentPanel="changeComponentPanel"
                   :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(i) ? 'text' : 'input'"
-                  ></component>
+                  ></Alias>
+                <InfiniteObject
+                v-else
+                  ref="infiniteObj"
+                  :modifyItem="modifyItem"
+                  :activeData="editItemProperty"
+                  :containerInject="containerInject"
+                  :name="editItem.name"
+                  :rootWord="i"
+                  :initialType="i === 'children' || i === 'directives' ? 'array' : 'string'"
+                  @saveModuleCode="saveModuleCode"
+                  @changeComponentPanel="changeComponentPanel"
+                  :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(i) ? 'text' : 'input'"
+                  ></InfiniteObject>
               </el-collapse-item>
               </div>
             </el-collapse>
           </div>
           <!-- <codemirror v-model="activeData.props.renderFun" :options="cmOptions" ref="cmEditor"/> -->
         </el-form>
+        
         <div v-if="currentTab === 'attrSet'">
           <div style="margin: 10px 0 15px">
             使用 <el-input v-model="moduledId" size="mini" style="width: 120px" placeholder="输入配置页面id"></el-input> 配置此页面
           </div>
-          <!-- <ogvdesign :constructure="dataConfig" v-if="dataConfig" :propData="configData"></ogvdesign> -->
+          <ogvdesign :constructure="dataConfig" v-if="dataConfig" :propData="configData"></ogvdesign>
         </div>
         <!-- 表单属性 -->
         <el-form v-if="currentTab === 'form'" size="small" label-width="90px">
@@ -156,7 +173,8 @@ export default {
             attrName: '',
             lcConVal: '',
             dataConfig: null,
-            moduledId: 57
+            moduledId: 57,
+            upDateRight: true
         };
     },
     computed: {
@@ -216,6 +234,15 @@ export default {
                 this.elementList = [];
                 this.elementList.push(this.activeData);
             }
+        },
+        'editItem.props' (val, old) {
+          if (val.rawId && val.rawId !== old.rawId || val.subRawId && val.subRawId !== old.subRawId) {
+            this.upDateRight = false;
+            // 解决refs多种不同情况下 缓存排序不一致问题
+            this.$nextTick(() => {
+              this.upDateRight = true;
+            })
+          }
         },
         basicDataChange() {
                 this.elementList = [];

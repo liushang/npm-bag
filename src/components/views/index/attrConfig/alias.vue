@@ -59,8 +59,7 @@ import {
     stringToFunc
 } from '../../../schema/util';
 import { deepClone } from '../../../utils/index';
-
-import { defaultKV, htmlNode, defaultNode } from './default';
+import { defaultKV, htmlNode, defaultNode } from '../components/default';
 export default {
     data() {
         let options = [{

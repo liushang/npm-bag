@@ -262,7 +262,7 @@ const elDefaultNode = {
         children: [],
         on: {
             input: function (e) {
-                this.elInput_value = e
+                this.lcData.elInput_value = e
             }
         },
         nativeOn: {
@@ -272,7 +272,6 @@ const elDefaultNode = {
                 }, 100)
             }
         },
-        // 这里如果是箭头函数某些情况下 this会变成_this
         renderFun: function (x) {
             x.value = this.elInput_value;
             return x
@@ -284,11 +283,14 @@ const elDefaultNode = {
             size: 'small'
         },
         children: [],
-        on: {
-            input: e => e
-        },
         nativeOn: {},
+        attrMap: {
+            elForm_rule: '',
+            elForm_form: ''
+        },
         renderFun: x => {
+            x.rules=this.elForm_rule || {};
+            x.form=this.elForm_form || {};
             return x
         },
     },
@@ -300,11 +302,7 @@ const elDefaultNode = {
         style: {},
         children: [],
         on: {},
-        nativeOn: {
-            change: e => {
-                console.log(e)
-            }
-        },
+        nativeOn: {},
         renderFun: x => {
             return x
         },
@@ -319,7 +317,6 @@ const elDefaultNode = {
         on: {},
         nativeOn: {},
         scopedSlots: {},
-        // slot: {},
         renderFun: x => {
             return x
         },
@@ -330,9 +327,10 @@ const elDefaultNode = {
             width: '200px',
         },
         attrMap: {
+            elSelect_value: ''
         },
         attrs: {
-            value: '1'
+            value: 1
         },
         on: {
             input: e => e
@@ -340,8 +338,8 @@ const elDefaultNode = {
         nativeOn: {
             input: e => {}
         },
-        renderFun: x => {
-            x.value = this.elSelect_value;
+        renderFun: function(x) {
+            x.value = this.lcData.elSelect_value;
             return x
         },
     },
@@ -351,18 +349,61 @@ const elDefaultNode = {
             width: '200px',
         },
         attrs: {},
-        on: {
-            input: e => e
+        attrMap: {
+            elSelect_value: '',
+            elOption_items: ''
         },
+        on: {},
         nativeOn: {
-            click: e => {
-                console.log(e.currentTarget.value)
+            click: function(e) {
+                this.lcData.elSelect_value = e.currentTarget.value;
             }
         },
         renderFun: x => {
-            x.value = "1";
-            x.label="选项";
+            return (this.lcData.elOption_items||[]).map(function (i) {
+                var vv = deepClone(x);vv.label = i.label;vv.value = i.value;return vv;
+            });
+        },
+    },
+    ElRadioGroup: {
+        children: [],
+        style: {
+            width: '200px',
+        },
+        attrMap: {
+            elGroup_value: ''
+        },
+        attrs: {
+            value: 1
+        },
+        on: {},
+        nativeOn: {},
+        renderFun: function(x) {
+            x.value = this.lcData.elGroup_value;
             return x
+        },
+    },
+    ElRadio: {
+        children: ['选项'],
+        style: {
+            width: '200px',
+        },
+        attrs: {},
+        attrMap: {
+            elRadio_value: '',
+            elRadio_items: ''
+        },
+        on: {},
+        nativeOn: {
+            click: function(e) {
+                console.log(e.target.value);
+                this.lcData.elRadio_value = +e.target.value;
+            }
+        },
+        renderFun: function(x) {
+            return ((this.lcData || {}).elRadio_items||[]).map(function (i) {
+                var vv = deepClone(x);vv.label = +i.value;vv.values[0] = i.label;return vv;
+            });
         },
     },
     ElButton: {
@@ -413,9 +454,17 @@ const elDefaultNode = {
             endPlaceholder: "结束日期",
         },
         children: [],
-        on: {},
+        attrMap: {
+            elDatePicker_value: ''
+        },
+        on: {
+            input: function(e) {
+                this.lcData.elDatePicker_value = e
+            }
+        },
         nativeOn: {},
-        renderFun: x => {
+        renderFun: function(x) {
+            x.value = (this.lcData || {}).elDatePicker_value;
             return x
         },
     }

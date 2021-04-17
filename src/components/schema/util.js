@@ -192,7 +192,12 @@ function dealChild(child, cb) {
             item.props = Object.assign(item.props || {}, props);
         }
         for (let x in child) {
-            if (!['values', 'children', 'directives', 'name', 'raw'].includes(x) && child[x]) item.props[x] = child[x];
+            if (x === 'label') {
+            }
+            if (!['values', 'children', 'directives', 'name', 'raw'].includes(x) && child[x]) {
+                !item.props && (item.props = {})
+                item.props[x] = child[x];
+            }
         }
         if (item.ref) {} else {
             if (item.props && item.props.ref) item.ref = item.props.ref
@@ -385,7 +390,11 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
             }
         }
     }
+    if (constructor.name === 'ElOption') {
+        console.log('constructor')
+    }
     for (let i in constructor.attrMap) {
+        console.log(i)
         if (constructor.attrMap && !constructor.attrMap[i]) break;
         if (!data.attrMap[i]) data.attrMap[i] = constructor.attrMap[i]
     }
@@ -405,9 +414,23 @@ function injectData(item, dataItem) {
             item.props.insData[i] = insData[i]
         }
     }
+
     if (attrMap) {
-        const replaceFun = (func, key, val) => stringToFunc(func.toString().replace(key, val))
+        const replaceFun = (func, key, val) => {
+            console.log( func.toString())
+            console.log(key)
+            console.log(val)
+            let str = func.toString().replace(key, val)
+            console.log(str)
+            let oo = stringToFunc(str)
+            return oo
+        }
+        console.log(attrMap)
         for(let x in attrMap) {
+            if (item.name === 'ElRadio') {
+                console.log('我是你们要找的人', x)
+                console.log(item.nativeOn['click'].toString())
+            }
             if (!attrMap[x]) break;
             // this的坑点
             if (item.props && item.props.renderFun) {
@@ -416,7 +439,9 @@ function injectData(item, dataItem) {
             }
             if (item.renderFun) {
                 if (!item.renderRawFun && item.renderFun.toString().indexOf(x) > -1) item.renderRawFun = item.renderFun.toString()
-                item.renderFun = replaceFun(item.renderRawFun || item.renderFun, x, attrMap[x])
+                if(item.renderRawFun && item.renderRawFun.indexOf(x) > -1) {
+                    item.renderFun = replaceFun(item.renderRawFun || item.renderFun, x, attrMap[x])
+                }
             }
             for(let i in item.on) {
                 // 元素on方法
@@ -424,21 +449,27 @@ function injectData(item, dataItem) {
                     if (!item.rawOn) item.rawOn = {}
                     item.rawOn[i] = item.on[i].toString()
                 }
-                item.props.on[i] = item.on[i] = replaceFun(item.rawOn && item.rawOn[i] || item.on[i], x, attrMap[x])
+                if (item.rawOn && item.rawOn[i] && item.rawOn[i].indexOf(x) > -1) {
+                    item.props.on[i] = item.on[i] = replaceFun(item.rawOn && item.rawOn[i] || item.on[i], x, attrMap[x])
+                }
             }
             for(let i in item.nativeOn) {
                 if (item.nativeOn[i].toString().indexOf(x) > -1) {
                     if (!item.rawNativeOn) item.rawNativeOn = {}
                     item.rawNativeOn[i] = item.nativeOn[i].toString()
                 }
-                item.props.nativeOn[i] = item.nativeOn[i] = replaceFun(item.rawNativeOn && item.rawNativeOn[i] || item.nativeOn[i], x, attrMap[x])
+                if (item.rawNativeOn && item.rawNativeOn[i] && item.rawNativeOn[i].indexOf(x) > -1) {
+                    item.props.nativeOn[i] = item.nativeOn[i] = replaceFun(item.rawNativeOn && item.rawNativeOn[i] || item.nativeOn[i], x, attrMap[x])
+                }
             }
             for(let i in item.scopedSlots) {
                 if (item.scopedSlots[i].toString().indexOf(x) > -1) {
                     if (!item.rawScopedSlots) item.rawScopedSlots = {}
                     item.rawScopedSlots[i] = item.scopedSlots[i].toString()
                 }
-                item.props.scopedSlots[i] = item.scopedSlots[i] = replaceFun(item.rawScopedSlots && item.rawScopedSlots[i] || item.scopedSlots[i], x, attrMap[x])
+                if (item.rawScopedSlots && item.rawScopedSlots[i] && item.rawScopedSlots.indexOf(x) > -1) {
+                    item.props.scopedSlots[i] = item.scopedSlots[i] = replaceFun(item.rawScopedSlots && item.rawScopedSlots[i] || item.scopedSlots[i], x, attrMap[x])
+                }
             }
             if (item.props.methods) {
                 for(let i in item.props.methods) {
@@ -446,7 +477,9 @@ function injectData(item, dataItem) {
                         if (!item.props.rawMethods) item.props.rawMethods = {}
                         item.props.rawMethods[i] = item.props.methods[i].toString()
                     }
-                    item.props.methods[i] = replaceFun(item.props.rawMethods && item.props.rawMethods[i] || item.props.methods[i], x, attrMap[x])
+                    if (item.rawMethods && item.rawMethods[i] && item.rawMethods.indexOf(x) > -1) {
+                        item.props.methods[i] = replaceFun(item.props.rawMethods && item.props.rawMethods[i] || item.props.methods[i], x, attrMap[x])
+                    }
                 }
             }
             if (item.props.watch) {
@@ -455,7 +488,9 @@ function injectData(item, dataItem) {
                         if (!item.props.rawWatch) item.props.rawWatch = {}
                         item.props.rawWatch[i] = item.props.watch[i].toString()
                     }
-                    item.props.watch[i] = replaceFun(item.props.rawWatch && item.props.rawWatch[i] || item.props.watch[i], x, attrMap[x])
+                    if (item.rawWatch && item.rawWatch[i] && item.rawWatch.indexOf(x) > -1) {
+                        item.props.watch[i] = replaceFun(item.props.rawWatch && item.props.rawWatch[i] || item.props.watch[i], x, attrMap[x])
+                    }
                 }
             }
         }
