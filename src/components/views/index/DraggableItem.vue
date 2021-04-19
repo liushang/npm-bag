@@ -109,7 +109,7 @@ export default {
     },
     render(h) {
     // 根据布局方式选择不同渲染函数 rol和raw两种
-        const layout = layouts[this.currentItem.__config__.layout];
+        const layout = layouts['oFormItem'];
 
         if (layout && this.injectDataItem) {
             return layout.call(this, h, this.injectDataItem, this.currentItem);

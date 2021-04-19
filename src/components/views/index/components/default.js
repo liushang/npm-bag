@@ -144,35 +144,10 @@ export const defaultKV = {
             }
         }
     },
-    oTable: {
-        children: {
-            0: {
-                value: [ 'oTableColumn' ]
-            }
-            // 1: {
-            //     label: '表格项',
-            //     value: [ 'oTableColumn' ]
-            // }
-        }
-    },
     oRow: {
         children: {
             0: {
                 value: ['oCol']
-            }
-        }
-    },
-    oForm: {
-        children: {
-            0: {
-                value: [ 'oFormItem' ]
-            }
-        }
-    },
-    oSelect: {
-        children: {
-            0: {
-                value: [ 'oOption' ]
             }
         }
     },
@@ -221,6 +196,13 @@ export const defaultKV = {
         children: {
             0: {
                 value: ['ElTableColumn']
+            }
+        }
+    },
+    ElRadioGroup: {
+        children: {
+            0: {
+                value: ['ElRadio']
             }
         }
     }
@@ -273,7 +255,7 @@ const elDefaultNode = {
             }
         },
         renderFun: function (x) {
-            x.value = this.elInput_value;
+            x.value = this.lcData.elInput_value;
             return x
         },
     },
@@ -288,9 +270,9 @@ const elDefaultNode = {
             elForm_rule: '',
             elForm_form: ''
         },
-        renderFun: x => {
-            x.rules=this.elForm_rule || {};
-            x.form=this.elForm_form || {};
+        renderFun: function(x) {
+            x.rules= (this.lcData || {}).elForm_rule || {};
+            x.model= (this.lcData || {}).elForm_form || {};
             return x
         },
     },
@@ -429,14 +411,14 @@ const elDefaultNode = {
             title: '提示' 
         },
         on: {
-            close: e => {
-                this.showDialog = false
+            close: function() {
+                (this.lcData || {}).showDialog = false
             }
         },
         nativeOn: {
         },
         renderFun: x => {
-            x.visible=this.showDialog;
+            x.visible=(this.lcData || {}).showDialog;
             return x;
         },
     },

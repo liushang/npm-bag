@@ -38,11 +38,8 @@
                 </div>
                   </span>
                 </template>
-                {{i}}
-                {{index}}
-                <!-- {{$refs['infiniteObj'].length}} -->
-                <Alias
-                v-if="i === 'attrMap'"
+                <component
+                  :is="i === 'attrMap' ? 'Alias' : 'InfiniteObject'"
                   ref="infiniteObj"
                   :modifyItem="modifyItem"
                   :activeData="editItemProperty"
@@ -53,32 +50,15 @@
                   @saveModuleCode="saveModuleCode"
                   @changeComponentPanel="changeComponentPanel"
                   :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(i) ? 'text' : 'input'"
-                  ></Alias>
-                <InfiniteObject
-                v-else
-                  ref="infiniteObj"
-                  :modifyItem="modifyItem"
-                  :activeData="editItemProperty"
-                  :containerInject="containerInject"
-                  :name="editItem.name"
-                  :rootWord="i"
-                  :initialType="i === 'children' || i === 'directives' ? 'array' : 'string'"
-                  @saveModuleCode="saveModuleCode"
-                  @changeComponentPanel="changeComponentPanel"
-                  :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(i) ? 'text' : 'input'"
-                  ></InfiniteObject>
+                  ></component>
               </el-collapse-item>
               </div>
             </el-collapse>
           </div>
           <!-- <codemirror v-model="activeData.props.renderFun" :options="cmOptions" ref="cmEditor"/> -->
         </el-form>
-        
         <div v-if="currentTab === 'attrSet'">
-          <div style="margin: 10px 0 15px">
-            使用 <el-input v-model="moduledId" size="mini" style="width: 120px" placeholder="输入配置页面id"></el-input> 配置此页面
-          </div>
-          <ogvdesign :constructure="dataConfig" v-if="dataConfig" :propData="configData"></ogvdesign>
+          <ConfigPage :propData="configData" :metaData="elementList"></ConfigPage>
         </div>
         <!-- 表单属性 -->
         <el-form v-if="currentTab === 'form'" size="small" label-width="90px">
@@ -106,27 +86,26 @@ import CodeEditor from '../OGV-form-design/components/code-editor';
 import { saveFormConf,
     stringToFunc
 } from '../../schema/util';
-import {
-    getDrawingList,
-} from '../../utils/db';
 import 'codemirror/mode/javascript/javascript.js';
 import { htmlNode, elNode, defaultKV } from './components/default';
 import 'codemirror/theme/base16-dark.css';
 import BASEMAP from './base/map';
 import PanelDialog from './PanelDialog';
 import Alias from './attrConfig/alias'
+import ConfigPage from './ConfigPage';
 export default {
     components: {
         InfiniteObject,
         CodeEditor,
         PanelDialog,
-        Alias
+        Alias,
+        ConfigPage
     },
-    props: ['showField', 'activeData', 'formConf', 'containerInject', 'basicDataChange', 'configData' ],
+    props: ['showField', 'activeData', 'formConf', 'containerInject', 'basicDataChange', 'configData', 'changingNodeList' ],
     mounted() {
       console.log('我是注入数据')
       console.log(this.configData);
-      this.getModuleDetail(this.moduleId);
+      
     },
     data() {
         return {
@@ -172,7 +151,6 @@ export default {
             showPanel: false,
             attrName: '',
             lcConVal: '',
-            dataConfig: null,
             moduledId: 57,
             upDateRight: true
         };
@@ -222,9 +200,6 @@ export default {
         }
     },
     watch: {
-        moduledId(val) {
-          this.getModuleDetail(val)
-        },
         'activeData.props.rawId'(val) {
             this.activeItems = [];
             Object.keys(this.activeData.props).forEach(i => {
@@ -236,7 +211,7 @@ export default {
             }
         },
         'editItem.props' (val, old) {
-          if (val.rawId && val.rawId !== old.rawId || val.subRawId && val.subRawId !== old.subRawId) {
+          if (val && old && (val.rawId && val.rawId !== old.rawId || val.subRawId && val.subRawId !== old.subRawId)) {
             this.upDateRight = false;
             // 解决refs多种不同情况下 缓存排序不一致问题
             this.$nextTick(() => {
@@ -244,9 +219,15 @@ export default {
             })
           }
         },
+        changingNodeList(val) {
+          console.log('changingNodeList')
+          if (val.length > 0) {
+            this.elementList = val
+          }
+        },
         basicDataChange() {
-                this.elementList = [];
-                this.elementList.push(this.activeData);
+            this.elementList = [];
+            this.elementList.push(this.activeData);
         },
         formConf: {
             handler(val) {
@@ -256,24 +237,6 @@ export default {
         }
     },
     methods: {
-        getModuleDetail(val) {
-            this.$axios({
-                url: 'http://uat-bangumi-mng.bilibili.co/api/getModuleDetailByModuleId',
-                params: {
-                    moduleId: val || 57
-                }
-            }).then(({ data, code }) => {
-                if (data && code === 0) {
-                    if (data[0] && data[0].basic_config) {
-                        // this.moduCf = data[0].basic_config.replace(/\s/g, "");
-                        this.moduCf = decodeURIComponent(data[0].basic_config);
-                        console.log(this.moduCf);
-                        this.dataConfig = getDrawingList(this.moduCf)[0];
-                        // localStorage.setItem("drawingItems", this.moduCf);
-                    }
-                }
-            });
-        },
         closePanelDialog(e) {
           let component = this.$refs.infiniteObj.filter(x => x.tempAttrName)[0]
           component.tempAttrValue = JSON.parse(JSON.stringify(e))

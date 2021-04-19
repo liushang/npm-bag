@@ -69,7 +69,7 @@ export default {
                 label: "-- 新增 --",
                 value: 0
             }],
-            moduleId: 58,
+            moduleId: 50,
             modules: [{
                 label: "-- 新增 --",
                 value: 0
@@ -79,13 +79,11 @@ export default {
             pageName: "",
             moduCf: "",
             configData: {
-              "oContainer": {
-              },
+              "oContainer": {},
             }
         };
     },
     mounted() {
-        console.log(Vue.compile('<div><span>{{ msg }}</span></div>'))
         this.getProjects();
         this.getConfig();
         this.getPage(this.projectId);

@@ -92,7 +92,13 @@ let base = {
         },
         containerInject: {
             default: () => {}
-        }
+        },
+        propData: {
+            default: () => {}
+        },
+        metaData: {
+            default: () => []
+        },
     },
     methods: {
         click() {

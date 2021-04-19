@@ -21,7 +21,7 @@
                   class="components-item"
                 >
                   <div class="components-body" v-if="element.__config__" @click="addComponent(element, listIndex)">
-                    {{ element.__config__.label }}
+                    {{ element.name }}
                   </div>
                   <el-collapse v-else>
                     <el-collapse-item :title="element.title">
@@ -32,7 +32,7 @@
                         @click="addComponent(e, listIndex)"
                       >
                         <div class="components-body">
-                          {{ e.__config__.label }}
+                          {{ e.name }}
                         </div>
                       </div>
                     </el-collapse-item>
@@ -92,6 +92,7 @@
       ref="rightPanel"
       :basicDataChange="basicDataChange"
       :configData="lcConfigData"
+      :changingNodeList="changingNodeList"
       @configValChange="configValChange"
       @clearBorderBlue="clearSubBorder(drawingList)"
       @panelContent="panelContent"
@@ -108,6 +109,7 @@
     <view-model v-if="showViewModel" @closeViewModel="showViewModel=false" :drawingList="viewItemData">
     </view-model>
     <NodeModal v-if="showNodeModal" @close="showNodeModal= false" @confirm="saveNode"></NodeModal>
+    <TreeModel :basicData="activeData" @changeNode="changeNode"></TreeModel>
   </div>
 </template>
 
@@ -118,7 +120,7 @@ import render from '../../components/render/render';
 import RightPanel from './RightPanel';
 import PanelDialog from './PanelDialog';
 import ViewModel from './ViewModel';
-
+import TreeModel from './TreeModel'
 import {
     inputComponents, selectComponents, layoutComponents, formConf, oComponents, getElementList, getHtmlLabel
 } from '../../components/generator/config';
@@ -150,7 +152,8 @@ export default {
         DraggableItem,
         ViewModel,
         NodeModal,
-        FuzzySearch
+        FuzzySearch,
+        TreeModel,
     },
     name: 'practice',
     props: {
@@ -225,6 +228,8 @@ export default {
                 }
               }
             },
+            treeVisible: false,
+            changingNodeList: []
             // showRightPanel: true
           };
     },
@@ -251,7 +256,6 @@ export default {
         },
         moduleChangeDetail: {
             handler(val) {
-
               if (val) {
                 drawingListInDB = getDrawingList(val)
                 this.showNew = false
@@ -272,6 +276,9 @@ export default {
       this.init()
     },
     methods: {
+        changeNode(e) {
+          this.changingNodeList = e
+        },
         init() {
           if (Array.isArray(drawingListInDB) && drawingListInDB.length > 0) {
               this.drawingList = drawingListInDB;
@@ -715,4 +722,5 @@ export default {
     padding: 0 6px;
   }
 }
+
 </style>

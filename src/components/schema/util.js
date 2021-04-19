@@ -45,73 +45,81 @@ export function analysisDataRender(configComponents) {
                         };
                     }
                 }
+                if (rawData.props.renderFun) {
+                    let funcss = stringToFunc(rawData.props.renderFun)
+                    rawData.props.renderFun = funcss.bind(this);
+                    childrenArr = funcss.bind(this)(childrenData)
+                    if (!Array.isArray(childrenArr)) {
+                        childrenArr = [childrenArr]
+                    }
+                }
             }
-            // ['on', 'nativeOn', 'scopedSlots', 'watch'].forEach((i) => {
-            //     if (rawData[i]) {
-            //         for (let x in rawData[i]) {
-            //             let funcs = stringToFunc(rawData[i][x]);
-            //             rawData[i][x] = (e) => {
-            //                 let oo = funcs.bind(this)
-            //                 return oo(e);
-            //             };
-            //         }
+            ['on', 'nativeOn', 'scopedSlots', 'watch'].forEach((i) => {
+                if (rawData[i]) {
+                    for (let x in rawData[i]) {
+                        let funcs = stringToFunc(rawData[i][x]);
+                        rawData[i][x] = (e) => {
+                            let oo = funcs.bind(this)
+                            return oo(e);
+                        };
+                    }
+                }
+            })
+            // if (rawData.on) {
+            //     for (let x in rawData.on) {
+            //         let funcs = stringToFunc(rawData.on[x]);
+            //         // console.log(rawData.on['input'].toString())
+            //         rawData.on[x] = (e) => {
+            //             // return func(e, this);
+            //             let oo = funcs.bind(this)
+            //             return oo(e);
+            //         };
             //     }
-            // })
-            if (rawData.on) {
-                for (let x in rawData.on) {
-                    let funcs = stringToFunc(rawData.on[x]);
-                    // console.log(rawData.on['input'].toString())
-                    rawData.on[x] = (e) => {
-                        // return func(e, this);
-                        let oo = funcs.bind(this)
-                        return oo(e);
-                    };
-                }
-            }
-            if (rawData.nativeOn) {
-                for (let x in rawData.nativeOn) {
-                    let funcs = stringToFunc(rawData.nativeOn[x]);
-                    rawData.nativeOn[x] = (e) => {
-                        // return func(e, this);
-                        let oo = funcs.bind(this)
-                        return oo(e);
-                    };
-                }
-            }
-            if (rawData.scopedSlots) {
-                // rawData.scopedSlotsFunc = {}
-                for (let x in rawData.scopedSlots) {
-                    let funcs = stringToFunc(rawData.scopedSlots[x]);
-                    rawData.scopedSlots[x] = (e) => {
-                        // return func(e, this);
-                        let oo = funcs.bind(this)
-                        return oo(e);
-                    };
-                }
-            }
-            if (rawData.computed) {
-                // rawData.scopedSlotsFunc = {}
-                for (let x in rawData.computed) {
-                    let funcs = stringToFunc(rawData.computed[x]);
-                    rawData.computed[x] = (e) => {
-                        // return func(e, this);
-                        let oo = funcs.bind(this)
-                        return oo(e);
-                    };
-                }
-            }
-            if (rawData.watch) {
-                // rawData.scopedSlotsFunc = {}
-                for (let x in rawData.watch) {
-                    let funcs = stringToFunc(rawData.watch[x]);
-                    rawData.watch[x] = (e) => {
-                        // return func(e, this);
-                        let oo = funcs.bind(this)
-                        return oo(e);
-                    };
-                }
-            }
-            if (rawData.renderFun) {
+            // }
+            // if (rawData.nativeOn) {
+            //     for (let x in rawData.nativeOn) {
+            //         let funcs = stringToFunc(rawData.nativeOn[x]);
+            //         rawData.nativeOn[x] = (e) => {
+            //             // return func(e, this);
+            //             let oo = funcs.bind(this)
+            //             return oo(e);
+            //         };
+            //     }
+            // }
+            // if (rawData.scopedSlots) {
+            //     // rawData.scopedSlotsFunc = {}
+            //     for (let x in rawData.scopedSlots) {
+            //         let funcs = stringToFunc(rawData.scopedSlots[x]);
+            //         rawData.scopedSlots[x] = (e) => {
+            //             // return func(e, this);
+            //             let oo = funcs.bind(this)
+            //             return oo(e);
+            //         };
+            //     }
+            // }
+            // if (rawData.computed) {
+            //     // rawData.scopedSlotsFunc = {}
+            //     for (let x in rawData.computed) {
+            //         let funcs = stringToFunc(rawData.computed[x]);
+            //         rawData.computed[x] = (e) => {
+            //             // return func(e, this);
+            //             let oo = funcs.bind(this)
+            //             return oo(e);
+            //         };
+            //     }
+            // }
+            // if (rawData.watch) {
+            //     // rawData.scopedSlotsFunc = {}
+            //     for (let x in rawData.watch) {
+            //         let funcs = stringToFunc(rawData.watch[x]);
+            //         rawData.watch[x] = (e) => {
+            //             // return func(e, this);
+            //             let oo = funcs.bind(this)
+            //             return oo(e);
+            //         };
+            //     }
+            // }
+            if (rawData.renderFun && configComponents[i].name !== 'oRow') {
                 let funcss = stringToFunc(rawData.renderFun)
                 childrenArr = funcss.bind(this)(childrenData)
                 if (!Array.isArray(childrenArr)) {
@@ -390,10 +398,10 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
             }
         }
     }
-    if (constructor.name === 'ElOption') {
-        console.log('constructor')
-    }
     for (let i in constructor.attrMap) {
+        if (i === 'elOption_items') {
+            console.log(constructor.attrMap[i])
+        }
         console.log(i)
         if (constructor.attrMap && !constructor.attrMap[i]) break;
         if (!data.attrMap[i]) data.attrMap[i] = constructor.attrMap[i]
@@ -414,23 +422,21 @@ function injectData(item, dataItem) {
             item.props.insData[i] = insData[i]
         }
     }
-
+    if (item.name === 'ElRadio') {
+        console.log('我是你们要找的人', x)
+    }
     if (attrMap) {
         const replaceFun = (func, key, val) => {
-            console.log( func.toString())
-            console.log(key)
-            console.log(val)
-            let str = func.toString().replace(key, val)
-            console.log(str)
+            let str = func.toString()
+            for (let i in attrMap) {
+                if (str.indexOf(i) > -1) {
+                    str = str.replace(i, attrMap[i])
+                }
+            }
             let oo = stringToFunc(str)
             return oo
         }
-        console.log(attrMap)
         for(let x in attrMap) {
-            if (item.name === 'ElRadio') {
-                console.log('我是你们要找的人', x)
-                console.log(item.nativeOn['click'].toString())
-            }
             if (!attrMap[x]) break;
             // this的坑点
             if (item.props && item.props.renderFun) {

@@ -116,9 +116,12 @@ let base = {
         containerInject: {
             default: () => {}
         },
-        prData: {
+        propData: {
             default: () => {}
-        }
+        },
+        metaData: {
+            default: () => []
+        },
     },
     watch: {
     },
