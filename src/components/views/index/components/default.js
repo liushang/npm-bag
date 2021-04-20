@@ -378,8 +378,8 @@ const elDefaultNode = {
         on: {},
         nativeOn: {
             click: function(e) {
-                console.log(e.target.value);
                 this.lcData.elRadio_value = +e.target.value;
+                console.log(e.target.value);
             }
         },
         renderFun: function(x) {

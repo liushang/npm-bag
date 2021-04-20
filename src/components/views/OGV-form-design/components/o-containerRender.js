@@ -1,6 +1,6 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../../../schema/api';
-import { dealMultiChildren, deepClone } from '../../../schema/util';
+import { dealMultiChildren, deepClone, deepCloneEnhance } from '../../../schema/util';
 import baseAttr from '../base/attrs';
 let base = {
     data() {
@@ -104,6 +104,7 @@ let base = {
     render,
     methods: {
         deepClone: deepClone,
+        deepCloneEnhance: deepCloneEnhance
     },
     provide() {
         return {
@@ -112,6 +113,7 @@ let base = {
             containerInject: this.rootData
         };
     },
+    // inject: [ 'containerInject', 'propData', 'metaData' ],
     inject: {
         containerInject: {
             default: () => {}
@@ -124,6 +126,18 @@ let base = {
         },
     },
     watch: {
+        metaData(val) {
+            console.log('metaData变更', val)
+        },
+        metaData: {
+            handle(val) {
+                console.log('metaDatabbbb', val)
+            },
+            deep: true
+        },
+        propData(val) {
+            console.log('propData变更', val)
+        }
     },
     computed: {
         ...computed,

@@ -17,6 +17,43 @@ export function deepClone(obj) {
     return objClone;
 }
 
+export function deepCloneEnhance(obj, item) {
+    // 判断拷贝的要进行深拷贝的是数组还是对象，是数组的话进行数组拷贝，对象的话进行对象拷贝
+    let objClone = Array.isArray(obj) ? [] : {};
+    if (item && !Array.isArray(obj)) {
+        let appendItem = function(object, data) {
+                if (typeof object === 'object') {
+                    if (!object.raw.props.scope) object.raw.props.scope = {}
+                    if (!object.raw.scope) object.raw.scope = {}
+                    // object.raw.scope[i] = data[i]
+                    object.raw.props.scope = Object.assign(object.raw.props.scope, data)
+                    object.raw.scope = Object.assign(object.raw.scope, data)
+                }
+                if (object.values && object.values.length) {
+                    for (let ii of object.values) {
+                        appendItem(ii, data)
+                    }
+                }
+        }
+        appendItem(obj, item)
+    }
+    // 进行深拷贝的不能为空，并且是对象或者是
+    if (obj && typeof obj === 'object') {
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                if (obj[key] && typeof obj[key] === 'object') {
+                    objClone[key] = deepClone(obj[key]);
+                } else {
+                    objClone[key] = obj[key];
+                }
+            }
+        }
+    }
+    return objClone;
+}
+window.deepClone = deepClone;
+window.deepCloneEnhance = deepCloneEnhance
+
 export function analysisDataRender(configComponents) {
     const configData = [];
     for (let i = 0; i < configComponents.length; i++) {
@@ -27,14 +64,23 @@ export function analysisDataRender(configComponents) {
         } else {
             const childrenData = {
                 name: configComponents[i].name,
-                raw: rawData
+                raw: rawData,
+                // ...((rawData || {}).scope || {})
+                // children: configComponents[i].children || []
             }
-            if (configComponents[i].children) {
-                childrenData.values = analysisDataRender.bind(this)(configComponents[i].children);
-            } else {
-                childrenData.values = [];
+            let scopes = rawData.scope || {}
+            for (let i in scopes) {
+                childrenData[i] = scopes[i]
             }
-            let childrenArr = [childrenData]
+            // if (configComponents[i].children) {
+            //     childrenData.values = analysisDataRender.bind(this)(configComponents[i].children);
+            // } else {
+            //     childrenData.values = [];
+            // }
+            let childrenArr = [childrenData];
+            childrenData.values = [];
+            if (configComponents[i].name === 'div') {
+            }
             if (configComponents[i].name === 'oRow') {
                 if (rawData.props.on) {
                     for (let x in rawData.props.on) {
@@ -52,6 +98,15 @@ export function analysisDataRender(configComponents) {
                     if (!Array.isArray(childrenArr)) {
                         childrenArr = [childrenArr]
                     }
+                    for (let xx of childrenArr) {
+                        if (configComponents[i].children && typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
+                            xx.values = analysisDataRender.bind(this)(configComponents[i].children)
+                        } else if (typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
+                            xx.values = []
+                        } else {
+                            console.log('处理剩下的值', xx)
+                        }
+                    }
                 }
             }
             ['on', 'nativeOn', 'scopedSlots', 'watch'].forEach((i) => {
@@ -65,65 +120,27 @@ export function analysisDataRender(configComponents) {
                     }
                 }
             })
-            // if (rawData.on) {
-            //     for (let x in rawData.on) {
-            //         let funcs = stringToFunc(rawData.on[x]);
-            //         // console.log(rawData.on['input'].toString())
-            //         rawData.on[x] = (e) => {
-            //             // return func(e, this);
-            //             let oo = funcs.bind(this)
-            //             return oo(e);
-            //         };
-            //     }
-            // }
-            // if (rawData.nativeOn) {
-            //     for (let x in rawData.nativeOn) {
-            //         let funcs = stringToFunc(rawData.nativeOn[x]);
-            //         rawData.nativeOn[x] = (e) => {
-            //             // return func(e, this);
-            //             let oo = funcs.bind(this)
-            //             return oo(e);
-            //         };
-            //     }
-            // }
-            // if (rawData.scopedSlots) {
-            //     // rawData.scopedSlotsFunc = {}
-            //     for (let x in rawData.scopedSlots) {
-            //         let funcs = stringToFunc(rawData.scopedSlots[x]);
-            //         rawData.scopedSlots[x] = (e) => {
-            //             // return func(e, this);
-            //             let oo = funcs.bind(this)
-            //             return oo(e);
-            //         };
-            //     }
-            // }
-            // if (rawData.computed) {
-            //     // rawData.scopedSlotsFunc = {}
-            //     for (let x in rawData.computed) {
-            //         let funcs = stringToFunc(rawData.computed[x]);
-            //         rawData.computed[x] = (e) => {
-            //             // return func(e, this);
-            //             let oo = funcs.bind(this)
-            //             return oo(e);
-            //         };
-            //     }
-            // }
-            // if (rawData.watch) {
-            //     // rawData.scopedSlotsFunc = {}
-            //     for (let x in rawData.watch) {
-            //         let funcs = stringToFunc(rawData.watch[x]);
-            //         rawData.watch[x] = (e) => {
-            //             // return func(e, this);
-            //             let oo = funcs.bind(this)
-            //             return oo(e);
-            //         };
-            //     }
-            // }
-            if (rawData.renderFun && configComponents[i].name !== 'oRow') {
-                let funcss = stringToFunc(rawData.renderFun)
-                childrenArr = funcss.bind(this)(childrenData)
-                if (!Array.isArray(childrenArr)) {
-                    childrenArr = [childrenArr]
+            let funcss = (configComponents[i].name !== 'oRow' && rawData.renderFun && stringToFunc(rawData.renderFun)) || (x => x)
+            childrenArr = funcss.bind(this)(childrenData)
+            if (!Array.isArray(childrenArr)) {
+                childrenArr = [childrenArr]
+            }
+            for (let xx of childrenArr) {
+                if (configComponents[i].children && typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
+                    if (configComponents[i] && Array.isArray(configComponents[i].children)) {
+                        for (let uu of configComponents[i].children) {
+                            if (typeof uu === 'object' && uu.name) {
+                                !uu.scope && (uu.scope = {})
+                                Object.assign(uu.scope, xx.raw.scope)
+                            }
+                        }
+                    }
+                    // render函数并没有 render子元素  子元素的赋值需要留在下一级
+                    xx.values = analysisDataRender.bind(this)(configComponents[i].children)
+                } else if (typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
+                    xx.values = []
+                } else {
+                    console.log('处理剩下的值', xx)
                 }
             }
             configData.push(...childrenArr);
@@ -200,8 +217,6 @@ function dealChild(child, cb) {
             item.props = Object.assign(item.props || {}, props);
         }
         for (let x in child) {
-            if (x === 'label') {
-            }
             if (!['values', 'children', 'directives', 'name', 'raw'].includes(x) && child[x]) {
                 !item.props && (item.props = {})
                 item.props[x] = child[x];
@@ -281,24 +296,25 @@ function dealSlotNode(cb, item) {
         return item
     }
 }
-window.deepClone = function deepClone(obj) {
-    // 判断拷贝的要进行深拷贝的是数组还是对象，是数组的话进行数组拷贝，对象的话进行对象拷贝
-    let objClone = Array.isArray(obj) ? [] : {};
-    // 进行深拷贝的不能为空，并且是对象或者是
-    if (obj && typeof obj === 'object') {
-        for (let key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                if (obj[key] && typeof obj[key] === 'object') {
-                    objClone[key] = deepClone(obj[key]);
-                } else {
-                    objClone[key] = obj[key];
-                }
-            }
-        }
-    }
-    return objClone;
-}
 export function stringToFunc(str) {
+    // const deepClone = function deepClone(obj) {
+    //     // 判断拷贝的要进行深拷贝的是数组还是对象，是数组的话进行数组拷贝，对象的话进行对象拷贝
+    //     let objClone = Array.isArray(obj) ? [] : {};
+    //     // 进行深拷贝的不能为空，并且是对象或者是
+    //     if (obj && typeof obj === 'object') {
+    //         for (let key in obj) {
+    //             if (obj.hasOwnProperty(key)) {
+    //                 if (obj[key] && typeof obj[key] === 'object') {
+    //                     objClone[key] = deepClone(obj[key]);
+    //                 } else {
+    //                     objClone[key] = obj[key];
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return objClone;
+    // };
+    // const deepCloneEnhance = deepCloneEnhance;
     if (typeof str === 'string') {
         let newStr = `return ${str.replace('[native code]', '')}`
         let newFun = new Function(newStr)
@@ -374,7 +390,6 @@ export function dealMultiChildren(children) {
 
 export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawId, all) {
     // 注入数据：组件本地数据，组件函数，组件映射字段
-    // if (!data) return constructor
     const { rawId, subRawId } = constructor.props;
     if (rawId && constructor.props && constructor.props.children && constructor.props.children.length) {
         // 组件子元素注入
@@ -389,20 +404,17 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
     } else if (subRawId && constructor.children && constructor.children.length) {
         // 元素子元素注入
         for (let i of constructor.children) {
-            if (!i.props) return
-            if (i.props.rawId && data[i.props.rawId]) {
-                // 如果检测到的是组件，按组件注入
-                analysisInjectData(i, all[i.props.rawId], parentRawId, all)
-            } else if (i.props.subRawId) {
-                analysisInjectData(i, (all[parentRawId] || {})[i.props.subRawId], parentRawId, all)
+            if (i.props) {
+                if (i.props.rawId && data[i.props.rawId]) {
+                    // 如果检测到的是组件，按组件注入
+                    analysisInjectData(i, all[i.props.rawId], parentRawId, all)
+                } else if (i.props.subRawId) {
+                    analysisInjectData(i, (all[parentRawId] || {})[i.props.subRawId], parentRawId, all)
+                }
             }
         }
     }
     for (let i in constructor.attrMap) {
-        if (i === 'elOption_items') {
-            console.log(constructor.attrMap[i])
-        }
-        console.log(i)
         if (constructor.attrMap && !constructor.attrMap[i]) break;
         if (!data.attrMap[i]) data.attrMap[i] = constructor.attrMap[i]
     }
@@ -422,11 +434,8 @@ function injectData(item, dataItem) {
             item.props.insData[i] = insData[i]
         }
     }
-    if (item.name === 'ElRadio') {
-        console.log('我是你们要找的人', x)
-    }
     if (attrMap) {
-        const replaceFun = (func, key, val) => {
+        const replaceFun = (func, key, val, name) => {
             let str = func.toString()
             for (let i in attrMap) {
                 if (str.indexOf(i) > -1) {
@@ -465,7 +474,7 @@ function injectData(item, dataItem) {
                     item.rawNativeOn[i] = item.nativeOn[i].toString()
                 }
                 if (item.rawNativeOn && item.rawNativeOn[i] && item.rawNativeOn[i].indexOf(x) > -1) {
-                    item.props.nativeOn[i] = item.nativeOn[i] = replaceFun(item.rawNativeOn && item.rawNativeOn[i] || item.nativeOn[i], x, attrMap[x])
+                    item.props.nativeOn[i] = item.nativeOn[i] = replaceFun(item.rawNativeOn && item.rawNativeOn[i] || item.nativeOn[i], x, attrMap[x], item.name)
                 }
             }
             for(let i in item.scopedSlots) {

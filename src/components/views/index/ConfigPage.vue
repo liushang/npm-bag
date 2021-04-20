@@ -37,6 +37,10 @@ export default {
      moduledId(val) {
        this.getModuleDetail(val)
      },
+     metaData(val) {
+       console.log('当前list变更')
+       console.log(val)
+     }
   },
   methods: {
       getModuleDetail(val) {

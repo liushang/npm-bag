@@ -24,6 +24,7 @@
             <span>{{editItem.props.rawId ? '模块' : '元素'}}别名</span>
             <a-input v-model="editItem.props.rawId" style="width: 140px;margin-bottom: 10px" size="small" v-if="editItem.props.rawId" ></a-input>
             <elInput v-model="editItem.props.subRawId" style="width: 140px;margin-bottom: 10px" size="mini" v-if="editItem.props.subRawId" />
+            <el-input placeholder="回车转换元素" v-if="!['oContainer', 'oRow'].includes(editItem.name)" v-model="changeNode" @keyup.enter.native="changeCurNode(editItem)" size="mini" style="width: 120px"></el-input>
             <el-collapse v-model="activeItems" @change="handleChange">
               <div v-for="(i, index) in propertiesList.filter(x => !['rawId', 'renderFunStr', 'subRawId', 'renderRawFun'].includes(x))" :key="index">
               <el-collapse-item  :name="valueNameMap[i]" v-if="!['rawId', 'renderFunStr', 'subRawId', 'renderRawFun'].includes(i)">
@@ -152,7 +153,8 @@ export default {
             attrName: '',
             lcConVal: '',
             moduledId: 57,
-            upDateRight: true
+            upDateRight: true,
+            changeNode: ''
         };
     },
     computed: {
@@ -237,6 +239,12 @@ export default {
         }
     },
     methods: {
+        changeCurNode(item) {
+          console.log(item);
+          const oldName = item.name;
+          item.name = this.changeNode;
+          item.props.subRawId = item.props.subRawId.replace(oldName, this.changeNode)
+        },
         closePanelDialog(e) {
           let component = this.$refs.infiniteObj.filter(x => x.tempAttrName)[0]
           component.tempAttrValue = JSON.parse(JSON.stringify(e))
