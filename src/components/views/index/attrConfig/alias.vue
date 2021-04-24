@@ -380,13 +380,13 @@ export default {
                     // 对函数字符串做处理
                     config.props.renderFun = config.renderFun = stringToFunc(config.props.renderFun.toString().replace('_this', 'this'))
                     for(let i in config.on) {
-                        config.props.on[i] = config.on[i] = stringToFunc(config.on[i].toString().replace('_this', 'this'))
+                        config.on[i] = stringToFunc(config.on[i].toString().replace('_this', 'this'))
                     }
                     for(let i in config.nativeOn) {
-                        config.props.nativeOn[i] = config.nativeOn[i] = stringToFunc(config.nativeOn[i].toString().replace('_this', 'this'))
+                        config.nativeOn[i] = stringToFunc(config.nativeOn[i].toString().replace('_this', 'this'))
                     }
                     for(let i in config.scopedSlots) {
-                        config.props.scopedSlots[i] = config.scopedSlots[i] = stringToFunc(config.scopedSlots[i].toString().replace('_this', 'this'))
+                        scopedSlots[i] = config.scopedSlots[i] = stringToFunc(config.scopedSlots[i].toString().replace('_this', 'this'))
                     }
                     config.props.subRawId = getRawId(config.name);
                     console.log(this.modifyItem[key].key)

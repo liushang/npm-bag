@@ -387,27 +387,28 @@ export default {
                         attrs: {},
                         children: [],
                         on: {},
-                        renderFun: x => x
+                        renderFun: function(x) { return x }
                     }
                     // const defaultConfig = JSON.parse(JSON.stringify(defaultNode[this.modifyItem[key].value]))
                     let config = {
                         name: this.modifyItem[key].value,
-                        props: deepClone(defaultNode[this.modifyItem[key].value]) || commonConfig,
+                        ...(deepClone(defaultNode[this.modifyItem[key].value]) || commonConfig),
+                        props: {}
                     };
-                    // 将标签元素的其他属性保持和props属性内存地址相同，用来适应组件配置数据
-                    for (let i in config.props) {
-                        config[i] = config.props[i];
-                    }
+                    // // 将标签元素的其他属性保持和props属性内存地址相同，用来适应组件配置数据
+                    // for (let i in config.props) {
+                    //     config[i] = config.props[i];
+                    // }
                     // 对函数字符串做处理
-                    config.props.renderFun = config.renderFun = stringToFunc(config.props.renderFun.toString().replace('_this', 'this'))
+                    config.renderFun = stringToFunc(config.renderFun.toString().replace('_this', 'this'))
                     for(let i in config.on) {
-                        config.props.on[i] = config.on[i] = stringToFunc(config.on[i].toString().replace('_this', 'this'))
+                        config.on[i] = stringToFunc(config.on[i].toString().replace('_this', 'this'))
                     }
                     for(let i in config.nativeOn) {
-                        config.props.nativeOn[i] = config.nativeOn[i] = stringToFunc(config.nativeOn[i].toString().replace('_this', 'this'))
+                        config.nativeOn[i] = stringToFunc(config.nativeOn[i].toString().replace('_this', 'this'))
                     }
                     for(let i in config.scopedSlots) {
-                        config.props.scopedSlots[i] = config.scopedSlots[i] = stringToFunc(config.scopedSlots[i].toString().replace('_this', 'this'))
+                        config.scopedSlots[i] = stringToFunc(config.scopedSlots[i].toString().replace('_this', 'this'))
                     }
                     config.props.subRawId = getRawId(config.name);
                     console.log(this.modifyItem[key].key)

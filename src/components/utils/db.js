@@ -40,8 +40,9 @@ function dealLcData (obj) {
         }
         dealChild(data)
     }
-    if (obj && obj.props && obj.props.children) {
-        for (let i of obj.props.children) {
+    const child = obj && obj.props && (obj.props.rawId &&  obj.props.children || obj.props.subRawId && obj.children ) || []
+    if (child.length) {
+        for (let i of child) {
             dealLcData(i)
         }
     }
@@ -55,8 +56,16 @@ export function onToFunc(iarr, on) {
                 i.props[on][y] = stringToFunc(i.props[on][y]);
             }
         }
+        if (i && i[on]) {
+            for (let y in i[on]) {
+                i[on][y] = stringToFunc(i[on][y]);
+            }
+        }
         if (i && i.props && i.props.children) {
             onToFunc(i.props.children, on);
+        }
+        if (i && i.children) {
+            onToFunc(i.children, on);
         }
     }
     return iarr;
@@ -64,12 +73,16 @@ export function onToFunc(iarr, on) {
 export function propertyStringToFunc(str) {
     for (let i of str) {
         if (i && i.props && (i.props.renderFun)) {
-            /* eslint-disable */
             i.props.renderFun = stringToFunc(i.props.renderFun);
-            /* eslint-enable */
+        }
+        if (i && i.renderFun) {
+            i.renderFun = stringToFunc(i.renderFun);
         }
         if (i && i.props && i.props.children) {
             propertyStringToFunc(i.props.children);
+        }
+        if (i && i.children) {
+            propertyStringToFunc(i.children);
         }
     }
     return str;

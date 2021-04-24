@@ -60,6 +60,7 @@
                 >
               <draggable-item
                 v-if="showNew"
+                ref="drag-item"
                   :key="item.renderKey"
                   :drawing-list="drawingList"
                   :current-item="item"
@@ -293,17 +294,40 @@ export default {
           }
           this.$root.$off('DEAL_CHOOSE');
           this.$root.$on('DEAL_CHOOSE', (item) => {
+              if (typeof item !== 'object') {
+                console.log(item)
+                let findComponent = (child) => {
+                  console.log(child)
+                  for (let i of child.$children) {
+                    console.log(i.rawId)
+                    if (i.rawId && i.rawId === item) {
+                      console.log('匹配陈宫')
+                      return i
+                    } else if (i.$children && i.$children.length) {
+                      let ii = findComponent(i)
+                      if (ii) return ii
+                    }
+                  }
+                }
+                item = findComponent(this.$refs['drag-item'][0])
+                console.log(item)
+              }
               if (this.previewItem) {
                   this.previewItem.style.border = '1px solid #e4e7ed';
                   if (this.previewItem.rawId !== item.rawId) this.clearSubBorder(this.drawingList);
               }
-              this.$set(item.style, 'border', '1px solid red');
-              let rawId = item.rawId;
-              setTimeout(() => {
-                  let activeSubItem = this.getRawIdItem(this.drawingList, rawId);
-                  if (activeSubItem) this.activeFormItem(activeSubItem);
-              }, 0);
-              this.previewItem = item;
+              // if (item.styles) {
+              //   this.$set(item.styles, 'border', '1px solid red');
+              // } 
+                this.$set(item.style, 'border', '1px solid red');
+              if(item) {
+                let rawId = item.rawId;
+                setTimeout(() => {
+                    let activeSubItem = this.getRawIdItem(this.drawingList, rawId);
+                    if (activeSubItem) this.activeFormItem(activeSubItem);
+                }, 0);
+                this.previewItem = item;
+              }
           });
         },
         codeValueChange(val) {
@@ -345,7 +369,6 @@ export default {
             //     children: []
             // });
           }
-          console.log(json)
           return json;
         },
         // 根据rawId获取对应的对象
@@ -355,8 +378,8 @@ export default {
                 if (i.props && i.props.rawId === id) {
                     return i;
                 } else {
-                    if (i.props && i.props.children) {
-                        let item = this.getRawIdItem(i.props.children, id);
+                    if (i.props && i.props.children || i.children) {
+                        let item = this.getRawIdItem(i.props.children || i.children, id);
                         if (item) return item;
                     }
                 }
@@ -388,18 +411,18 @@ export default {
                     attrs: {},
                     attrMap: {},
                     children: [],
+                    class: {},
                     on: {},
                     nativeOn: {},
                     scopedSlots: {},
                     slot: '',
                     props: {},
-                    renderFun: x => x
+                    renderFun: function(x) { return x }
                 }
                 const cofg = defaultNode[currentItem.name] && deepClone(defaultNode[currentItem.name]) || commonConfig
                 if (allHtmlNode.includes(currentItem.name)) delete commonConfig.nativeOn
                 if (!currentItem.props) this.$set(currentItem, 'props', {})
                 for (let i in cofg) {
-                    if (!currentItem.props[i]) this.$set(currentItem.props, i, cofg[i]);
                     if (!currentItem[i]) this.$set(currentItem, i, cofg[i]);
                 }
                 if (!currentItem.props.subRawId) {
@@ -407,15 +430,16 @@ export default {
                 }
             } else {
               // 容器组件
-              if (this.$root.$options.components[currentItem.name]) {
+              if (this.$root.$options.components[currentItem.name] && ['oRow', 'oContainer'].includes(currentItem.name)) {
                   const comOptions = getDefaultProps(this.$root.$options.components[currentItem.name].options);
                   for (let i in comOptions) {
                       if (!currentItem.props[i]) this.$set(currentItem.props, i, comOptions[i]);
                   }
                   if (!currentItem.props.rawId) currentItem.props.rawId = getRawId(currentItem.name);
+                  console.log(currentItem.name)
+                  this.activeData = currentItem;
               }
             }
-            this.activeData = currentItem;
         },
         // 添加组件 点击复制
         addComponent(item, index, whole) {
@@ -425,26 +449,13 @@ export default {
             } else {
               clone = this.cloneComponent(item);
             }
-            console.log(clone)
-            if (!clone.name.startsWith('o')) {
-              // 非容器组件 元素等
-              let num = this.$refs.rightPanel.editItem.props.children.length
-              // if (allHtmlNode.includes(clone.name)) {
-                // if (this.$refs.rightPanel.editItem.children !== this.$refs.rightPanel.editItem.props.children) {
-                  this.$refs.rightPanel.editItem.children && this.$refs.rightPanel.editItem.children.push(clone)
-                // }
-              // }
+            // 容器组件
+            if (this.$refs.rightPanel.editItem.props.rawId) {
               this.$refs.rightPanel.editItem.props.children.push(clone)
-              if (this.$refs.rightPanel.editItem.props.children.length - num === 2) {
-                this.$refs.rightPanel.editItem.props.children.pop()
-              }
-              this.activeFormItem(clone, index);
             } else {
-              // 容器组件
-              this.activeData.props.children.push(clone);
-              this.activeFormItem(clone, index);
+              this.$refs.rightPanel.editItem.children.push(clone)
             }
-            console.log(this.$refs.rightPanel.editItem)
+            this.activeFormItem(clone, index);
         },
         cloneComponent(origin) {
             return deepClone(origin);
@@ -458,7 +469,6 @@ export default {
           console.log(item)
         },
         drawingItemPage(item) {
-          console.log(saveDrawingList([item]))
           this.$emit('exportPageConfig', item)
         },
         drawingItemDelete(item, list) {
@@ -476,8 +486,6 @@ export default {
           this.showViewModel = true;
         },
         saveModuleCode(code) {
-          console.log('saveModuleCode')
-          console.log(code)
           this.waitNode = code
           this.showNodeModal = true;
         },
@@ -485,9 +493,7 @@ export default {
           this.$emit('saveModuleCode', this.waitNode, name, type)
         },
         injectNode(e) {
-          console.log(this.searchNode)
           let str = '[' + decodeURIComponent(this.searchNode.node_config) + ']'
-          console.log(getDrawingList(str))
           this.addComponent(getDrawingList(str)[0], 1, 1)
         }
     }

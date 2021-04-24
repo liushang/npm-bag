@@ -123,34 +123,15 @@ export default {
             currentIconModel: null,
             // 修改item
             modifyItem: {},
-            options: [{
-                value: '1',
-                label: '字符串'
-            }, {
-                value: '2',
-                label: '数字'
-            }, {
-                value: '3',
-                label: '布尔值'
-            }, {
-                value: '4',
-                label: '对象'
-            }, {
-                value: '5',
-                label: '数组'
-            }],
             cmOptions: {
                 tabSize: 2,
                 mode: 'text/javascript',
                 theme: 'base16-dark',
                 lineNumbers: true,
                 line: true,
-                
-                // more CodeMirror options...
             },
             tempCodeArr: [],
             activeItems: [],
-            subActivityData: {},
             elementList: [],
             attrDetail: {},
             showPanel: false,
@@ -202,8 +183,8 @@ export default {
             }
         },
         propertiesList() {
-            return Object.keys(this.editItem.props).sort((a, b) => {
-                return this.getValueLength(this.editItem.props[b]) - this.getValueLength(this.editItem.props[a]);
+            return Object.keys(this.editItemProperty).sort((a, b) => {
+                return this.getValueLength(this.editItemProperty[b]) - this.getValueLength(this.editItemProperty[a]);
             });
         },
         codemirror() {
@@ -231,7 +212,6 @@ export default {
           }
         },
         changingNodeList(val) {
-          console.log('changingNodeList')
           if (val.length > 0) {
             this.elementList = val
           }
@@ -283,7 +263,6 @@ export default {
             return 0;
         },
         onCmCodeChange(code) {
-          console.log(code);
             this.$emit('codeValueChange', code);
         },
         confirm() {
@@ -293,8 +272,6 @@ export default {
           this.lcConVal = code
         },
         changeFuncCode(code) {
-                console.log(code)
-                console.log(stringToFunc(code).toString())
             this.showFunctionDialog = false;
             this.$emit('renderAgain');
             const [ data, property, subProperty ] = this.tempCodeArr;
@@ -320,17 +297,17 @@ export default {
                 // if (htmlNode.includes(data[property][subProperty].name) || type === 'turn') {
                 // 展开子元素项 border变蓝色
                 // data[property][subProperty].styles.border = '1px solid red';
-                if (!data[property][subProperty].style) data[property][subProperty].style = {};
+                // if (!data[property][subProperty].style) this.$set(data[property][subProperty], 'style', {});
                 this.$emit('clearBorderBlue');
-                if (htmlNode.includes(data[property][subProperty].name) || elNode(data[property][subProperty].name)) {
-                    this.$set(data[property][subProperty].style, 'border', '1px solid rgb(64, 158, 255)');
+                if (['oContainer', 'oRow'].includes(data[property][subProperty].name)) {
+                  console.log(data[property][subProperty])
+                  // this.$set(data[property][subProperty].props.styles, 'border', '1px solid red');
+                  this.$root.$emit('DEAL_CHOOSE', data[property][subProperty].props.rawId);
                 } else {
-                    // todu 颜色边框
-                    // this.$set(data[property][subProperty].props.styles, 'border', '1px solid rgb(64, 158, 255)');
+                    this.$set(data[property][subProperty].style, 'border', '1px solid rgb(64, 158, 255)');
                 }
                 // this.$set(data[property][subProperty].style, 'display', 'inline-block');
-                this.subActivityData = data[property][subProperty];
-                this.elementList.push(this.subActivityData);
+                this.elementList.push(data[property][subProperty]);
             } else if (type === 'att') {
               // 属性-对象编辑窗
               this.showPanel = true;

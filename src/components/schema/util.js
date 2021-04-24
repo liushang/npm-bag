@@ -333,8 +333,6 @@ export function getRawId(name) {
 }
 function changeRawId(i) {
     if (i.props && (i.props.rawId || i.props.subRawId)) {
-        // if (i.props.subRawId) i.props.subRawId = i.props.subRawId.split('_')[0] + '_' + parseInt(Math.random() * 1000000)
-        // if (i.props.rawId) i.props.rawId = i.props.rawId.split('_')[0] + '_' + parseInt(Math.random() * 1000000)
     }
     if (i.props && i.props.children) {
         for (let x of i.props.children) {
@@ -433,7 +431,7 @@ function injectData(item, dataItem) {
                     item.rawOn[i] = item.on[i].toString()
                 }
                 if (item.rawOn && item.rawOn[i] && item.rawOn[i].indexOf(x) > -1) {
-                    item.props.on[i] = item.on[i] = replaceFun(item.rawOn && item.rawOn[i] || item.on[i], x, attrMap[x])
+                    item.on[i] = replaceFun(item.rawOn && item.rawOn[i] || item.on[i], x, attrMap[x])
                 }
             }
             for(let i in item.nativeOn) {
@@ -442,7 +440,7 @@ function injectData(item, dataItem) {
                     item.rawNativeOn[i] = item.nativeOn[i].toString()
                 }
                 if (item.rawNativeOn && item.rawNativeOn[i] && item.rawNativeOn[i].indexOf(x) > -1) {
-                    item.props.nativeOn[i] = item.nativeOn[i] = replaceFun(item.rawNativeOn && item.rawNativeOn[i] || item.nativeOn[i], x, attrMap[x], item.name)
+                    item.nativeOn[i] = replaceFun(item.rawNativeOn && item.rawNativeOn[i] || item.nativeOn[i], x, attrMap[x], item.name)
                 }
             }
             for(let i in item.scopedSlots) {
@@ -451,7 +449,7 @@ function injectData(item, dataItem) {
                     item.rawScopedSlots[i] = item.scopedSlots[i].toString()
                 }
                 if (item.rawScopedSlots && item.rawScopedSlots[i] && item.rawScopedSlots.indexOf(x) > -1) {
-                    item.props.scopedSlots[i] = item.scopedSlots[i] = replaceFun(item.rawScopedSlots && item.rawScopedSlots[i] || item.scopedSlots[i], x, attrMap[x])
+                    item.scopedSlots[i] = replaceFun(item.rawScopedSlots && item.rawScopedSlots[i] || item.scopedSlots[i], x, attrMap[x])
                 }
             }
             if (item.props.methods) {
@@ -479,12 +477,17 @@ function injectData(item, dataItem) {
         }
     }
 
-    if (item.props && item.props.renderFun && renderFun) {
-        item.props.renderFun = getFunctionReplace(renderFun);
+    if (item.props && renderFun) {
+        item.props.renderFun && (item.props.renderFun = getFunctionReplace(renderFun));
         item.renderFun && (item.renderFun = getFunctionReplace(renderFun));
     }
-    if (item.props && item.props.on && on) {
-        Object.assign(item.props.on, on)
+    if (item.props && on) {
+        let gg = item.on || item.props.on
+        for (let y in gg) {
+            if (scopedSlots[y]) {
+                gg[y] = getFunctionReplace(scopedSlots[y])
+            }
+        }
     }
     if (item.props && item.props.methods && methods) {
         Object.assign(item.props.methods, methods)
@@ -493,22 +496,22 @@ function injectData(item, dataItem) {
         Object.assign(item.props.watch, watch)
     }
     if (item.props && item.props.nativeOn && nativeOn) {
-        for (let y in item.props.nativeOn) {
+        let gg = item.nativeOn || item.props.nativeOn
+        for (let y in gg) {
             if (nativeOn[y]) {
-                item.props.nativeOn[y] = getFunctionReplace(nativeOn[y])
-                if (item.nativeOn[y]) item.nativeOn[y] = getFunctionReplace(nativeOn[y])
+                gg[y] = getFunctionReplace(nativeOn[y])
             }
         }
-        Object.assign(item.props.nativeOn, nativeOn)
+        // Object.assign(item.props.nativeOn, nativeOn)
     }
-    if (item.props && item.props.scopedSlots && scopedSlots) {
-        for (let y in item.props.scopedSlots) {
+    if (item.props && scopedSlots) {
+        let gg = item.scopedSlots || item.props.scopedSlots
+        for (let y in gg) {
             if (scopedSlots[y]) {
-                item.props.scopedSlots[y] = getFunctionReplace(scopedSlots[y])
-                if (item.scopedSlots[y]) item.scopedSlots[y] = getFunctionReplace(scopedSlots[y])
+                gg[y] = getFunctionReplace(scopedSlots[y])
             }
         }
-        Object.assign(item.props.scopedSlots, scopedSlots)
+        // Object.assign(gg, scopedSlots)
     }
     function getFunctionReplace(func) {
         // 函数替换配置中的变量map
