@@ -18,14 +18,12 @@ export function deepClone(obj) {
 }
 
 export function deepCloneEnhance(obj, item) {
-    // 判断拷贝的要进行深拷贝的是数组还是对象，是数组的话进行数组拷贝，对象的话进行对象拷贝
     let objClone = Array.isArray(obj) ? [] : {};
     if (item && !Array.isArray(obj)) {
         let appendItem = function(object, data) {
                 if (typeof object === 'object') {
                     if (!object.raw.props.scope) object.raw.props.scope = {}
                     if (!object.raw.scope) object.raw.scope = {}
-                    // object.raw.scope[i] = data[i]
                     object.raw.props.scope = Object.assign(object.raw.props.scope, data)
                     object.raw.scope = Object.assign(object.raw.scope, data)
                 }
@@ -65,22 +63,13 @@ export function analysisDataRender(configComponents) {
             const childrenData = {
                 name: configComponents[i].name,
                 raw: rawData,
-                // ...((rawData || {}).scope || {})
-                // children: configComponents[i].children || []
             }
             let scopes = rawData.scope || {}
             for (let i in scopes) {
                 childrenData[i] = scopes[i]
             }
-            // if (configComponents[i].children) {
-            //     childrenData.values = analysisDataRender.bind(this)(configComponents[i].children);
-            // } else {
-            //     childrenData.values = [];
-            // }
             let childrenArr = [childrenData];
             childrenData.values = [];
-            if (configComponents[i].name === 'div') {
-            }
             if (configComponents[i].name === 'oRow') {
                 if (rawData.props.on) {
                     for (let x in rawData.props.on) {
@@ -104,7 +93,6 @@ export function analysisDataRender(configComponents) {
                         } else if (typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
                             xx.values = []
                         } else {
-                            console.log('处理剩下的值', xx)
                         }
                     }
                 }
@@ -120,8 +108,8 @@ export function analysisDataRender(configComponents) {
                     }
                 }
             })
-            let funcss = (configComponents[i].name !== 'oRow' && rawData.renderFun && stringToFunc(rawData.renderFun)) || (x => x)
-            childrenArr = funcss.bind(this)(childrenData)
+            let renderFun = (configComponents[i].name !== 'oRow' && rawData.renderFun && stringToFunc(rawData.renderFun)) || (x => x)
+            childrenArr = renderFun.bind(this)(childrenData)
             if (!Array.isArray(childrenArr)) {
                 childrenArr = [childrenArr]
             }
@@ -135,12 +123,11 @@ export function analysisDataRender(configComponents) {
                             }
                         }
                     }
-                    // render函数并没有 render子元素  子元素的赋值需要留在下一级
                     xx.values = analysisDataRender.bind(this)(configComponents[i].children)
                 } else if (typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
                     xx.values = []
-                } else {
-                    console.log('处理剩下的值', xx)
+                // } else {
+                //     console.log('处理剩下的值', xx)
                 }
             }
             configData.push(...childrenArr);
@@ -178,15 +165,11 @@ function dealChild(child, cb) {
             on: child.raw.on,
             nativeOn: child.raw.nativeOn,
             directives: child.raw.directives,
-            // scopedSlots: child.raw.scopedSlots,
-            // slot: child.raw.slot,
             key: child.raw.key,
             ref: child.raw.ref,
             refInFor: child.raw.refInFor
         };
         if (child.raw.slot) item.slot = child.raw.slot
-        // console.log(child.raw, child.name)
-        // if (child.raw.slot) console.log(child.raw.slot, '我我我我我我')
         if (!item.scopedSlots) {
             item.scopedSlots = {}
             for (let i in child.raw.scopedSlots) {
@@ -196,7 +179,6 @@ function dealChild(child, cb) {
                         let ee = o(a)
                         if (ee) {
                             return dealSlotNode.bind(this)(cb, ee)
-                            // return cb(ee.name, { on: ee.on }, ee.children )
                         }
                     }
                 }
@@ -297,34 +279,20 @@ function dealSlotNode(cb, item) {
     }
 }
 export function stringToFunc(str) {
-    // const deepClone = function deepClone(obj) {
-    //     // 判断拷贝的要进行深拷贝的是数组还是对象，是数组的话进行数组拷贝，对象的话进行对象拷贝
-    //     let objClone = Array.isArray(obj) ? [] : {};
-    //     // 进行深拷贝的不能为空，并且是对象或者是
-    //     if (obj && typeof obj === 'object') {
-    //         for (let key in obj) {
-    //             if (obj.hasOwnProperty(key)) {
-    //                 if (obj[key] && typeof obj[key] === 'object') {
-    //                     objClone[key] = deepClone(obj[key]);
-    //                 } else {
-    //                     objClone[key] = obj[key];
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return objClone;
-    // };
-    // const deepCloneEnhance = deepCloneEnhance;
     if (typeof str === 'string') {
         let newStr = `return ${str.replace('[native code]', '')}`
-        let newFun = new Function(newStr)
+        let newFun
+        try {
+            newFun = new Function(newStr)
+        } catch (error) {
+            throw new Error(error)
+        }
         let newnew = newFun()
         return newnew
     } else {
         return str
     }
 }
-
 export function getDefaultProps (config) {
     let props = config.props || {};
     let propsIns = {};
@@ -404,7 +372,7 @@ export function analysisInjectData(constructor, data = {attrMap: {}}, parentRawI
     } else if (subRawId && constructor.children && constructor.children.length) {
         // 元素子元素注入
         for (let i of constructor.children) {
-            if (i.props) {
+            if (i && i.props) {
                 if (i.props.rawId && data[i.props.rawId]) {
                     // 如果检测到的是组件，按组件注入
                     analysisInjectData(i, all[i.props.rawId], parentRawId, all)

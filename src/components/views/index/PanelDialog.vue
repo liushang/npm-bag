@@ -85,6 +85,7 @@ export default {
         },
         onJsonSave(e) {
             console.log('onJSONSave');
+            console.log(JSON.stringify(this.modeJson))
             this.modeJson = e;
             return this.modeJson;
         },

@@ -104,7 +104,7 @@ export const defaultKV = {
         },
         ...commonComponent
     },
-    oButton: {
+    ElButton: {
         attrs: {
             type: {
                 label: '类型',
@@ -116,7 +116,7 @@ export const defaultKV = {
             },
             plain: {
                 label: '平铺',
-                value: [ 1, 0 ]
+                value: [ true, false ]
             },
             round: {
                 label: '圆角按钮',
@@ -299,7 +299,19 @@ const elDefaultNode = {
         on: {},
         nativeOn: {},
         scopedSlots: {},
-        renderFun: x => {
+        renderFun: function (x){
+          return x  
+        },
+    },
+    ElTable: {
+        attrs: {},
+        style: {},
+        children: [],
+        on: {},
+        nativeOn: {},
+        scopedSlots: {},
+        renderFun: function (x){
+            x.data = this.lcData.list || [];
             return x
         },
     },
@@ -312,7 +324,8 @@ const elDefaultNode = {
             elSelect_value: ''
         },
         attrs: {
-            value: 1
+            value: 1,
+            size: 'mini'
         },
         on: {
             input: e => e
@@ -338,12 +351,19 @@ const elDefaultNode = {
         on: {},
         nativeOn: {
             click: function(e) {
+                console.log(e.currentTarget.value)
+                console.log(e.target.value)
+                console.log(e.currentTarget)
+                console.log(e.target)
                 this.lcData.elSelect_value = e.currentTarget.value;
             }
         },
-        renderFun: x => {
-            return (this.lcData.elOption_items||[]).map(function (i) {
-                var vv = deepClone(x);vv.label = i.label;vv.value = i.value;return vv;
+        renderFun: function(x) {
+            return (this.lcData.elOption_items || []).map(function (i) {
+                var vv = deepClone(x);
+                vv.label = i.label;
+                vv.value = i.value;
+                return vv;
             });
         },
     },
@@ -380,10 +400,11 @@ const elDefaultNode = {
             click: function(e) {
                 this.lcData.elRadio_value = +e.target.value;
                 console.log(e.target.value);
+                console.log(e.target);
             }
         },
         renderFun: function(x) {
-            return ((this.lcData || {}).elRadio_items||[]).map(function (i) {
+            return (this.lcData.elRadio_items || []).map(function (i) {
                 var vv = deepClone(x);vv.label = +i.value;vv.values[0] = i.label;return vv;
             });
         },
@@ -393,8 +414,13 @@ const elDefaultNode = {
             size: 'small',
             type: 'primary'
         },
+        style: {},
         children: [ '确定' ],
-        on: {},
+        on: {
+            click: function(e) {
+                e.preventDefault();
+            }
+        },
         nativeOn: {},
         renderFun: x => {
             return x
@@ -412,13 +438,13 @@ const elDefaultNode = {
         },
         on: {
             close: function() {
-                (this.lcData || {}).showDialog = false
+                this.lcData.showDialog = false
             }
         },
         nativeOn: {
         },
-        renderFun: x => {
-            x.visible=(this.lcData || {}).showDialog;
+        renderFun: function(x) {
+            x.visible = this.lcData.showDialog;
             return x;
         },
     },
@@ -446,7 +472,31 @@ const elDefaultNode = {
         },
         nativeOn: {},
         renderFun: function(x) {
-            x.value = (this.lcData || {}).elDatePicker_value;
+            x.value = this.lcData.elDatePicker_value;
+            return x
+        },
+    }
+}
+const otherCompNode = {
+    codemirror: {
+        attrs: {
+        },
+        children: [],
+        attrMap: {
+            elDatePicker_value: ''
+        },
+        on: {},
+        nativeOn: {},
+        renderFun: function(x) {
+            x.option = {
+                tabSize: 4,
+                mode: "text/javascript",
+                theme: "base16-dark",
+                lineNumbers: true,
+                line: true,
+                smartIndext: true,
+                indentUnit: 2
+            }
             return x
         },
     }
@@ -454,5 +504,6 @@ const elDefaultNode = {
 // todo 增加其他元素
 export const defaultNode = {
     ...htmlDefaultNode,
-    ...elDefaultNode
+    ...elDefaultNode,
+    ...otherCompNode
 };

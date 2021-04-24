@@ -3,7 +3,9 @@ import {
     stringToFunc
 } from '../../../schema/util';
 import { deepClone } from '../../../utils/index';
-
+import {
+    getDrawingList,
+} from '../../../utils/db';
 import { defaultKV, htmlNode, defaultNode } from './default';
 export default {
     data() {
@@ -22,6 +24,9 @@ export default {
         }, {
             value: '5',
             label: '数组'
+        }, {
+            value: '6',
+            label: '数据字符串'
         }];
         return {
             // 编辑对象
@@ -31,7 +36,8 @@ export default {
                 '2': 0,
                 '3': false,
                 '4': {},
-                '5': []
+                '5': [],
+                '6': '',
             },
             valueTypeMap: {
                 '1': e => <el-input size="small" v-model={e.value} style="width: 100px" />,
@@ -41,7 +47,8 @@ export default {
                               <el-radio label={false}>false</el-radio>
                           </el-radio-group>,
                 '4': e => '',
-                '5': e => ''
+                '5': e => '',
+                '6': e => <el-input size="small" v-model={e.value} style="width: 100px" />
             },
             // 默认是自定义属性
             addType: false,
@@ -98,12 +105,14 @@ export default {
             const val = a[b][c]
             if (val.name) {
                 // 为组件
+                console.log(c)
                 return (<span class="value-string">
-                    {/* 转向组件编辑 */}
                     <span onClick={() => this.analysisProperty('turn', a, b, c)}>{val.name}</span>
-                    {/* 查看代码 */}
                     <span onClick={() => this.analysisProperty('code', a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">查看</span>
                     <span onClick={() => this.saveModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">存储</span>
+                    <span onClick={() => this.copyModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">copy</span>
+                    {c ? <span onClick={() => this.upModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">up</span>: ''}
+                    {c !== a[b].length - 1 ? <span onClick={() => this.downModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">down</span>: '' }
                 </span>)
             } else {
                 // 函数字符串渲染，点击查看函数
@@ -152,7 +161,7 @@ export default {
         }
         return (<div>
             {propertyList.map(x => {
-                return (<div style="padding: 5px 0 5px 40px">
+                return (<div style="padding: 5px 0 5px 10px">
                     <span>
                         {/* key为数字、字符串、布尔值、函数 不展示key，其他获取是否有别名后再展示 */}
                         {['string', 'number', 'boolean', 'function'].includes(typeof this.activeData[rootWord]) ? '' : this.getAlias(this.activeData, rootWord, x)}
@@ -356,7 +365,7 @@ export default {
         saveProperty(key, data = this.activeData) {
             if (!(key in data)) this.$set(data, key, {});
             // 修改对象非数组、对象的情况
-            if (this.modifyItem[key].type !== '4' && this.modifyItem[key].type !== '5') {
+            if (!['4', '5', '6'].includes(this.modifyItem[key].type)) {
                 // 如果输入的是容器组件名字。则增加容器组件的相关配置
                 if (this.$root.$options.components[this.modifyItem[key].value] && this.modifyItem[key].value.startsWith('o')) {
                     const comOptions = this.$root.$options.components[this.modifyItem[key].value].options;
@@ -414,9 +423,19 @@ export default {
                     if (this.modifyItem[key].type === '2') value = +value;
                     if (this.modifyItem[key].type === '3') value = !!value;
                     this.$set(this.activeData[key], this.modifyItem[key].key, value);
+                    console.log('212123')
                 }
             } else if(['4', '5'].includes(this.modifyItem[key].type)) {
                 this.$set(this.activeData[key], this.tempAttrName, this.tempAttrValue);
+            } else if (['6'].includes(this.modifyItem[key].type)) {
+                const obg = getDrawingList('[' + this.modifyItem[key].value + ']')
+                console.log(obg)
+                if (this.activeData.children.length <= this.modifyItem[key].key ) {
+                    this.activeData.children.push(obg[0])
+                } else {
+                    this.activeData.children.splice(this.modifyItem[key].key, 0, obg[0] )
+                }
+                
             }
             this.$delete(this.modifyItem, key);
         },
@@ -449,6 +468,45 @@ export default {
         saveModuleCode(data, property, subProperty) {
             console.log(data[property][subProperty])
             this.$emit('saveModuleCode', data[property][subProperty])
+        },
+        upModuleCode(data, property, subProperty) {
+            // console.log(data)
+            // console.log(property)
+            // console.log(subProperty)
+            const fieldData = data[property]
+            if(subProperty != 0){
+                fieldData[subProperty] = fieldData.splice(subProperty-1, 1, fieldData[subProperty])[0];
+            } else {
+                fieldData.push(fieldData.shift());
+            }
+        },
+        downModuleCode(data, property, subProperty) {
+            const fieldData = data[property]
+            if(subProperty != fieldData.length-1){
+                fieldData[subProperty] = fieldData.splice(+subProperty + 1, 1, fieldData[subProperty])[0];
+                console.log(fieldData[subProperty])
+            }else{
+                this.$message.error('已经达到最底')
+                // fieldData.unshift(fieldData.splice(subProperty, 1 )[0]);
+            }
+        },
+        copyModuleCode(data, property, subProperty) {
+            const value = JSON.stringify(data[property][subProperty], function(key, value) {
+                if (typeof value === 'function') {
+                    return value.toString();
+                } else {
+                    return value;
+                }
+            });
+            let transfer = document.createElement('input');
+            document.getElementsByClassName('drawing-board')[0].appendChild(transfer);
+            transfer.value = value;
+            transfer.focus();
+            transfer.select();
+            document.execCommand('copy');
+            transfer.blur();
+            document.getElementsByClassName('drawing-board')[0].removeChild(transfer);
+            this.$message.success('复制成功');
         }
     }
 };

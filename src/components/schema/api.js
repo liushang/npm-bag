@@ -1,14 +1,7 @@
 
-import { analysisRenderConfig, analysisDataRender, deepClone, deepCloneEnhance } from './util';
-
-export function created() {
-    this.configData = analysisDataRender(this.configComponents.children);
-}
-
+import { analysisRenderConfig, analysisDataRender } from './util';
 export const computed = {
     configData() {
-        const deepClone = deepClone;
-        const deepCloneEnhance = deepCloneEnhance;
         return analysisDataRender.bind(this)(this.configComponents.children);
     },
 };

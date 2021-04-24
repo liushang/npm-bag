@@ -16,10 +16,6 @@ export function getElementList (list) {
                 elList.push({
                     name: i,
                     props: {},
-                    __config__: {
-                        label: i,
-                        layout: 'oFormItem'
-                    }
                 })
             } else {
                 elRareList.push(i)
@@ -32,13 +28,37 @@ export function getElementList (list) {
             return {
                 name: x,
                 props: {},
-                __config__: {
-                    label: x,
-                    layout: 'oFormItem'
-                }
             }
         })
     })
+    return elList;
+}
+export function getAntDesignList (list) {
+    // let elCommonList = [ 'ElRow', 'ElCol', 'ElInput', 'ElSelect', 'ElOption', 'ElButton', 'ElTable', 'ElForm', 'ElItem', 'ElFormItem', 'ElRadioGroup', 'ElRadio', 'ElDatePicker' ]
+    let elRareList = []
+    let elList = []
+    for(let i in list) {
+        if (i.startsWith('A')) {
+                elList.push({
+                    name: i,
+                    props: {},
+                })
+        }
+    }
+    return elList;
+}
+export function getOtherComList (list) {
+    let elRareList = []
+    let elList = []
+    for(let i in list) {
+        if (!i.startsWith('A') && !i.startsWith('El') && !i.startsWith('o')) {
+                elList.push({
+                    name: i,
+                    props: {},
+                })
+                elRareList.push(i)
+        }
+    }
     return elList;
 }
 

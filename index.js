@@ -16,6 +16,7 @@ _Vue.prototype.$axios = axios;
 window.$axios = axios;
 _Vue.use(ElementUI);
 _Vue.use(iicarus)
+console.log(this)
 Main.install = Vue => {
 if (!Vue) {
 window.Vue = Vue = _Vue

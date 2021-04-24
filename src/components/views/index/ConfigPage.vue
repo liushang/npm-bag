@@ -2,7 +2,7 @@
 <div class="config-page">
     <div style="margin: 10px 0 15px">
       <div style="margin: 10px 0 0">当前处于{{metaData[metaData.length - 1].name}}节点</div>
-      您可使用 <el-input v-model="moduledId" size="mini" style="width: 80px" placeholder="输入配置页面id"></el-input> ({{moduleName}})配置
+      您可使用 <el-input v-model="moduledId" size="mini" style="width: 80px" @keyup.enter.native="getModuleDetail(moduledId)" placeholder="输入配置页面id"></el-input> ({{moduleName}})配置
     </div>
     <ogvdesign :constructure="dataConfig" v-if="dataConfig" :propData="propData" :metaData="metaData"></ogvdesign>
 </div>

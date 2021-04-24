@@ -1,6 +1,6 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../../../schema/api';
-import { dealMultiChildren, deepClone, deepCloneEnhance } from '../../../schema/util';
+import { dealMultiChildren, deepClone } from '../../../schema/util';
 import baseAttr from '../base/attrs';
 let base = {
     data() {
@@ -30,7 +30,6 @@ let base = {
                 };
             }
         },
-        // 以下属性正式环境下皆为 data
         attrs: {
             type: Object,
             default: () => {
@@ -76,10 +75,6 @@ let base = {
             type: String,
             default: 'oContainer'
         },
-        // slot: {
-        //     type: String,
-        //     default: ''
-        // },
         computed: {
             type: Object,
             default: () => {}
@@ -103,8 +98,7 @@ let base = {
     },
     render,
     methods: {
-        deepClone: deepClone,
-        deepCloneEnhance: deepCloneEnhance
+        deepClone
     },
     provide() {
         return {
@@ -113,7 +107,6 @@ let base = {
             containerInject: this.rootData
         };
     },
-    // inject: [ 'containerInject', 'propData', 'metaData' ],
     inject: {
         containerInject: {
             default: () => {}
@@ -126,31 +119,20 @@ let base = {
         },
     },
     watch: {
-        metaData(val) {
-            console.log('metaData变更', val)
-        },
+        metaData(val) {},
         metaData: {
-            handle(val) {
-                console.log('metaDatabbbb', val)
-            },
+            handle(val) {},
             deep: true
         },
-        propData(val) {
-            console.log('propData变更', val)
-        }
+        propData(val) {}
     },
     computed: {
         ...computed,
-        // ...(this.computed || {oo:() => this.lcData}),
-        // ...Object.assign({}, this.computed),
-        // oo() {
-        //     return this.lcData.form.status + 11
-        // },
-        // computed,
         rootData() {
             return (this.env === 'dev' ? this.containerInject : this.container) || {};
         },
         configComponents() {
+            // 方法作用域绑定
             for (let i in this.on) {
                 let func = this.on[i];
                 this.on[i] = (e) => {
@@ -175,7 +157,6 @@ let base = {
                 on: {
                     click: e => {
                         e.stopPropagation();
-                        // this.$set(this.container[this.containerId], 'methods', this.methods);
                     },
                     ...this.on
                 },
@@ -215,16 +196,14 @@ let base = {
         }
     },
     created() {
+        this.containerId = 'oContainer'
         this.lcData = deepClone(this.insData)
-        console.log(this.lcData)
         for(let i in this.methods) {
             this[i] = this.methods[i]
         }
         for(let i in this.watch) {
-            console.log('lcData.' + i)
             this.$watch('lcData.' + i, this.watch[i].bind(this))
         }
-        this.containerId = 'oContainer'
         if (!this.rootData[this.containerId]) {
             this.$set(this.rootData, this.containerId, {});
         }
@@ -233,16 +212,23 @@ let base = {
     },
     mounted() {
         this.mounted && this.mounted()
-        setTimeout(() => {
-            // this.containerInject = {}
-            // for(let i in this.containerInject) {
-            //     this.$set(this.containerInject, i, undefined);
-            // }
-            for(let i in this.rootData) {
-                this.containerInject && this.$set(this.containerInject, i, this.rootData[i])
-            }
-        }, 2000)
-        console.log(this.prData)
+        // setTimeout(() => {
+        //     for(let i in this.rootData) {
+        //         this.containerInject && this.$set(this.containerInject, i, this.rootData[i])
+        //     }
+        // }, 2000)
+    },
+    beforeUpdate() {
+        this.beforeUpdate && this.beforeUpdate()
+    },
+    updated() {
+        this.updated && this.updated()
+    },
+    beforeDestroy() {
+        this.beforeUpdate && this.beforeUpdate()
+    },
+    destroyed() {
+        this.destroyed && this.destroyed()
     }
 };
 export default base;

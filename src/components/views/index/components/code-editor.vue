@@ -8,7 +8,6 @@
     <codemirror v-model="code" :options="cmOptions" ref="cmEditor"/>
   </div>
 </el-dialog>
-
   <!-- Two-way Data-Binding -->
 
   <!-- Or manually control the data synchronization -->
@@ -23,9 +22,11 @@
 </template>
 
 <script>
+import {
+    stringToFunc
+} from '../../../schema/util';
 // import language js
 import 'codemirror/mode/javascript/javascript.js';
-
 // import theme style
 import 'codemirror/theme/base16-dark.css';
 
@@ -41,7 +42,9 @@ export default {
                 mode: 'text/javascript',
                 theme: 'base16-dark',
                 lineNumbers: true,
-                line: true
+                line: true,
+                smartIndext: true,
+                indentUnit: 2
             }
         };
     },
@@ -63,6 +66,8 @@ export default {
             this.code = newCode;
         },
         close() {
+            console.log(JSON.stringify(this.code))
+            // this.code = stringToFunc(JSON.stringify(this.code))
             this.$emit('close', this.code);
         }
     },
@@ -72,6 +77,7 @@ export default {
         }
     },
     mounted() {
+        console.log(this.dataStr)
         this.code = this.dataStr;
     }
 };

@@ -12,8 +12,16 @@ export default {
         children = props.children
       }
       return children.map((x, xndex) => {
-        if (x.name) {
-          return (<a-tree-node key={parentIndex + '-' + xndex} onSelect={() => this.setNewNode(data, parentIndex, xndex)} title={x.props && (x.props.rawId || x.props.subRawId) || ''}>
+        if (x && x.name) {
+          return (<a-tree-node key={parentIndex + '-' + xndex} onSelect={() => this.setNewNode(data, parentIndex, xndex)} >
+              <a-popover slot="title" placement="right">
+                <template slot="content">
+                  <p>{(x.renderFun || x.props.renderFun).toString()}</p>
+                </template>
+                <span style="color: #1890ff">
+                  {x.props && (x.props.rawId || x.props.subRawId) || ''}
+                </span>
+              </a-popover>
           {this.getTreeNode(x, parentIndex + '-' + xndex)}
         </a-tree-node>)
         } else {

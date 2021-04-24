@@ -17,17 +17,17 @@ export function getDrawingList(detailStr) {
     // }
 
     const str = detailStr || localStorage.getItem(DRAWING_ITEMS);
-    // if (str) return propertyStringToFunc(JSON.parse(str))
     if (str) {
         let abc = onToFunc(onToFunc(onToFunc(onToFunc(onToFunc(onToFunc(propertyStringToFunc(JSON.parse(str)), 'on'), 'methods'), 'nativeOn'), 'computed'), 'scopedSlots'), 'watch')
-        console.log(abc)
         return [dealLcData(abc[0])]
     };
     return null;
 }
+window.strToObj = getDrawingList
+window.stringToFunc = stringToFunc
 function dealLcData (obj) {
     // 还要增加对子inData的处理
-    if (obj.props && obj.props.insData) {
+    if (obj && obj.props && obj.props.insData) {
         const data = obj.props.insData
         const dealChild = (data) => {
             for(let i in data) {
@@ -40,7 +40,7 @@ function dealLcData (obj) {
         }
         dealChild(data)
     }
-    if (obj.props && obj.props.children) {
+    if (obj && obj.props && obj.props.children) {
         for (let i of obj.props.children) {
             dealLcData(i)
         }
@@ -48,13 +48,14 @@ function dealLcData (obj) {
     return obj
 }
 export function onToFunc(iarr, on) {
+
     for (const i of iarr) {
-        if (i.props && (i.props[on])) {
+        if (i && i.props && (i.props[on])) {
             for (let y in i.props[on]) {
                 i.props[on][y] = stringToFunc(i.props[on][y]);
             }
         }
-        if (i.props && i.props.children) {
+        if (i && i.props && i.props.children) {
             onToFunc(i.props.children, on);
         }
     }
@@ -62,41 +63,17 @@ export function onToFunc(iarr, on) {
 }
 export function propertyStringToFunc(str) {
     for (let i of str) {
-        if (i.props && (i.props.renderFun)) {
-            // let funStr = i.props.renderFun;
-            // // 获取函数体
-            // let funLast = funStr.slice(funStr.indexOf('{') + 1);
-            // let funMiddle = funLast.slice(0, funLast.lastIndexOf('}'));
-            // // 获取函数参数
-            // let funPre = funStr.slice(funStr.indexOf('(') + 1);
-            // let funNamePre = funPre.slice(0, funPre.indexOf(')'));
-            // let funNameArr = funNamePre.split(',');
-            // i.props.renderFunStr = i.props.renderFun;
+        if (i && i.props && (i.props.renderFun)) {
             /* eslint-disable */
             i.props.renderFun = stringToFunc(i.props.renderFun);
             /* eslint-enable */
         }
-        if (i.props && i.props.children) {
+        if (i && i.props && i.props.children) {
             propertyStringToFunc(i.props.children);
         }
     }
     return str;
 }
-
-// export function stringToFunc(str, self) {
-//     let funStr = str;
-//     // 获取函数体
-//     let funLast = funStr.slice(funStr.indexOf('{') + 1);
-//     let funMiddle = funLast.slice(0, funLast.lastIndexOf('}'));
-//     // 获取函数参数
-//     let funPre = funStr.slice(funStr.indexOf('(') + 1);
-//     let funNamePre = funPre.slice(0, funPre.indexOf(')'));
-//     let funNameArr = funNamePre.split(',');
-//     /* eslint-disable */
-//     if (self) return new Function(self, ...funNameArr, funMiddle);
-//     return new Function(...funNameArr, funMiddle);
-//     /* eslint-enable */
-// }
 
 export function saveDrawingList(list) {
     let json = JSON.stringify(list, function(key, value) {

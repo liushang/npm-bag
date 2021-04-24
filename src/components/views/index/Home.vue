@@ -20,7 +20,7 @@
                   :key="index"
                   class="components-item"
                 >
-                  <div class="components-body" v-if="element.__config__" @click="addComponent(element, listIndex)">
+                  <div class="components-body" v-if="element.name" @click="addComponent(element, listIndex)">
                     {{ element.name }}
                   </div>
                   <el-collapse v-else>
@@ -122,7 +122,7 @@ import PanelDialog from './PanelDialog';
 import ViewModel from './ViewModel';
 import TreeModel from './TreeModel'
 import {
-    inputComponents, selectComponents, layoutComponents, formConf, oComponents, getElementList, getHtmlLabel
+    inputComponents, selectComponents, layoutComponents, formConf, oComponents, getElementList, getHtmlLabel, getAntDesignList, getOtherComList
 } from '../../components/generator/config';
 import {
     deepClone
@@ -207,8 +207,11 @@ export default {
                 title: 'element',
                 list: getElementList(this.$root.$options.components)
               }, {
+                title: 'antDesign',
+                list: getAntDesignList(this.$root.$options.components)
+              }, {
                 title: '全局组件',
-                list: []
+                list: getOtherComList(this.$root.$options.components)
               }
             ],
             // 点击的组件结构数据
@@ -259,7 +262,6 @@ export default {
               if (val) {
                 drawingListInDB = getDrawingList(val)
                 this.showNew = false
-                // this.showRightPanel = false
                 setTimeout(() => {
                   this.activeData = drawingListInDB[0]
                   this.init()

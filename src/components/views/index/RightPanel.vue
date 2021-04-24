@@ -40,7 +40,7 @@
                   </span>
                 </template>
                 <component
-                  :is="i === 'attrMap' ? 'Alias' : 'InfiniteObject'"
+                  :is="compMap[i] ? compMap[i] : 'InfiniteObject'"
                   ref="infiniteObj"
                   :modifyItem="modifyItem"
                   :activeData="editItemProperty"
@@ -77,13 +77,15 @@
       v-if="showPanel"
       @close="closePanelDialog"
     />
-    <codeEditor :dataStr="renderCode" v-if="activeData && activeData.props && activeData.props.renderFun && showFunctionDialog" :options="cmOptions" @close="changeFuncCode" ref="cmEditor"/>
+    <codeEditor :dataStr="renderCode"
+      v-if="activeData && activeData.props && activeData.props.renderFun && showFunctionDialog"
+      :options="cmOptions" @close="changeFuncCode" ref="cmEditor"/>
   </div>
 </template>
  
 <script>
 import InfiniteObject from './components/infiniteObject.js';
-import CodeEditor from '../OGV-form-design/components/code-editor';
+import CodeEditor from './components/code-editor';
 import { saveFormConf,
     stringToFunc
 } from '../../schema/util';
@@ -93,6 +95,7 @@ import 'codemirror/theme/base16-dark.css';
 import BASEMAP from './base/map';
 import PanelDialog from './PanelDialog';
 import Alias from './attrConfig/alias'
+import Children from './attrConfig/Children'
 import ConfigPage from './ConfigPage';
 export default {
     components: {
@@ -100,13 +103,13 @@ export default {
         CodeEditor,
         PanelDialog,
         Alias,
+        Children,
         ConfigPage
     },
     props: ['showField', 'activeData', 'formConf', 'containerInject', 'basicDataChange', 'configData', 'changingNodeList' ],
     mounted() {
       console.log('我是注入数据')
       console.log(this.configData);
-      
     },
     data() {
         return {
@@ -141,7 +144,8 @@ export default {
                 mode: 'text/javascript',
                 theme: 'base16-dark',
                 lineNumbers: true,
-                line: true
+                line: true,
+                
                 // more CodeMirror options...
             },
             tempCodeArr: [],
@@ -154,7 +158,11 @@ export default {
             lcConVal: '',
             moduledId: 57,
             upDateRight: true,
-            changeNode: ''
+            changeNode: '',
+            compMap: {
+              attrMap: 'Alias',
+              // children: 'Children'
+            },
         };
     },
     computed: {
@@ -187,9 +195,10 @@ export default {
         renderCode() {
             const [ data, property, subProperty ] = this.tempCodeArr;
             if (data[property][subProperty]) {
-                return data[property][subProperty].toString().replace(/[\r\n]/, '');
+                return data[property][subProperty].toString();
             } else {
-                return data[property].toString().replace(/[\r\n]/g, '').replace(/[\r\n]/, '');
+              console.log(data[property].toString())
+                return data[property].toString();
             }
         },
         propertiesList() {
@@ -284,6 +293,8 @@ export default {
           this.lcConVal = code
         },
         changeFuncCode(code) {
+                console.log(code)
+                console.log(stringToFunc(code).toString())
             this.showFunctionDialog = false;
             this.$emit('renderAgain');
             const [ data, property, subProperty ] = this.tempCodeArr;

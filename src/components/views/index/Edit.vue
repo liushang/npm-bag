@@ -31,7 +31,7 @@
                 <el-input v-model="moduleName" style="width: 120px" size="small" v-show="moduleId"></el-input>
             </el-col>
             <el-col :span="4">
-                <el-button size="small" @click="save">保存</el-button>
+                <el-button size="small" @click="save" type="primary">保存</el-button>
                 <!-- <el-button size="small">更新</el-button> -->
             </el-col>
         </el-row>
@@ -57,7 +57,6 @@
 
 <script type="module">
 import Home from "./Home.vue"
-import Vue from 'vue'
 export default {
     name: "index",
     data() {
@@ -69,7 +68,7 @@ export default {
                 label: "-- 新增 --",
                 value: 0
             }],
-            moduleId: 50,
+            moduleId: 59,
             modules: [{
                 label: "-- 新增 --",
                 value: 0
@@ -87,6 +86,7 @@ export default {
         this.getProjects();
         this.getConfig();
         this.getPage(this.projectId);
+
         // this.$set(this.configData.oContainer, 'insData', {
         //     rules: {
         //         batch_title: [{
@@ -230,6 +230,7 @@ export default {
                     if (data[0] && data[0].basic_config) {
                         // this.moduCf = data[0].basic_config.replace(/\s/g, "");
                         this.moduCf = decodeURIComponent(data[0].basic_config);
+                        console.log(this.moduCf)
                         // console.log(this.moduCf);
                         // localStorage.setItem("drawingItems", this.moduCf);
                     }
@@ -301,8 +302,6 @@ export default {
                 return;
             }
             const module = localStorage.getItem("drawingItems");
-            // console.log(module);
-            console.log(decodeURIComponent(encodeURIComponent(module)));
             this.$axios({
                 method: "post",
                 url: "http://uat-bangumi-mng.bilibili.co/api/updateModule",
@@ -316,6 +315,7 @@ export default {
                     basicConfigsssss: module
                 }
             }).then(() => {
+                this.$message.success('保存成功')
                 setTimeout(() => {
                     this.newGetData();
                 }, 100)
