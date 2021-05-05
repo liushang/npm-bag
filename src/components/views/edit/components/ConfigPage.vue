@@ -37,6 +37,7 @@ export default {
      moduledId(val) {
        this.getModuleDetail(val)
      },
+     // 节点list
      metaData(val) {
        console.log('当前list变更')
        console.log(val)
@@ -53,7 +54,6 @@ export default {
               if (data && code === 0) {
                   if (data[0] && data[0].basic_config) {
                       this.moduCf = decodeURIComponent(data[0].basic_config);
-                      console.log(this.moduCf);
                       this.dataConfig = getDrawingList(this.moduCf)[0];
                       this.dataConfig.props.env = 'prod'
                       this.moduleName = data[0].module_name

@@ -180,7 +180,6 @@ export default {
             this.$axios({
                 url: "http://uat-bangumi-mng.bilibili.co/api/getProjects"
             }).then(({ data, code }) => {
-                console.log(data)
                 if (data && code === 0) {
                     this.projectList = data.map(x => {
                         return {
@@ -230,7 +229,6 @@ export default {
                     if (data[0] && data[0].basic_config) {
                         // this.moduCf = data[0].basic_config.replace(/\s/g, "");
                         this.moduCf = decodeURIComponent(data[0].basic_config);
-                        console.log(this.moduCf)
                         // console.log(this.moduCf);
                         // localStorage.setItem("drawingItems", this.moduCf);
                     }
@@ -270,9 +268,7 @@ export default {
         getConfig() {
             this.$axios({
                 url: "http://uat-bangumi-mng.bilibili.co/api/getConfig"
-            }).then(e => {
-                console.log(e);
-            });
+            }).then(e => {});
         },
         saveModule() {
             const module = localStorage.getItem("drawingItems");

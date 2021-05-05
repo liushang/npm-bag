@@ -53,12 +53,10 @@
 </div> 
 </template>
 <script>
-import { getDefaultProps, getRawId } from '../../../schema/util';
 import {
     stringToFunc
 } from '../../../schema/util';
-import { deepClone } from '../../../utils/index';
-import { defaultKV, htmlNode, defaultNode } from '../components/default';
+import { defaultKV } from '../default/config';
 export default {
     data() {
         let options = [{
@@ -379,14 +377,12 @@ export default {
                     this.$delete(this.containerInject, id)
                 }
             }
-            console.log('deal')
             this.$delete(this.activeData[property], key);
         },
         analysisProperty(type, data, property, subProperty) {
             this.$emit('changeComponentPanel', type, data, property, subProperty);
         },
         saveModuleCode(data, property, subProperty) {
-            console.log(data[property][subProperty])
             this.$emit('saveModuleCode', data[property][subProperty])
         }
     }

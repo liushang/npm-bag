@@ -1,7 +1,7 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
-import { render, computed } from '../../schema/api';
-import { dealMultiChildren, deepClone } from '../../schema/util';
-import baseAttr from './base/attrs';
+import { render, computed } from '../api';
+import { dealMultiChildren, deepClone } from '../util';
+import baseAttr from './base';
 let base = {
     data() {
         return {

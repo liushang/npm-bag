@@ -7,7 +7,6 @@
   @close="close">
   <el-tabs v-model="currentTab" class="center-tabs">
     <el-tab-pane label="组件属性" name="field" />
-    <!-- <el-tab-pane label="表单属性" name="form" /> -->
   </el-tabs>
   <div class="field-box">
     <el-scrollbar class="right-scrollbar">
@@ -28,13 +27,11 @@
 </template>
 
 <script>
-import InfiniteObject from '../components/infiniteObject.js';
 import { saveFormConf } from '../../../utils/db';
 import vueJsonEditor from 'vue-json-editor';
 
 export default {
     components: {
-        InfiniteObject,
         vueJsonEditor
     },
     props: ['showField', 'activeData', 'formConf'],
@@ -118,7 +115,6 @@ export default {
         },
         onJsonChange(e) {
             this.modeJson = e;
-            console.log(this.modeJson)
         },
         onJsonSave(e) {
             this.modeJson = e;

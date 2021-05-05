@@ -1,7 +1,7 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../../schema/api';
 import { dealMultiChildren, deepClone } from '../../schema/util';
-import baseAttr from './base/attrs';
+import baseAttr from './base';
 let base = {
     data() {
         return {
@@ -165,7 +165,6 @@ let base = {
             this[i] = this.methods[i]
         }
         for(let i in this.watch) {
-            console.log('lcData.' + i)
             this.$watch('lcData.' + i, this.watch[i].bind(this))
         }
         if (!this.containerInject[this.rawId]) this.$set(this.containerInject, this.rawId, {});

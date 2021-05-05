@@ -13,11 +13,11 @@ const components = {
             }}>
                 <span>预览</span>
             </span>,
-            <span class="drawing-item-export" onClick={event => {
-                basicItem(currentItem); event.stopPropagation();
-            }}>
-                <span>基本配置</span>
-            </span>,
+            // <span class="drawing-item-export" onClick={event => {
+            //     basicItem(currentItem); event.stopPropagation();
+            // }}>
+            //     <span>基本配置</span>
+            // </span>,
             <span class="drawing-item-copy" title="复制" onClick={event => {
                 pageItem(injectDataItem); event.stopPropagation();
             }}>
@@ -72,12 +72,9 @@ export default {
         };
     },
     data() {
-      return {
-      }
+      return {}
     },
-    created() {
-
-    },
+    created() {},
     computed: {
       injectDataItem() {
         if (!this.configData) {
@@ -91,24 +88,8 @@ export default {
         return  this.currentItem.props && this.currentItem.props.rawId ? analysisInjectData(deepClone(this.currentItem), this.configData[this.currentItem.props.rawId], 'oContainer', this.configData) : {__config__: {}}
       }
     },
-    mounted() {
-      //   const data = {
-      //     'oContainer': {
-      //       renderFun: 'function anonymous(xx ) { console.log(this);return xx; }',
-      //       insData: {
-      //         form: {
-      //           input: 123,
-      //           select: 1
-      //         }
-      //       }
-      //     }
-      //   }
-      // this.injectDataItem = analysisInjectData(this.currentItem, data)
-    },
     render(h) {
-    // 根据布局方式选择不同渲染函数 rol和raw两种
         const layout = layouts['oFormItem'];
-
         if (layout && this.injectDataItem) {
             return layout.call(this, h, this.injectDataItem, this.currentItem);
         }
@@ -353,7 +334,6 @@ export default {
     }
   }
   & > .drawing-item-copy, & > .drawing-item-delete, & > .drawing-item-export, & > .drawing-item-view{
-    // display: none;
     position: absolute;
     top: -10px;
     width: 22px;

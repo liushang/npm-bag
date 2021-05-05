@@ -274,7 +274,6 @@ export function stringToFunc(str) {
         let newStr = `return ${str.replace('[native code]', '')}`
         let newFun
         try {
-            console.log(JSON.stringify(newStr))
             newFun = new Function(newStr)
         } catch (error) {
             throw new Error(error)

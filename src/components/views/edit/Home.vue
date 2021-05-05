@@ -65,7 +65,6 @@
                   :drawing-list="drawingList"
                   :current-item="item"
                   :index="index"
-                  :active-id="activeId"
                   :containerInject="containerInject"
                   :form-conf="formConf"
                   :configData="lcConfigData"
@@ -122,12 +121,11 @@ import PanelModel from './model/PanelModel';
 import ViewModel from './model/ViewModel';
 import TreeModel from './model/TreeModel'
 import {
-    inputComponents, selectComponents, layoutComponents, formConf, oComponents, getElementList, getHtmlLabel, getAntDesignList, getOtherComList
+    inputComponents, selectComponents, formConf, oComponents, getElementList, getHtmlLabel, getAntDesignList, getOtherComList
 } from '../../components/generator/config';
 import {
     deepClone
 } from '../../utils/index';
-import drawingDefalut from '../../components/generator/drawingDefalut';
 import logo from '../../assets/logo.png';
 import DraggableItem from './modules/DraggableItem';
 import NodeModal from './model/NodeModal';
@@ -136,11 +134,18 @@ import {
     getDrawingList, saveDrawingList, getFormConf, getContainer, saveContainer
 } from '../../utils/db';
 import { getDefaultProps, getRawId } from '../../schema/util';
-import { defaultNode, allHtmlNode } from './components/default';
+import { defaultNode } from './default/structure';
+import { allHtmlNode } from './default/index';
 
 let drawingListInDB = getDrawingList();
 const formConfInDB = getFormConf();
 const containerInject = getContainer();
+const drawingDefalut = [
+    {
+        name: 'oContainer',
+        props: {},
+    }
+]
 export default {
     components: {
         draggable,
@@ -178,11 +183,9 @@ export default {
             inputComponents,
             // 选择型组件
             selectComponents,
-            layoutComponents,
             labelWidth: 100,
             drawingList: drawingDefalut,
             drawingData: {},
-            activeId: drawingDefalut[0].formId,
             drawerVisible: false,
             formData: {},
             dialogVisible: false,
@@ -235,8 +238,6 @@ export default {
     watch: {
         configData: {
             handler(val) {
-                console.log('配置更新')
-                console.log(val)
                 this.lcConfigData = val
             },
             deep: true
@@ -290,13 +291,9 @@ export default {
           this.$root.$off('DEAL_CHOOSE');
           this.$root.$on('DEAL_CHOOSE', (item) => {
               if (typeof item !== 'object') {
-                console.log(item)
                 let findComponent = (child) => {
-                  console.log(child)
                   for (let i of child.$children) {
-                    console.log(i.rawId)
                     if (i.rawId && i.rawId === item) {
-                      console.log('匹配陈宫')
                       return i
                     } else if (i.$children && i.$children.length) {
                       let ii = findComponent(i)
@@ -305,15 +302,11 @@ export default {
                   }
                 }
                 item = findComponent(this.$refs['drag-item'][0])
-                console.log(item)
               }
               if (this.previewItem) {
                   this.previewItem.style.border = '1px solid #e4e7ed';
                   if (this.previewItem.rawId !== item.rawId) this.clearSubBorder(this.drawingList);
-              }
-              // if (item.styles) {
-              //   this.$set(item.styles, 'border', '1px solid red');
-              // } 
+              } 
                 this.$set(item.style, 'border', '1px solid red');
               if(item) {
                 let rawId = item.rawId;
@@ -327,11 +320,9 @@ export default {
         },
         codeValueChange(val) {
             this.containerInject = JSON.parse(val);
-            console.log(this.containerInject)
         },
         configValChange(val) {
             this.lcConfigData = JSON.parse(val);
-            console.log(this.lcConfigData)
         },
         panelContent(data, property, subProperty) {
             this.dialogComponentDetail = {
@@ -340,7 +331,6 @@ export default {
             this.showPanel = true;
         },
         closePanelDialog(e) {
-            console.log('close')
             const { property, subProperty } = this.dialogComponentDetail;
             if (property === 'children' || property === 'directives') {
               this.$refs.rightPanel.editItem.props[property][subProperty] = e;
@@ -348,7 +338,6 @@ export default {
             }else {
               this.$set(this.$refs.rightPanel.editItem.props[property], subProperty, e)
             }
-            // this.$set(this.activeData.props[property], subProperty, e);
             this.showPanel = false;
         },
         convertConstrutor(e) {
@@ -359,7 +348,6 @@ export default {
             json = e.data[e.property][e.subProperty]
           } else {
             json = this.activeData.props[e.property][e.subProperty];
-            console.log(json)
           }
           return json;
         },
@@ -428,7 +416,6 @@ export default {
                       if (!currentItem.props[i]) this.$set(currentItem.props, i, comOptions[i]);
                   }
                   if (!currentItem.props.rawId) currentItem.props.rawId = getRawId(currentItem.name);
-                  console.log(currentItem.name)
                   this.activeData = currentItem;
               }
             }
@@ -466,15 +453,20 @@ export default {
         drawingItemDelete(item, list) {
           this.drawingList = drawingDefalut
           this.$nextTick(() => {
-            const len = this.drawingList.length
-            if (len) {
-              this.activeFormItem(this.drawingList[len - 1])
-            }
+            this.drawingList = [
+              {
+                name: 'oContainer',
+                props: {
+                  rawId: 'oContainer'
+                },
+              }
+            ]
+            this.activeFormItem(this.drawingList[0])
+            this.$refs.rightPanel.elementList = [this.activeData]
           })
         },
         viewItem(viewItem) {
           this.viewItemData = [viewItem];
-          console.log(this.viewItemData)
           this.showViewModel = true;
         },
         saveModuleCode(code) {

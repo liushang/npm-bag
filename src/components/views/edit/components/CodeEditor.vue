@@ -22,20 +22,12 @@
 </template>
 
 <script>
-import {
-    stringToFunc
-} from '../../../schema/util';
-// import language js
 import 'codemirror/mode/javascript/javascript.js';
-// import theme style
 import 'codemirror/theme/base16-dark.css';
-
-// import more 'codemirror/some-resource...'
-
 export default {
     data () {
         return {
-            code: 'const a = 10',
+            code: '',
             dialogVisible: true,
             cmOptions: {
                 tabSize: 4,
@@ -66,8 +58,6 @@ export default {
             this.code = newCode;
         },
         close() {
-            console.log(JSON.stringify(this.code))
-            // this.code = stringToFunc(JSON.stringify(this.code))
             this.$emit('close', this.code);
         }
     },
@@ -77,7 +67,6 @@ export default {
         }
     },
     mounted() {
-        console.log(this.dataStr)
         this.code = this.dataStr;
     }
 };

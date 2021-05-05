@@ -58,7 +58,10 @@ import {
     stringToFunc
 } from '../../../schema/util';
 import { deepClone } from '../../../utils/index';
-import { defaultKV, htmlNode, defaultNode } from '../components/default';
+import { defaultKV } from '../default/config';
+import { htmlNode } from '../default/index';
+import { defaultNode } from '../default/structure';
+
 export default {
     data() {
         let options = [{
@@ -389,7 +392,6 @@ export default {
                         config.props.scopedSlots[i] = config.scopedSlots[i] = stringToFunc(config.scopedSlots[i].toString().replace('_this', 'this'))
                     }
                     config.props.subRawId = getRawId(config.name);
-                    console.log(this.modifyItem[key].key)
                     this.$set(this.activeData[key], this.modifyItem[key].key, config);
                     config = null
                 } else {
@@ -428,14 +430,12 @@ export default {
                     this.$delete(this.containerInject, id)
                 }
             }
-            console.log('deal')
             this.$delete(this.activeData[property], key);
         },
         analysisProperty(type, data, property, subProperty) {
             this.$emit('changeComponentPanel', type, data, property, subProperty);
         },
         saveModuleCode(data, property, subProperty) {
-            console.log(data[property][subProperty])
             this.$emit('saveModuleCode', data[property][subProperty])
         }
     }

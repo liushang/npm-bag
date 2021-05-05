@@ -32,6 +32,7 @@
                     <span v-if="!modifyItem[i] && haveFixedAttrs(editItemProperty[i], i)" style="color:#409eff;font-size:14px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord', 1)">添加</span>
                     <span v-if="!modifyItem[i]" style="color:#409eff;font-size:12px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord')">自定义</span>
                     <span v-else style="color:#409eff;font-size:14px;margin-right:10px;margin-left:30px" @click.stop="$refs['infiniteObj'][index].saveProperty(i)">确定</span>
+                    <span v-if="i === 'children'" style="color:#409eff;font-size:14px;margin-right:10px;margin-left:30px" @click.stop="pasteChild()">paste</span>
                     <span v-if="Object.keys(modifyItem).length > 0 && modifyItem[i]" style="color:#409eff;font-size:14px" @click.stop="$refs['infiniteObj'][index].delModifyItem(modifyItem, i)">x</span>
                 </div>
                   </span>
@@ -47,6 +48,7 @@
                   :initialType="i === 'children' || i === 'directives' ? 'array' : 'string'"
                   @saveModuleCode="saveModuleCode"
                   @changeComponentPanel="changeComponentPanel"
+                  @getCopyVal="getCopyVal"
                   :initialTypeShow="['renderFun', 'rawId', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(i) ? 'text' : 'input'"
                   ></component>
               </el-collapse-item>
@@ -81,19 +83,22 @@
 </template>
  
 <script>
-import InfiniteObject from '../components/infiniteObject.js';
-import CodeEditor from '../components/code-editor';
+import InfiniteObject from '../components/InfiniteObject.js';
+import CodeEditor from '../components/CodeEditor';
 import { saveFormConf,
     stringToFunc
 } from '../../../schema/util';
 import 'codemirror/mode/javascript/javascript.js';
-import { defaultKV } from '../components/default';
+import { defaultKV } from '../default/config';
 import 'codemirror/theme/base16-dark.css';
 import BASEMAP from '../base/map';
 import PanelDialog from '../model/PanelModel';
 import Alias from '../attrConfig/alias'
 import Children from '../attrConfig/Children'
 import ConfigPage from '../components/ConfigPage';
+import {
+    getDrawingList
+} from '../../../utils/db';
 export default {
     components: {
         InfiniteObject,
@@ -104,10 +109,6 @@ export default {
         ConfigPage
     },
     props: ['showField', 'activeData', 'formConf', 'containerInject', 'basicDataChange', 'configData', 'changingNodeList' ],
-    mounted() {
-      console.log('我是注入数据')
-      console.log(this.configData);
-    },
     data() {
         return {
             valueNameMap: BASEMAP.valueName,
@@ -139,8 +140,8 @@ export default {
             changeNode: '',
             compMap: {
               attrMap: 'Alias',
-              // children: 'Children'
             },
+            copyVal: null
         };
     },
     computed: {
@@ -151,24 +152,22 @@ export default {
             return !this.editItem.props.subRawId ? this.editItem.props : this.editItem;
         },
         configCode() {
-            let aa = JSON.stringify(this.configData, function(key, value) {
+            return JSON.stringify(this.configData, function(key, value) {
                 if (typeof value === 'function' && key !== 'renderFun') {
                     return value.toString();
                 } else {
                     return value;
                 }
             }, 4);
-            return aa;
         },
         valueCode() {
-            let aa = JSON.stringify(this.containerInject, function(key, value) {
+            return JSON.stringify(this.containerInject, function(key, value) {
                 if (typeof value === 'function' && key !== 'renderFun') {
                     return value.toString();
                 } else {
                     return value;
                 }
             }, 4);
-            return aa;
         },
         renderCode() {
             const [ data, property, subProperty ] = this.tempCodeArr;
@@ -225,7 +224,6 @@ export default {
     },
     methods: {
         changeCurNode(item) {
-          console.log(item);
           const oldName = item.name;
           item.name = this.changeNode;
           item.props.subRawId = item.props.subRawId.replace(oldName, this.changeNode)
@@ -284,38 +282,23 @@ export default {
         },
         // 向上传递改变组件面板内容
         changeComponentPanel(type, data, property, subProperty) {
-          // console.log(type, data, property, subProperty)
             if (['renderFun', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(property)) {
                 // 函数编辑窗
                 this.tempCodeArr = [data, property, subProperty];
                 this.showFunctionDialog = true;
             } else if (type === 'turn') {
-                // if (htmlNode.includes(data[property][subProperty].name) || type === 'turn') {
-                // 展开子元素项 border变蓝色
-                // data[property][subProperty].styles.border = '1px solid red';
-                // if (!data[property][subProperty].style) this.$set(data[property][subProperty], 'style', {});
                 this.$emit('clearBorderBlue');
                 if (['oContainer', 'oRow'].includes(data[property][subProperty].name)) {
-                  console.log(data[property][subProperty])
-                  // this.$set(data[property][subProperty].props.styles, 'border', '1px solid red');
                   this.$root.$emit('DEAL_CHOOSE', data[property][subProperty].props.rawId);
                 } else {
                     this.$set(data[property][subProperty].style, 'border', '1px solid rgb(64, 158, 255)');
                 }
-                // this.$set(data[property][subProperty].style, 'display', 'inline-block');
                 this.elementList.push(data[property][subProperty]);
             } else if (type === 'att') {
               // 属性-对象编辑窗
               this.showPanel = true;
               this.attrName = property;
               this.attrDetail = subProperty === '5' ? [] : {}
-              console.log(property)
-              // if (property === 'insData') {
-              //   this.$emit('panelContent', data, property, subProperty);
-              // } else {
-              //   this.showPanel = true;
-              // }
-              // this.$emit('panelContent', data, property, subProperty);
             } else {
                 // json编辑窗
                 this.$emit('panelContent', data, property, subProperty);
@@ -336,12 +319,40 @@ export default {
             });
 
         },
-        delModifyItem(key, data = this.activeData) {
+        delModifyItem(key) {
             this.$delete(this.modifyItem, key, '');
         },
         saveModuleCode(code) {
           this.$emit('saveModuleCode', code)
-        }
+        },
+        getCopyVal(val) {
+          this.copyVal = val
+        },
+        pasteChild() {
+          if (!this.copyVal) {
+            this.$message.error("没有复制的内容")
+          } else {
+            let str = '[' + this.copyVal + ']'
+            let item = getDrawingList(str)[0]
+            this.iterateThroughAllKeysAndValues(item)
+            if (this.editItem.props.subRawId) {
+              this.editItem.children.push(item)
+            } else {
+              this.editItem.props.children.push(item)
+            }
+          }
+        },
+        iterateThroughAllKeysAndValues (obj) {
+          for(let key in obj) {
+            if(!obj.hasOwnProperty(key)) return;
+            if ((key === 'rawId' || key === 'subRawId') && obj[key].indexOf('_') > -1) {
+              obj[key] = obj[key].split('_')[0] + '_' + parseInt(Math.random() * 1000000);
+            }
+            if(typeof obj[key] == 'object' || typeof obj[key] == 'function') {
+              this.iterateThroughAllKeysAndValues(obj[key]);
+            }
+          }
+        },
     }
 };
 </script>
@@ -355,7 +366,7 @@ export default {
   }
 }
 .CodeMirror{
-    height: 600px;
+  height: 600px;
 }
 .el-collapse-item__content{
     padding-bottom: 6px;
@@ -386,62 +397,5 @@ export default {
   .el-breadcrumb{
       margin-bottom: 0;
   }
-}
-.select-item {
-  display: flex;
-  border: 1px dashed #fff;
-  box-sizing: border-box;
-  & .close-btn {
-    cursor: pointer;
-    color: #f56c6c;
-  }
-  & .el-input + .el-input {
-    margin-left: 4px;
-  }
-}
-.select-item + .select-item {
-  margin-top: 4px;
-}
-.select-item.sortable-chosen {
-  border: 1px dashed #409eff;
-}
-.select-line-icon {
-  line-height: 32px;
-  font-size: 22px;
-  padding: 0 4px;
-  color: #777;
-}
-.option-drag {
-  cursor: move;
-}
-.time-range {
-  .el-date-editor {
-    width: 227px;
-  }
-  ::v-deep .el-icon-time {
-    display: none;
-  }
-}
-.document-link {
-  position: absolute;
-  display: block;
-  width: 26px;
-  height: 26px;
-  top: 0;
-  left: 0;
-  cursor: pointer;
-  background: #409eff;
-  z-index: 1;
-  border-radius: 0 0 6px 0;
-  text-align: center;
-  line-height: 26px;
-  color: #fff;
-  font-size: 18px;
-}
-.node-label{
-  font-size: 14px;
-}
-.node-icon{
-  color: #bebfc3;
 }
 </style>

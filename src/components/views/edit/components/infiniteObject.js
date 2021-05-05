@@ -6,7 +6,10 @@ import { deepClone } from '../../../utils/index';
 import {
     getDrawingList,
 } from '../../../utils/db';
-import { defaultKV, htmlNode, defaultNode } from './default';
+import { defaultKV } from '../default/config';
+import { allHtmlNode } from '../default/index';
+import { defaultNode } from '../default/structure';
+
 export default {
     data() {
         let options = [{
@@ -329,10 +332,6 @@ export default {
             data[key].value = this.valueTypeInitial[data[key].type];
         },
         addProperty(data, key, type, rootName, addType) {
-            console.log(data, key, type, rootName, addType)
-            console.log(this.initialType)
-            console.log(this.name)
-            console.log(this.rootWord)
             // addType 1 添加默认属性 无为自定义属性
             this.addType = !!addType;
             // type 不存在 查看原属性类型，object则为object 否则为数组/字符串
@@ -377,7 +376,7 @@ export default {
                     config.props.rawId = getRawId(config.name);
                     
                     this.$set(this.activeData[key], this.modifyItem[key].key, config);
-                } else if (htmlNode.includes(this.modifyItem[key].value) || this.$root.$options.components[this.modifyItem[key].value]) {
+                } else if (allHtmlNode.includes(this.modifyItem[key].value) || this.$root.$options.components[this.modifyItem[key].value]) {
                     // 如果输入的是节点html/全局注册组件
                     const commonConfig = {
                         style: {},
@@ -423,13 +422,11 @@ export default {
                     if (this.modifyItem[key].type === '2') value = +value;
                     if (this.modifyItem[key].type === '3') value = !!value;
                     this.$set(this.activeData[key], this.modifyItem[key].key, value);
-                    console.log('212123')
                 }
             } else if(['4', '5'].includes(this.modifyItem[key].type)) {
                 this.$set(this.activeData[key], this.tempAttrName, this.tempAttrValue);
             } else if (['6'].includes(this.modifyItem[key].type)) {
                 const obg = getDrawingList('[' + this.modifyItem[key].value + ']')
-                console.log(obg)
                 if (this.activeData.children.length <= this.modifyItem[key].key ) {
                     this.activeData.children.push(obg[0])
                 } else {
@@ -459,7 +456,6 @@ export default {
                     this.$delete(this.containerInject, id)
                 }
             }
-            console.log('deal')
             this.$delete(this.activeData[property], key);
         },
         analysisProperty(type, data, property, subProperty) {
@@ -490,6 +486,7 @@ export default {
                 // fieldData.unshift(fieldData.splice(subProperty, 1 )[0]);
             }
         },
+
         copyModuleCode(data, property, subProperty) {
             const value = JSON.stringify(data[property][subProperty], function(key, value) {
                 if (typeof value === 'function') {
@@ -507,6 +504,7 @@ export default {
             transfer.blur();
             document.getElementsByClassName('drawing-board')[0].removeChild(transfer);
             this.$message.success('复制成功');
+            this.$emit('getCopyVal', value)
         }
     }
 };

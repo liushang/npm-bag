@@ -6,7 +6,6 @@
       placement="left"
       :mask="false"
       :visible="visible"
-      :after-visible-change="afterVisibleChange"
       @close="onClose"
     >
       <TreeStr :data="basicData" @changeNode="changeNode"></TreeStr>
@@ -15,7 +14,7 @@
 </template>
 
 <script>
-import TreeStr from '../components/treeStr'
+import TreeStr from '../components/TreeStr'
 export default {
   props: {
     basicData: {
@@ -36,14 +35,10 @@ export default {
     changeNode(e) {
       this.$emit('changeNode', e)
     },
-    afterVisibleChange(val) {
-      console.log('visible', val);
-    },
     showDrawer() {
       this.visible = true;
     },
     onClose() {
-      console.log(this.basicData)
       this.visible = false;
     },
   },

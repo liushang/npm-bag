@@ -20,7 +20,7 @@ Vue.use(Antd);
 // import oFormRender from './components/views/OGV-form-design/components/o-formRender'
 // import oForm from './components/views/OGV-form-design/components/o-formRender'
 // import oFormItem from './components/views/OGV-form-design/components/o-formItemRender'
-import oRowRender from './components/views/components/o-rowRender'
+import oRowRender from './components/schema/components/o-rowRender'
 // import oColRender from './components/views/OGV-form-design/components/o-colRender'
 // import oTimePickerRender from './components/views/OGV-form-design/components/o-timePickerRender'
 // import oDatePickerRender from './components/views/OGV-form-design/components/o-datePickerRender'
@@ -29,7 +29,7 @@ import oRowRender from './components/views/components/o-rowRender'
 // import oCheckboxRender from './components/views/OGV-form-design/components/o-checkboxRender'
 // import oRadioGroupRender from './components/views/OGV-form-design/components/o-radioGroupRender'
 // import oRadioRender from './components/views/OGV-form-design/components/o-radioRender'
-import oContainerRender from './components/views/components/o-containerRender'
+import oContainerRender from './components/schema/components/o-containerRender'
 // import oTableRender from './components/views/OGV-form-design/components/o-tableRender'
 // import oTableColumnRender from './components/views/OGV-form-design/components/o-tableColumnRender'
 // import oPaginationRender from './components/views/OGV-form-design/components/o-paginationRender'
@@ -62,23 +62,6 @@ Vue.prototype.$axios = axios;
 window.$axios = axios;
 Vue.use(ElementUI);
 Vue.use(iicarus)
-Vue.directive('my-directive', {
-  bind: function () {
-    console.log('我是bind')
-  },
-  inserted: function () {
-    console.log('我是inserted')
-  },
-  update: function () {
-    console.log('我是update')
-  },
-  componentUpdated: function () {
-    console.log('我是componentUpdated')
-  },
-  unbind: function () {
-    console.log('我是unbind')
-  }
-})
 // import somelibrarysss from 'somelibrarysss'
 
 // Vue.use(somelibrarysss)

@@ -25,7 +25,6 @@ export default {
     props: [ 'drawingList' ],
     mounted() {
       this.viewData = this.drawingList
-      console.log(this.drawingList)
     },
     data() {
         return {

@@ -6,8 +6,8 @@ import VueCodemirror from 'vue-codemirror'
 import 'codemirror/lib/codemirror.css'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-import oRowRender from './src/components/views/components/o-rowRender'
-import oContainerRender from './src/components/views/components/o-containerRender'
+import oRowRender from './src/components/schema/components/o-rowRender'
+import oContainerRender from './src/components/schema/components/o-containerRender'
 _Vue.use(VueCodemirror, {
   options: { theme: 'base16-dark'},
   events: ['scroll']
@@ -16,7 +16,6 @@ _Vue.prototype.$axios = axios;
 window.$axios = axios;
 _Vue.use(ElementUI);
 _Vue.use(iicarus)
-console.log(this)
 Main.install = Vue => {
 if (!Vue) {
 window.Vue = Vue = _Vue
@@ -42,7 +41,6 @@ _Vue.component('oContainer', oContainerRender)
 // _Vue.component('oTable', oTableRender)
 // _Vue.component('oTableColumn', oTableColumnRender)
 // _Vue.component('oPagination', oPaginationRender)
-console.log(Main.name)
 _Vue.component(Main.name, Main)
 }
 export default Main;
