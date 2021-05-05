@@ -358,12 +358,7 @@ export default {
           } else if (e.property === 'directives') {
             json = e.data[e.property][e.subProperty]
           } else {
-            
             json = this.activeData.props[e.property][e.subProperty];
-            // !json.props && json.name && (json.props = {
-            //     attrs: {},
-            //     children: []
-            // });
             console.log(json)
           }
           return json;

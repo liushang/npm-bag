@@ -72,21 +72,55 @@ export default {
         },
         activeData: {
             handler(val) {
-                val && (this.modeJson = val);
+              if (val) {
+                this.iterateThroughAllKeysAndValues(val)
+                this.modeJson = val
+              }
             },
             deep: true,
             immediate: true
         }
     },
     methods: {
+        iterateThroughAllKeysAndValues (obj) {
+          for(let key in obj) {
+            if(!obj.hasOwnProperty(key)) return;
+            if (typeof obj[key] == 'function') {
+              obj[key] = obj[key].toString()
+            }
+            if(typeof obj[key] == 'object' || typeof obj[key] == 'function') {
+              this.iterateThroughAllKeysAndValues(obj[key]);//递归遍历属性值的子属性
+            }
+          }
+        },
+        dealLcData (obj) {
+            // 还要增加对子inData的处理
+            if (obj && obj.props && obj.props.insData) {
+                const data = obj.props.insData
+                const dealChild = (data) => {
+                    for(let i in data) {
+                        if (typeof data[i] === 'object' && data[i] !== null) {
+                            dealChild(data[i])
+                        } else if (typeof data[i] === 'string' && data[i].startsWith('function')) {
+                            data[i] = stringToFunc(data[i])
+                        }
+                    }
+                }
+                dealChild(data)
+            }
+            const child = obj && obj.props && (obj.props.rawId &&  obj.props.children || obj.props.subRawId && obj.children ) || []
+            if (child.length) {
+                for (let i of child) {
+                    dealLcData(i)
+                }
+            }
+            return obj
+        },
         onJsonChange(e) {
-            console.log('change');
             this.modeJson = e;
             console.log(this.modeJson)
         },
         onJsonSave(e) {
-            console.log('onJSONSave');
-            console.log(JSON.stringify(this.modeJson))
             this.modeJson = e;
             return this.modeJson;
         },
@@ -94,7 +128,6 @@ export default {
             console.log('err', e);
         },
         close() {
-          console.log(this.modeJson)
             this.$emit('close', this.modeJson);
         },
         // 向上传递改变组件面板内容

@@ -2,9 +2,6 @@
   <div class="right-board" id="right-board">
     <el-tabs v-model="currentTab" class="center-tabs">
       <el-tab-pane label="组件属性" name="field" />
-      <!-- <el-tab-pane label="关联配置" name="relation" /> -->
-      <!-- <el-tab-pane label="模块数据" name="form" /> -->
-      <!-- <el-tab-pane label="数据注入" name="inject" /> -->
       <el-tab-pane label="属性配置" name="attrSet" />
     </el-tabs>
     <div class="field-box">
@@ -31,10 +28,10 @@
                 <template slot="title">
                   {{valueNameMap[i] || i}}({{getValueLength(editItemProperty[i])}})
                   <span>
-                <div style="margin-left: 30px" v-if="!['string', 'number', 'boolean', 'function'].includes(typeof editItem[i])">
-                    <span class='' v-if="!modifyItem[i] && haveFixedAttrs(editItemProperty[i], i)" style="color:#409eff;font-size:14px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord', 1)">添加</span>
+                <div style="margin-left: 30px" v-if="!['string', 'number', 'boolean', 'function'].includes(typeof editItem[i]) && i !== 'props'">
+                    <span v-if="!modifyItem[i] && haveFixedAttrs(editItemProperty[i], i)" style="color:#409eff;font-size:14px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord', 1)">添加</span>
                     <span v-if="!modifyItem[i]" style="color:#409eff;font-size:12px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord')">自定义</span>
-                    <span class='' v-else style="color:#409eff;font-size:14px;margin-right:10px;margin-left:30px" @click.stop="$refs['infiniteObj'][index].saveProperty(i)">确定</span>
+                    <span v-else style="color:#409eff;font-size:14px;margin-right:10px;margin-left:30px" @click.stop="$refs['infiniteObj'][index].saveProperty(i)">确定</span>
                     <span v-if="Object.keys(modifyItem).length > 0 && modifyItem[i]" style="color:#409eff;font-size:14px" @click.stop="$refs['infiniteObj'][index].delModifyItem(modifyItem, i)">x</span>
                 </div>
                   </span>
@@ -178,7 +175,6 @@ export default {
             if (data[property][subProperty]) {
                 return data[property][subProperty].toString();
             } else {
-              console.log(data[property].toString())
                 return data[property].toString();
             }
         },
@@ -313,6 +309,12 @@ export default {
               this.showPanel = true;
               this.attrName = property;
               this.attrDetail = subProperty === '5' ? [] : {}
+              console.log(property)
+              // if (property === 'insData') {
+              //   this.$emit('panelContent', data, property, subProperty);
+              // } else {
+              //   this.showPanel = true;
+              // }
               // this.$emit('panelContent', data, property, subProperty);
             } else {
                 // json编辑窗

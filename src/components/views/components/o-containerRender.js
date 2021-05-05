@@ -100,7 +100,18 @@ let base = {
     },
     render,
     methods: {
-        deepClone
+        deepClone,
+        iterateThroughAllKeysAndValues (obj) {
+          for(let key in obj) {
+            if(!obj.hasOwnProperty(key)) return;
+            if (typeof obj[key] == 'function') {
+              obj[key] = obj[key].bind(this)
+            }
+            if(typeof obj[key] == 'object' || typeof obj[key] == 'function') {
+              this.iterateThroughAllKeysAndValues(obj[key]);//递归遍历属性值的子属性
+            }
+          }
+        },
     },
     provide() {
         return {
@@ -200,6 +211,7 @@ let base = {
     created() {
         this.containerId = 'oContainer'
         this.lcData = deepClone(this.insData)
+        this.iterateThroughAllKeysAndValues(this.lcData)
         for(let i in this.methods) {
             this[i] = this.methods[i]
         }

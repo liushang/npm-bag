@@ -1,12 +1,3 @@
-/* eslint-disable no-nested-ternary */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-/**
- * num 小于0，左缩进num*2个空格； 大于0，右缩进num*2个空格。
- * @param {string} str 代码
- * @param {number} num 缩进次数
- * @param {number} len 【可选】缩进单位，空格数
- */
 export function indent(str, num, len = 2) {
     if (num === 0) return str;
     const isLeft = num < 0; const result = []; let reg; let
@@ -24,29 +15,6 @@ export function indent(str, num, len = 2) {
     });
     return result.join('\n');
 }
-
-function cloneFunction(func) {
-    const bodyReg = /(?<={)(.|\n)+(?=})/m
-    const paramReg = /(?<=\().+(?=\)\s+{)/
-    const funcString = func.toString()
-    if (func.prototype) {
-    const param = paramReg.exec(funcString)
-    const body = bodyReg.exec(funcString)
-    if (body) {
-    if (param) {
-    const paramArr = param[0].split(',')
-    return new Function(...paramArr, body[0])
-    } else {
-    return new Function(body[0])
-    }
-    } else {
-    return null
-    }
-    } else {
-    return eval(funcString)
-    }
-    }
-
 // 首字母大小
 export function titleCase(str) {
     return str.replace(/( |^)[a-z]/g, L => L.toUpperCase());
@@ -62,47 +30,6 @@ export function isNumberStr(str) {
 }
 
 export const exportDefault = 'export default ';
-
-export const beautifierConf = {
-    html: {
-        indent_size: '2',
-        indent_char: ' ',
-        max_preserve_newlines: '-1',
-        preserve_newlines: false,
-        keep_array_indentation: false,
-        break_chained_methods: false,
-        indent_scripts: 'separate',
-        brace_style: 'end-expand',
-        space_before_conditional: true,
-        unescape_strings: false,
-        jslint_happy: false,
-        end_with_newline: true,
-        wrap_line_length: '110',
-        indent_inner_html: true,
-        comma_first: false,
-        e4x: true,
-        indent_empty_lines: true
-    },
-    js: {
-        indent_size: '2',
-        indent_char: ' ',
-        max_preserve_newlines: '-1',
-        preserve_newlines: false,
-        keep_array_indentation: false,
-        break_chained_methods: false,
-        indent_scripts: 'normal',
-        brace_style: 'end-expand',
-        space_before_conditional: true,
-        unescape_strings: false,
-        jslint_happy: true,
-        end_with_newline: true,
-        wrap_line_length: '110',
-        indent_inner_html: true,
-        comma_first: false,
-        e4x: true,
-        indent_empty_lines: true
-    }
-};
 
 function stringify(obj) {
     return JSON.stringify(obj, (key, val) => {
