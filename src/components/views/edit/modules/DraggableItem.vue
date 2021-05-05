@@ -174,29 +174,6 @@ export default {
   margin: 0 340px 0 150px;
   box-sizing: border-box;
 }
-.empty-info{
-  position: absolute;
-  top: 46%;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 18px;
-  color: #ccb1ea;
-  letter-spacing: 4px;
-}
-.action-bar{
-  position: relative;
-  height: 42px;
-  text-align: right;
-  padding: 0 15px;
-  box-sizing: border-box;;
-  border: 1px solid #f1e8e8;
-  border-top: none;
-  border-left: none;
-  .delete-btn{
-    color: #F56C6C;
-  }
-}
 .logo-wrapper{
   position: relative;
   height: 42px;

@@ -83,7 +83,7 @@
 </template>
  
 <script>
-import InfiniteObject from '../components/InfiniteObject.js';
+import InfiniteObject from '../components/InfiniteObject';
 import CodeEditor from '../components/CodeEditor';
 import { saveFormConf,
     stringToFunc

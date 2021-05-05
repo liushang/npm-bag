@@ -121,12 +121,12 @@ import PanelModel from './model/PanelModel';
 import ViewModel from './model/ViewModel';
 import TreeModel from './model/TreeModel'
 import {
-    inputComponents, selectComponents, formConf, oComponents, getElementList, getHtmlLabel, getAntDesignList, getOtherComList
-} from '../../components/generator/config';
+    inputComponents, formConf, oComponents, getElementList, getHtmlLabel, getAntDesignList, getOtherComList
+} from './default/rightPanel';
 import {
     deepClone
 } from '../../utils/index';
-import logo from '../../assets/logo.png';
+import logo from '../../../assets/logo.png';
 import DraggableItem from './modules/DraggableItem';
 import NodeModal from './model/NodeModal';
 import FuzzySearch from './components/FuzzySearch';
@@ -182,7 +182,6 @@ export default {
             // 输入型组件
             inputComponents,
             // 选择型组件
-            selectComponents,
             labelWidth: 100,
             drawingList: drawingDefalut,
             drawingData: {},
@@ -450,8 +449,7 @@ export default {
         drawingItemPage(item) {
           this.$emit('exportPageConfig', item)
         },
-        drawingItemDelete(item, list) {
-          this.drawingList = drawingDefalut
+        drawingItemDelete() {
           this.$nextTick(() => {
             this.drawingList = [
               {
@@ -575,19 +573,6 @@ export default {
   color: #ccb1ea;
   letter-spacing: 4px;
 }
-.action-bar{
-  position: relative;
-  height: 42px;
-  text-align: right;
-  padding: 0 15px;
-  box-sizing: border-box;;
-  border: 1px solid #f1e8e8;
-  border-top: none;
-  border-left: none;
-  .delete-btn{
-    color: #F56C6C;
-  }
-}
 .logo-wrapper{
   position: relative;
   height: 42px;
@@ -679,39 +664,6 @@ export default {
   }
   .el-form-item{
     padding: 12px 10px;
-  }
-}
-.drawing-row-item{
-  position: relative;
-  cursor: move;
-  box-sizing: border-box;
-  border: 1px dashed #ccc;
-  border-radius: 3px;
-  padding: 0 2px;
-  margin-bottom: 15px;
-  .drawing-row-item {
-    margin-bottom: 2px;
-  }
-  .el-col{
-    margin-top: 22px;
-  }
-  .el-form-item{
-    margin-bottom: 0;
-  }
-  .drag-wrapper{
-    min-height: 80px;
-  }
-  &.active-from-item{
-    border: 1px dashed @lighterBlue;
-  }
-  .component-name{
-    position: absolute;
-    top: 0;
-    left: 0;
-    font-size: 12px;
-    color: #bbb;
-    display: inline-block;
-    padding: 0 6px;
   }
 }
 
