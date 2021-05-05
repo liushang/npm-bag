@@ -473,6 +473,7 @@ export default {
         },
         saveNode({ name, type }) {
           this.$emit('saveModuleCode', this.waitNode, name, type)
+          this.showNodeModal = false;
         },
         injectNode(e) {
           let str = '[' + decodeURIComponent(this.searchNode.node_config) + ']'

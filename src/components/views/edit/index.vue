@@ -86,64 +86,6 @@ export default {
         this.getProjects();
         this.getConfig();
         this.getPage(this.projectId);
-
-        // this.$set(this.configData.oContainer, 'insData', {
-        //     rules: {
-        //         batch_title: [{
-        //             required: true, message: '请输入批次名称', trigger: 'blur'
-        //         }],
-        //         client_title: [{
-        //             required: true, message: '请输入客户端显示名称', trigger: 'blur'
-        //         }],
-        //         // coupon_rate: [{
-        //         //     required: true, validator: checkRate, trigger: 'blur'
-        //         // }],
-        //         // max_count: [{
-        //         //     required: true, validator: checkNum, trigger: 'blur', message: '请输入正确的张数'
-        //         // }],
-        //         // coupon_amount: [{
-        //         //     required: true, validator: checkAmount, trigger: 'blur'
-        //         // }],
-        //         // threshold_amount: [{
-        //         //     required: true, validator: checkThreshold, trigger: 'blur'
-        //         // }],
-        //         coupon_type: [{
-        //             required: true, trigger: 'blur'
-        //         }],
-        //         receive_crow_limit: [{
-        //             required: true, message: '请选择可领取用户类型', trigger: 'change'
-        //         }],
-        //         costing_origin: [{
-        //             required: true, trigger: 'blur'
-        //         }],
-        //         receiveTimeRange: [{
-        //             required: true, message: '请选择领取有效期', trigger: 'blur'
-        //         }],
-        //         // use_time_type: [{
-        //         //     trigger: 'blur', validator: checkUseTime, required: true
-        //         // }],
-        //         // use_desc: [{
-        //         //     validator: checkRemark, trigger: 'blur'
-        //         // }],
-        //         // remark: [{
-        //         //     validator: checkRemark, trigger: 'blur'
-        //         // }],
-        //         season_pay_type: [
-        //             {required: true, trigger: 'blur'},
-        //             // {validator: checkArrSelect, trigger: 'blur'}
-        //         ],
-        //         season_type: [
-        //             {required: true, trigger: 'blur'},
-        //             // {validator: checkArrSelect, trigger: 'blur'}
-        //         ],
-        //         exchange_code_flag: [{
-        //             required: true, trigger: 'blur'
-        //         }],
-        //         // stock_notify_mode: [{
-        //         //     required: true, validator: checkStockNotify, trigger: 'change'
-        //         // }]
-        //     },
-        // })
     },
     components: { Home },
     watch: {
@@ -170,7 +112,7 @@ export default {
                     nodeName: name,
                     nodeConfig: encodeURIComponent(code)
                 }
-            }).then(({ data, code }) => {
+            }).then(({ code }) => {
                 if (code === 0) {
                     this.$message.success('保存成功')
                 }
