@@ -11,7 +11,7 @@
 <script>
 import {
     getDrawingList,
-} from '../../utils/db';
+} from '../../../utils/db';
 export default {
   props: {
     propData: {

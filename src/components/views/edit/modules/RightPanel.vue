@@ -3,7 +3,7 @@
     <el-tabs v-model="currentTab" class="center-tabs">
       <el-tab-pane label="组件属性" name="field" />
       <!-- <el-tab-pane label="关联配置" name="relation" /> -->
-      <el-tab-pane label="模块数据" name="form" />
+      <!-- <el-tab-pane label="模块数据" name="form" /> -->
       <!-- <el-tab-pane label="数据注入" name="inject" /> -->
       <el-tab-pane label="属性配置" name="attrSet" />
     </el-tabs>
@@ -84,19 +84,19 @@
 </template>
  
 <script>
-import InfiniteObject from './components/infiniteObject.js';
-import CodeEditor from './components/code-editor';
+import InfiniteObject from '../components/infiniteObject.js';
+import CodeEditor from '../components/code-editor';
 import { saveFormConf,
     stringToFunc
-} from '../../schema/util';
+} from '../../../schema/util';
 import 'codemirror/mode/javascript/javascript.js';
-import { htmlNode, elNode, defaultKV } from './components/default';
+import { defaultKV } from '../components/default';
 import 'codemirror/theme/base16-dark.css';
-import BASEMAP from './base/map';
-import PanelDialog from './PanelDialog';
-import Alias from './attrConfig/alias'
-import Children from './attrConfig/Children'
-import ConfigPage from './ConfigPage';
+import BASEMAP from '../base/map';
+import PanelDialog from '../model/PanelModel';
+import Alias from '../attrConfig/alias'
+import Children from '../attrConfig/Children'
+import ConfigPage from '../components/ConfigPage';
 export default {
     components: {
         InfiniteObject,

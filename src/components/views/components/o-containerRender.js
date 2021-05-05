@@ -1,7 +1,7 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
-import { render, computed } from '../../../schema/api';
-import { dealMultiChildren, deepClone } from '../../../schema/util';
-import baseAttr from '../base/attrs';
+import { render, computed } from '../../schema/api';
+import { dealMultiChildren, deepClone } from '../../schema/util';
+import baseAttr from './base/attrs';
 let base = {
     data() {
         return {
@@ -11,13 +11,11 @@ let base = {
             },
             attr: {
                 size: 'small',
-                'label-width': '74px',
-                'min-height': '200px'
             },
             basicData: {},
             container: {},
             containerId: '',
-            lcData: {}
+            lcData: {},
         };
     },
     props: {
@@ -26,7 +24,7 @@ let base = {
             type: Object,
             default: () => {
                 return {
-                    'abcde': true
+                    // 'abcde': true
                 };
             }
         },
@@ -94,7 +92,11 @@ let base = {
         insData: {
             type: Object,
             default: () => {}
-        }
+        },
+        insMethod: {
+            type: Object,
+            default: () => {}
+        },
     },
     render,
     methods: {

@@ -105,14 +105,13 @@ export default {
             const val = a[b][c]
             if (val.name) {
                 // 为组件
-                console.log(c)
                 return (<span class="value-string">
                     <span onClick={() => this.analysisProperty('turn', a, b, c)}>{val.name}</span>
                     <span onClick={() => this.analysisProperty('code', a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">查看</span>
                     <span onClick={() => this.saveModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">存储</span>
                     <span onClick={() => this.copyModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">copy</span>
-                    {c ? <span onClick={() => this.upModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">up</span>: ''}
-                    {c !== a[b].length - 1 ? <span onClick={() => this.downModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">down</span>: '' }
+                    {+c ? <span onClick={() => this.upModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">up</span>: ''}
+                    {+c !== a[b].length - 1 ? <span onClick={() => this.downModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">down</span>: '' }
                 </span>)
             } else {
                 // 函数字符串渲染，点击查看函数

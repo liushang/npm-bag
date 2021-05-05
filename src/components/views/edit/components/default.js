@@ -275,6 +275,7 @@ const elDefaultNode = {
             x.model= (this.lcData || {}).elForm_form || {};
             return x
         },
+        style: {}
     },
     ElFormItem: {
         attrs: {

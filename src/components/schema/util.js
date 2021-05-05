@@ -1,3 +1,5 @@
+// import { activateFunction } from './configAnalysis.js'
+const isContainerComp = comp => ['oRow', 'oContainer'].includes(comp.name)
 export const allHtmlNode = [ '!DOCTYPE', 'html', 'title', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr', 'abbr', 'address', 'b', 'bdi', 'bdo', 'blockquote', 'cite', 'code', 'del', 'dfn', 'em', 'i', 'ins', 'kbd', 'mark', 'meter', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'small', 'srong', 'sub', 'time', 'u', 'var', 'wbr', 'from', 'input', 'textarea', 'button', 'select', 'optgroup', 'option', 'label', 'fieldset', 'legend', 'datalist', 'keygen', 'output', 'iframe', 'img', 'map', 'area', 'canvas', 'figcaption', 'figure', 'audio', 'source', 'track', 'video', 'a', 'link', 'nav', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'menu', 'command', 'table', 'caption', 'th', 'tr', 'td', 'thead', 'tbody', 'tfoot', 'col', 'colgroup', 'style', 'div', 'span', 'header', 'footer', 'section', 'article', 'aside', 'details', 'dialog', 'summary', 'head', 'meta', 'base', 'basefont', 'script', 'noscript', 'applet', 'enbed', 'object', 'param']
 export function deepClone(obj) {
     // 判断拷贝的要进行深拷贝的是数组还是对象，是数组的话进行数组拷贝，对象的话进行对象拷贝
@@ -51,8 +53,18 @@ export function deepCloneEnhance(obj, item) {
 }
 window.deepClone = deepClone;
 window.deepCloneEnhance = deepCloneEnhance
-
+export function activateFunction(funcObj) {
+    for (let x in funcObj) {
+      let funcs = stringToFunc(funcObj[x]);
+      funcObj[x] = (e) => {
+          let oo = funcs.bind(this)
+          return oo(e);
+      };
+    }
+  }
 export function analysisDataRender(configComponents) {
+    let activateFunc = activateFunction.bind(this)
+    let analysisRender = analysisDataRender.bind(this)
     const configData = [];
     for (let i = 0; i < configComponents.length; i++) {
         const rawData = deepClone(configComponents[i]);
@@ -70,46 +82,31 @@ export function analysisDataRender(configComponents) {
             }
             let childrenArr = [childrenData];
             childrenData.values = [];
-            if (configComponents[i].name === 'oRow') {
+            let renderFun
+            if (isContainerComp(configComponents[i])) {
                 if (rawData.props.on) {
-                    for (let x in rawData.props.on) {
-                        let funcs = stringToFunc(rawData.props.on[x]);
-                        rawData.props.on[x] = (e) => {
-                            let oo = funcs.bind(this)
-                            return oo(e);
-                        };
-                    }
+                    activateFunc(rawData.props.on)
                 }
                 if (rawData.props.renderFun) {
                     let funcss = stringToFunc(rawData.props.renderFun)
-                    rawData.props.renderFun = funcss.bind(this);
-                    childrenArr = funcss.bind(this)(childrenData)
+                    renderFun = rawData.props.renderFun = (funcss || (function (x) {return x})).bind(this);
+                    childrenArr = funcss(childrenData)
                     if (!Array.isArray(childrenArr)) {
                         childrenArr = [childrenArr]
                     }
                     for (let xx of childrenArr) {
                         if (configComponents[i].children && typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
-                            xx.values = analysisDataRender.bind(this)(configComponents[i].children)
+                            xx.values = analysisRender(configComponents[i].children)
                         } else if (typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
                             xx.values = []
-                        } else {
                         }
                     }
                 }
+            } else {
+                renderFun = (rawData.renderFun && stringToFunc(rawData.renderFun) || (function (x) {return x})).bind(this)
             }
-            ['on', 'nativeOn', 'scopedSlots', 'watch'].forEach((i) => {
-                if (rawData[i]) {
-                    for (let x in rawData[i]) {
-                        let funcs = stringToFunc(rawData[i][x]);
-                        rawData[i][x] = (e) => {
-                            let oo = funcs.bind(this)
-                            return oo(e);
-                        };
-                    }
-                }
-            })
-            let renderFun = (configComponents[i].name !== 'oRow' && rawData.renderFun && stringToFunc(rawData.renderFun)) || (x => x)
-            childrenArr = renderFun.bind(this)(childrenData)
+            ['on', 'nativeOn', 'scopedSlots', 'watch'].forEach(i => rawData[i] && activateFunc(rawData[i]))
+            childrenArr = renderFun(childrenData)
             if (!Array.isArray(childrenArr)) {
                 childrenArr = [childrenArr]
             }
@@ -118,16 +115,13 @@ export function analysisDataRender(configComponents) {
                     if (configComponents[i] && Array.isArray(configComponents[i].children)) {
                         for (let uu of configComponents[i].children) {
                             if (typeof uu === 'object' && uu.name) {
-                                !uu.scope && (uu.scope = {})
-                                Object.assign(uu.scope, xx.raw.scope)
+                                uu.scope = Object.assign(uu.scope || {}, xx.raw.scope)
                             }
                         }
                     }
-                    xx.values = analysisDataRender.bind(this)(configComponents[i].children)
+                    xx.values = analysisRender(configComponents[i].children)
                 } else if (typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
                     xx.values = []
-                // } else {
-                //     console.log('处理剩下的值', xx)
                 }
             }
             configData.push(...childrenArr);
@@ -142,11 +136,11 @@ export function analysisRenderConfig(configData, createElement) {
     if (configData) {
         let renderArr = [];
         for (let i of configData) {
-            let dealChildFun = dealChild.bind(this)
-            if (Array.isArray(dealChildFun(i, createElement))) {
-                renderArr.push(...dealChildFun(i, createElement))
+            let children = dealChild.bind(this)(i, createElement)
+            if (Array.isArray(children)) {
+                renderArr.push(...children)
             } else {
-                renderArr.push(dealChildFun(i, createElement));
+                renderArr.push(children);
             }
         }
         return renderArr;
@@ -156,55 +150,52 @@ function dealChild(child, cb) {
     if (!child || !child.values) { // 简单类型
         return child;
     } else {
+        const { classes = {}, style = {}, attrs = {}, props = {}, domProps = {}, on = {}, attr = {},
+            nativeOn, directives = [], key, ref = '', refInFor, scopedSlots = {}, slot } = child.raw
         let item = {
-            'class': child.raw['classes'] || {},
-            style: child.raw.style,
-            attrs: child.raw.attrs,
-            props: child.name.startsWith('o') ? child.raw.props : child.raw.attrs,
-            domProps: child.raw.domProps,
-            on: child.raw.on,
-            nativeOn: child.raw.nativeOn,
-            directives: child.raw.directives,
-            key: child.raw.key,
-            ref: child.raw.ref,
-            refInFor: child.raw.refInFor
+            'class': classes,
+            style,
+            attrs,
+            props: (isContainerComp(child) ? props : attrs) || {},
+            domProps,
+            on,
+            nativeOn,
+            directives,
+            key,
+            ref,
+            refInFor,
+            scopedSlots
         };
-        if (child.raw.slot) item.slot = child.raw.slot
-        if (!item.scopedSlots) {
-            item.scopedSlots = {}
-            for (let i in child.raw.scopedSlots) {
-                let o = child.raw.scopedSlots[i]
-                item.scopedSlots[i] = a => {
-                    if (a) {
-                        let ee = o(a)
-                        if (ee) {
-                            return dealSlotNode.bind(this)(cb, ee)
-                        }
+        Object.assign(item, { slot })
+        for (let i in item.scopedSlots) {
+            let o = item.scopedSlots[i]
+            item.scopedSlots[i] = a => {
+                if (a) {
+                    let ee = o(a)
+                    if (ee) {
+                        return dealSlotNode.bind(this)(cb, ee)
                     }
                 }
             }
         }
-        if (item.style && item.style.border && item.style.border === '1px solid red') {
-            item.class['border-red'] = true
+        if (style && style.border && style.border === '1px solid red') {
+            classes['border-red'] = true
         } else {
-            delete item.class['border-red']
+            delete classes['border-red']
         }
-        if (child.raw.attr) {
-            let attrs = {};
-            let props = {};
-            for (let i in child.raw.attr) {
-                attrs[i] = child.raw.attr[i];
+        if (attr) {
+            let sinAttrs = {};
+            for (let i in attr) {
+                sinAttrs[i] = attr[i];
             }
-            item.attrs = Object.assign(item.attrs || {}, attrs);
-            item.props = Object.assign(item.props || {}, props);
+            Object.assign(item.attrs, sinAttrs);
         }
         for (let x in child) {
-            if (!['values', 'children', 'directives', 'name', 'raw'].includes(x) && child[x]) {
-                !item.props && (item.props = {})
+            if (!['values', 'children', 'directives', 'name', 'raw'].includes(x) && child[x] !== undefined) {
                 item.props[x] = child[x];
             }
         }
-        if (item.ref) {} else {
+        if (!item.ref) {
             if (item.props && item.props.ref) item.ref = item.props.ref
         }
         if(child.name === 'oRow') {
@@ -283,6 +274,7 @@ export function stringToFunc(str) {
         let newStr = `return ${str.replace('[native code]', '')}`
         let newFun
         try {
+            console.log(JSON.stringify(newStr))
             newFun = new Function(newStr)
         } catch (error) {
             throw new Error(error)

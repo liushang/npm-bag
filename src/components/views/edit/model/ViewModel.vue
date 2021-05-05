@@ -19,12 +19,11 @@
 </template>
 
 <script>
-import DraggableItem from './DraggableItem';
+import DraggableItem from '../modules/DraggableItem';
 export default {
     components: { DraggableItem },
     props: [ 'drawingList' ],
     mounted() {
-      console.log('ddddd ddddd ddddd ddddd ddddd ddd')
       this.viewData = this.drawingList
       console.log(this.drawingList)
     },

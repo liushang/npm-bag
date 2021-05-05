@@ -1,7 +1,7 @@
 // import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
-import { render, computed } from '../../../schema/api';
-import { dealMultiChildren, deepClone } from '../../../schema/util';
-import baseAttr from '../base/attrs';
+import { render, computed } from '../../schema/api';
+import { dealMultiChildren, deepClone } from '../../schema/util';
+import baseAttr from './base/attrs';
 let base = {
     data() {
         return {
@@ -12,7 +12,7 @@ let base = {
             attr: {
                 size: 'small',
             },
-            lcData: {}
+            lcData: {},
         };
     },
     props: {

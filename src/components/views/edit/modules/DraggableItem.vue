@@ -1,10 +1,9 @@
 <script>
 import draggable from 'vuedraggable';
-import render from '../../components/render/render';
-import { analysisRenderConfig, analysisDataRender, analysisInjectData } from '../../schema/util';
+import { analysisRenderConfig, analysisDataRender, analysisInjectData } from '../../../schema/util';
 import {
     deepClone
-} from '../../utils/index';
+} from '../../../utils/index';
 const components = {
     itemBtns(h, injectDataItem ,currentItem) {
         const { basicItem, pageItem, deleteItem, viewItem } = this.$listeners;
@@ -55,7 +54,6 @@ function layoutIsNotFound() {
 
 export default {
     components: {
-        render,
         draggable
     },
     props: [
@@ -355,7 +353,7 @@ export default {
     }
   }
   & > .drawing-item-copy, & > .drawing-item-delete, & > .drawing-item-export, & > .drawing-item-view{
-    display: none;
+    // display: none;
     position: absolute;
     top: -10px;
     width: 22px;

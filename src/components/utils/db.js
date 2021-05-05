@@ -1,6 +1,4 @@
 const DRAWING_ITEMS = 'drawingItems';
-const DRAWING_ITEMS_VERSION = '1.2';
-const DRAWING_ITEMS_VERSION_KEY = 'DRAWING_ITEMS_VERSION';
 const DRAWING_ID = 'idGlobal';
 const DRAWING_CONTAINER = 'containerInject';
 

@@ -6,23 +6,15 @@
 </div>
 </template>
 <script>
-import Main from './components/views/index/Edit'
+import Main from './components/views/edit/index'
 // import Main from './components/Main'
 export default {
     data() {
-      return {
-        dataConfig: [{}]
-      }
+      return {}
     },
     components:{
       Main,
     },
-    mounted() {
-      console.log(this.$root.$options.components)
-    }
+    mounted() {}
 }
 </script>
-
-<style>
-
-</style>

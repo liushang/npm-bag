@@ -345,64 +345,15 @@ export default {
             if (!(key in data)) this.$set(data, key, {});
             // 修改对象非数组、对象的情况
             if (this.modifyItem[key].type !== '4' && this.modifyItem[key].type !== '5') {
-                // 如果输入的是容器组件名字。则增加容器组件的相关配置
-                if (this.$root.$options.components[this.modifyItem[key].value] && this.modifyItem[key].value.startsWith('o')) {
-                    const comOptions = this.$root.$options.components[this.modifyItem[key].value].options;
-                    // 填充初始props属性
-                    const config = {
-                        name: this.modifyItem[key].value,
-                        props: getDefaultProps(comOptions)
-                    };
-                    // 生成rawId
-                    config.props.rawId = getRawId(config.name);
-                    
-                    this.$set(this.activeData[key], this.modifyItem[key].key, config);
-                } else if (htmlNode.includes(this.modifyItem[key].value) || this.$root.$options.components[this.modifyItem[key].value]) {
-                    // 如果输入的是节点html/全局注册组件
-                    const commonConfig = {
-                        style: {},
-                        class: {},
-                        attrMap: {},
-                        attrs: {},
-                        children: [],
-                        on: {},
-                        renderFun: x => x
-                    }
-                    // const defaultConfig = JSON.parse(JSON.stringify(defaultNode[this.modifyItem[key].value]))
-                    let config = {
-                        name: this.modifyItem[key].value,
-                        props: deepClone(defaultNode[this.modifyItem[key].value]) || commonConfig,
-                    };
-                    // 将标签元素的其他属性保持和props属性内存地址相同，用来适应组件配置数据
-                    for (let i in config.props) {
-                        config[i] = config.props[i];
-                    }
-                    // 对函数字符串做处理
-                    config.props.renderFun = config.renderFun = stringToFunc(config.props.renderFun.toString().replace('_this', 'this'))
-                    for(let i in config.on) {
-                        config.on[i] = stringToFunc(config.on[i].toString().replace('_this', 'this'))
-                    }
-                    for(let i in config.nativeOn) {
-                        config.nativeOn[i] = stringToFunc(config.nativeOn[i].toString().replace('_this', 'this'))
-                    }
-                    for(let i in config.scopedSlots) {
-                        scopedSlots[i] = config.scopedSlots[i] = stringToFunc(config.scopedSlots[i].toString().replace('_this', 'this'))
-                    }
-                    config.props.subRawId = getRawId(config.name);
-                    console.log(this.modifyItem[key].key)
-                    this.$set(this.activeData[key], this.modifyItem[key].key, config);
-                    config = null
-                } else {
                 // 简单属性直接保存
-                    let value = this.modifyItem[key].value;
-                    if (['on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(key)) {
-                        value = stringToFunc(this.modifyItem[key].value);
-                    }
-                    // todo 属性改变需要关联的输入框类型一起改变
-                    if (this.modifyItem[key].type === '2') value = +value;
-                    if (this.modifyItem[key].type === '3') value = !!value;
-                    this.$set(this.activeData[key], this.modifyItem[key].key, value);
+                let value = this.modifyItem[key].value;
+                if (['on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(key)) {
+                    value = stringToFunc(this.modifyItem[key].value);
                 }
+                // todo 属性改变需要关联的输入框类型一起改变
+                if (this.modifyItem[key].type === '2') value = +value;
+                if (this.modifyItem[key].type === '3') value = !!value;
+                this.$set(this.activeData[key], this.modifyItem[key].key, value);
             } else if(['4', '5'].includes(this.modifyItem[key].type)) {
                 this.$set(this.activeData[key], this.tempAttrName, this.tempAttrValue);
             }

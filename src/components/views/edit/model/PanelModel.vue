@@ -28,8 +28,8 @@
 </template>
 
 <script>
-import InfiniteObject from './components/infiniteObject.js';
-import { saveFormConf } from '../../utils/db';
+import InfiniteObject from '../components/infiniteObject.js';
+import { saveFormConf } from '../../../utils/db';
 import vueJsonEditor from 'vue-json-editor';
 
 export default {
@@ -82,6 +82,7 @@ export default {
         onJsonChange(e) {
             console.log('change');
             this.modeJson = e;
+            console.log(this.modeJson)
         },
         onJsonSave(e) {
             console.log('onJSONSave');

@@ -1,5 +1,4 @@
 <template>
-  <div>
     <el-dialog
       width="500px"
       :visible="true"
@@ -32,7 +31,6 @@
         </el-button>
       </div>
     </el-dialog>
-  </div>
 </template>
 <script>
 export default {

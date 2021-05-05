@@ -27,8 +27,8 @@
                     :value="item.value">
                   </el-option>
                 </el-select>
-                <el-input v-model="pageName" style="width: 120px" size="small" v-show="pageId"></el-input>
-                <el-input v-model="moduleName" style="width: 120px" size="small" v-show="moduleId"></el-input>
+                <el-input v-model="pageName" style="width: 120px" size="small" v-show="pageId" placeholder="请输入页面名"></el-input>
+                <el-input v-model="moduleName" style="width: 120px" size="small" v-show="moduleId" placeholder="请输入模块名"></el-input>
             </el-col>
             <el-col :span="4">
                 <el-button size="small" @click="save" type="primary">保存</el-button>
@@ -68,7 +68,7 @@ export default {
                 label: "-- 新增 --",
                 value: 0
             }],
-            moduleId: 59,
+            moduleId: 60,
             modules: [{
                 label: "-- 新增 --",
                 value: 0

@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import TreeStr from './components/treeStr'
+import TreeStr from '../components/treeStr'
 export default {
   props: {
     basicData: {

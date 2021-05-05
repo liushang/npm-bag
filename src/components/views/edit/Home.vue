@@ -100,7 +100,7 @@
       @codeValueChange="codeValueChange"
       @saveModuleCode="saveModuleCode"
     />
-    <panel-dialog
+    <panel-model
       :active-data="convertConstrutor(dialogComponentDetail)"
       :form-conf="formConf"
       v-if="showPanel"
@@ -117,11 +117,10 @@
 <script type="module">
 import draggable from 'vuedraggable';
 import { debounce } from 'throttle-debounce';
-import render from '../../components/render/render';
-import RightPanel from './RightPanel';
-import PanelDialog from './PanelDialog';
-import ViewModel from './ViewModel';
-import TreeModel from './TreeModel'
+import RightPanel from './modules/RightPanel';
+import PanelModel from './model/PanelModel';
+import ViewModel from './model/ViewModel';
+import TreeModel from './model/TreeModel'
 import {
     inputComponents, selectComponents, layoutComponents, formConf, oComponents, getElementList, getHtmlLabel, getAntDesignList, getOtherComList
 } from '../../components/generator/config';
@@ -130,11 +129,9 @@ import {
 } from '../../utils/index';
 import drawingDefalut from '../../components/generator/drawingDefalut';
 import logo from '../../assets/logo.png';
-import DraggableItem from './DraggableItem';
-import NodeModal from './components/NodeModal';
+import DraggableItem from './modules/DraggableItem';
+import NodeModal from './model/NodeModal';
 import FuzzySearch from './components/FuzzySearch';
-
-
 import {
     getDrawingList, saveDrawingList, getFormConf, getContainer, saveContainer
 } from '../../utils/db';
@@ -147,9 +144,8 @@ const containerInject = getContainer();
 export default {
     components: {
         draggable,
-        render,
         RightPanel,
-        PanelDialog,
+        PanelModel,
         DraggableItem,
         ViewModel,
         NodeModal,
@@ -190,7 +186,6 @@ export default {
             drawerVisible: false,
             formData: {},
             dialogVisible: false,
-            jsonDrawerVisible: false,
             generateConf: null,
             showFileName: false,
             activeData: drawingDefalut[1],
@@ -363,11 +358,13 @@ export default {
           } else if (e.property === 'directives') {
             json = e.data[e.property][e.subProperty]
           } else {
+            
             json = this.activeData.props[e.property][e.subProperty];
             // !json.props && json.name && (json.props = {
             //     attrs: {},
             //     children: []
             // });
+            console.log(json)
           }
           return json;
         },
