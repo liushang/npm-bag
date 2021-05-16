@@ -30,10 +30,21 @@ export default {
         }, {
             value: '6',
             label: '数据字符串'
+        }, {
+            value: '7',
+            label: 'function'
         }];
         return {
             // 编辑对象
             options,
+            optionsContain: {
+                methods: [ '1', '7' ],
+                on: [ '1','7' ],
+                nativeOn: [ '1','7' ],
+                methods: [ '1','7' ],
+                // scopedSlots: [ '7' ],
+                watch: [ '1','7' ]
+            },
             valueTypeInitial: {
                 '1': '',
                 '2': 0,
@@ -41,6 +52,7 @@ export default {
                 '4': {},
                 '5': [],
                 '6': '',
+                '7': function(x) { return x }
             },
             valueTypeMap: {
                 '1': e => <el-input size="small" v-model={e.value} style="width: 100px" />,
@@ -51,7 +63,8 @@ export default {
                           </el-radio-group>,
                 '4': e => '',
                 '5': e => '',
-                '6': e => <el-input size="small" v-model={e.value} style="width: 100px" />
+                '6': e => <el-input size="small" v-model={e.value} style="width: 100px" />,
+                '7': e => ''
             },
             // 默认是自定义属性
             addType: false,
@@ -117,9 +130,11 @@ export default {
                     {+c !== a[b].length - 1 ? <span onClick={() => this.downModuleCode(a, b, c)} style="border-radius: 2px;margin-left: 8px;border:1px solid #409eff;display:inline-block;line-height:14px;font-size:12px;color:rgb(113 177 243)">down</span>: '' }
                 </span>)
             } else {
+                console.log(JSON.stringify(val))
                 // 函数字符串渲染，点击查看函数
                 return (<span onClick={() => this.analysisProperty('code', a, b, c)} class="value-string">
                 {JSON.stringify(val)}
+                {/* <el-tag>function</el-tag> */}
             </span>)
             }
         }
@@ -159,7 +174,18 @@ export default {
         // 其他渲染
         const otherSpan = (a, b, c) => {
             const val = a[b][c]
-            return <span onClick={() => this.analysisProperty('code', a, b, c)} class="value-string">{val ? val.toString() : a[b].toString()}</span>
+            let childVal
+            if (val) {
+                if (typeof val === 'function') {
+                    childVal = <el-tag size="small">function</el-tag>
+                    // childVal = val.toString()
+                } else {
+                    childVal = val.toString()
+                }
+            } else {
+                childVal = a[b].toString()
+            }
+            return <span onClick={() => this.analysisProperty('code', a, b, c)} class="value-string">{childVal}</span>
         }
         return (<div>
             {propertyList.map(x => {
@@ -261,7 +287,7 @@ export default {
                 }
             }
             // 如果是添加自定义属性
-            return data[keyword].type !== '4' && data[keyword].type !== '5' ? this.valueTypeMap[data[keyword].type](data[keyword]) : '';
+            return !['4', '5', '7'].includes(data[keyword].type) ? this.valueTypeMap[data[keyword].type](data[keyword]) : '';
         },
         getKey(data, keyword) {
             if (this.addType) {
@@ -284,7 +310,10 @@ export default {
                 }
             } else {
                 // 添加自定义属性
-                const options = this.options.map((x, i) => <el-option key={i} label={x.label} value={x.value}></el-option>);
+                console.log('add custom')
+                const optionLimit = this.optionsContain[this.rootWord]
+                // if (optionLimit) data[keyword].type = optionLimit[0]
+                const options = this.options.filter(x => !optionLimit || optionLimit.includes(x.value)).map((x, i) => <el-option key={i} label={x.label} value={x.value}></el-option>);
                 return <span>
                     {/* 自定义属性的key默认为输入框 */}
                     <el-input size="small" v-model={data[keyword].key} style="width: 60px" />&nbsp;
@@ -310,8 +339,9 @@ export default {
             return list;
         },
         changeOptions(e, key, data) {
+            console.log(e)
             data[key].value = this.valueTypeInitial[e];
-            if (['4', '5'].includes(e)) {
+            if (['4', '5', '7'].includes(e)) {
                 // 数组对象类属性 直接调出编辑器
                 this.showObjectPanel = true;
                 // 临时保存储存的key
@@ -363,7 +393,7 @@ export default {
         saveProperty(key, data = this.activeData) {
             if (!(key in data)) this.$set(data, key, {});
             // 修改对象非数组、对象的情况
-            if (!['4', '5', '6'].includes(this.modifyItem[key].type)) {
+            if (!['4', '5', '6', '7'].includes(this.modifyItem[key].type)) {
                 // 如果输入的是容器组件名字。则增加容器组件的相关配置
                 if (this.$root.$options.components[this.modifyItem[key].value] && this.modifyItem[key].value.startsWith('o')) {
                     const comOptions = this.$root.$options.components[this.modifyItem[key].value].options;
@@ -380,23 +410,23 @@ export default {
                     // 如果输入的是节点html/全局注册组件
                     const commonConfig = {
                         style: {},
-                        class: {},
-                        attrMap: {},
                         attrs: {},
+                        attrMap: {},
                         children: [],
+                        class: {},
                         on: {},
+                        nativeOn: {},
+                        scopedSlots: {},
+                        slot: '',
+                        props: {},
                         renderFun: function(x) { return x }
                     }
-                    // const defaultConfig = JSON.parse(JSON.stringify(defaultNode[this.modifyItem[key].value]))
+                    if (!allHtmlNode.includes(this.modifyItem[key].value)) commonConfig.nativeOn = {}
                     let config = {
                         name: this.modifyItem[key].value,
                         ...(deepClone(defaultNode[this.modifyItem[key].value]) || commonConfig),
                         props: {}
                     };
-                    // // 将标签元素的其他属性保持和props属性内存地址相同，用来适应组件配置数据
-                    // for (let i in config.props) {
-                    //     config[i] = config.props[i];
-                    // }
                     // 对函数字符串做处理
                     config.renderFun = stringToFunc(config.renderFun.toString().replace('_this', 'this'))
                     for(let i in config.on) {
@@ -416,14 +446,16 @@ export default {
                 // 简单属性直接保存
                     let value = this.modifyItem[key].value;
                     if (['on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(key)) {
-                        value = stringToFunc(this.modifyItem[key].value);
+                        if (!value.startsWith('function')) value = 'function () {' + value + '}'
+                        value = stringToFunc(value);
                     }
                     // todo 属性改变需要关联的输入框类型一起改变
                     if (this.modifyItem[key].type === '2') value = +value;
                     if (this.modifyItem[key].type === '3') value = !!value;
                     this.$set(this.activeData[key], this.modifyItem[key].key, value);
                 }
-            } else if(['4', '5'].includes(this.modifyItem[key].type)) {
+            } else if(['4', '5', '7'].includes(this.modifyItem[key].type)) {
+                console.log( this.tempAttrName, ' this.tempAttrName')
                 this.$set(this.activeData[key], this.tempAttrName, this.tempAttrValue);
             } else if (['6'].includes(this.modifyItem[key].type)) {
                 const obg = getDrawingList('[' + this.modifyItem[key].value + ']')

@@ -93,10 +93,6 @@ let base = {
             type: Object,
             default: () => {}
         },
-        insMethod: {
-            type: Object,
-            default: () => {}
-        },
     },
     render,
     methods: {
@@ -226,11 +222,6 @@ let base = {
     },
     mounted() {
         this.mounted && this.mounted()
-        // setTimeout(() => {
-        //     for(let i in this.rootData) {
-        //         this.containerInject && this.$set(this.containerInject, i, this.rootData[i])
-        //     }
-        // }, 2000)
     },
     beforeUpdate() {
         this.beforeUpdate && this.beforeUpdate()

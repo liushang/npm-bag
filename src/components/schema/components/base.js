@@ -7,7 +7,7 @@ const props = {
   },
   renderFun: {
       type: Function,
-      default: x => x
+      default: function (x) { return x }
   },
   rawId: {
       type: String,

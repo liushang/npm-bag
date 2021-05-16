@@ -72,7 +72,7 @@ export default {
             const configMap = {
                 // season搜索
                 node: {
-                    url: "http://uat-bangumi-mng.bilibili.co/api/node/searchNode",
+                    url: "http://uat-manager.bilibili.co/ogv/form/api/node/searchNode",
                     // 合并params
                     params: this.mergeParams({
                         nodeName: this.kw || '',

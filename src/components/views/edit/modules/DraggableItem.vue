@@ -85,6 +85,7 @@ export default {
           }
           return this.currentItem
         };
+        // return deepClone(this.currentItem)
         return  this.currentItem.props && this.currentItem.props.rawId ? analysisInjectData(deepClone(this.currentItem), this.configData[this.currentItem.props.rawId], 'oContainer', this.configData) : {__config__: {}}
       }
     },
@@ -148,18 +149,6 @@ export default {
       color: #787be8;
     }
   }
-}
-
-.left-board {
-  width: 150px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100vh;
-}
-.left-scrollbar{
-  height: calc(100vh - 42px);
-  overflow: hidden;
 }
 .center-scrollbar {
   height: calc(100vh - 42px);

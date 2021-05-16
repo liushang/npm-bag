@@ -3,10 +3,12 @@
   class="panel-dialog"
   :visible.sync="dialogVisible"
   width="80%"
+  top="5vh"
   @close="close">
   <div class="field-box">
     <codemirror v-model="code" :options="cmOptions" ref="cmEditor"/>
   </div>
+  <el-button @click="save" size="small">确定修改</el-button>
 </el-dialog>
   <!-- Two-way Data-Binding -->
 
@@ -58,7 +60,26 @@ export default {
             this.code = newCode;
         },
         close() {
-            this.$emit('close', this.code);
+            this.$emit('close');
+        },
+        save() {
+            this.code = this.code.replace(/'/g, "\"")
+            console.log(this.code)
+            let str = decodeURIComponent(encodeURIComponent(this.code))
+            let newStr = `return ${str}`
+            let newFun
+            let err = false
+            try {
+                console.log(newStr)
+                newFun = new Function(newStr)
+            } catch (error) {
+                err = true
+                this.$message.error('代码编写有误请检查')
+            }
+            setTimeout(() => {
+                !err && this.$emit('close', this.code);
+            }, 100)
+            
         }
     },
     computed: {

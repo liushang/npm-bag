@@ -31,8 +31,8 @@
                 <div style="margin-left: 30px" v-if="!['string', 'number', 'boolean', 'function'].includes(typeof editItem[i]) && i !== 'props'">
                     <span v-if="!modifyItem[i] && haveFixedAttrs(editItemProperty[i], i)" style="color:#409eff;font-size:14px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord', 1)">添加</span>
                     <span v-if="!modifyItem[i]" style="color:#409eff;font-size:12px;margin-right:10px" @click.stop="$refs['infiniteObj'][index].addProperty(modifyItem, i, null, 'rootWord')">自定义</span>
-                    <span v-else style="color:#409eff;font-size:14px;margin-right:10px;margin-left:30px" @click.stop="$refs['infiniteObj'][index].saveProperty(i)">确定</span>
-                    <span v-if="i === 'children'" style="color:#409eff;font-size:14px;margin-right:10px;margin-left:30px" @click.stop="pasteChild()">paste</span>
+                    <span v-else style="color:#409eff;font-size:14px;margin-right:10px;margin-left:30px" @click.stop="confirmChild(index, i)">确定</span>
+                    <span v-if="i === 'children' && !modifyItem[i]" style="color:#409eff;font-size:14px;margin-right:10px;margin-left:30px" @click.stop="pasteChild()">paste</span>
                     <span v-if="Object.keys(modifyItem).length > 0 && modifyItem[i]" style="color:#409eff;font-size:14px" @click.stop="$refs['infiniteObj'][index].delModifyItem(modifyItem, i)">x</span>
                 </div>
                   </span>
@@ -94,7 +94,6 @@ import 'codemirror/theme/base16-dark.css';
 import BASEMAP from '../base/map';
 import PanelDialog from '../model/PanelModel';
 import Alias from '../attrConfig/alias'
-import Children from '../attrConfig/Children'
 import ConfigPage from '../components/ConfigPage';
 import {
     getDrawingList
@@ -105,7 +104,6 @@ export default {
         CodeEditor,
         PanelDialog,
         Alias,
-        Children,
         ConfigPage
     },
     props: ['showField', 'activeData', 'formConf', 'containerInject', 'basicDataChange', 'configData', 'changingNodeList' ],
@@ -171,7 +169,14 @@ export default {
         },
         renderCode() {
             const [ data, property, subProperty ] = this.tempCodeArr;
-            if (data[property][subProperty]) {
+            console.log('renderCode')
+            if (this.attrName) {
+              let func = function () {}
+              if (this.attrName === 'renderFun') {
+                func = function (x) { return x }
+              }
+              return func.toString();
+            } else if (data[property][subProperty]) {
                 return data[property][subProperty].toString();
             } else {
                 return data[property].toString();
@@ -223,6 +228,10 @@ export default {
         }
     },
     methods: {
+        confirmChild(index, i) {
+          console.log(index, this.$refs['infiniteObj'][index].rootWord)
+          this.$refs['infiniteObj'][index].saveProperty(i)
+        },
         changeCurNode(item) {
           const oldName = item.name;
           item.name = this.changeNode;
@@ -266,7 +275,14 @@ export default {
           this.lcConVal = code
         },
         changeFuncCode(code) {
-            this.showFunctionDialog = false;
+          this.showFunctionDialog = false;
+          if (!code) return
+          console.log('函数编辑结束')
+          if (this.attrName) {
+            let component = this.$refs.infiniteObj.filter(x => x.tempAttrName)[0]
+            component.tempAttrValue = stringToFunc(code);
+            this.attrName = ''
+          } else {
             this.$emit('renderAgain');
             const [ data, property, subProperty ] = this.tempCodeArr;
             const funcArr = ['on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch']
@@ -279,30 +295,38 @@ export default {
                 data[property] = stringToFunc(code);
               }
             }
+          }
         },
         // 向上传递改变组件面板内容
         changeComponentPanel(type, data, property, subProperty) {
-            if (['renderFun', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(property)) {
-                // 函数编辑窗
-                this.tempCodeArr = [data, property, subProperty];
-                this.showFunctionDialog = true;
-            } else if (type === 'turn') {
-                this.$emit('clearBorderBlue');
-                if (['oContainer', 'oRow'].includes(data[property][subProperty].name)) {
-                  this.$root.$emit('DEAL_CHOOSE', data[property][subProperty].props.rawId);
-                } else {
-                    this.$set(data[property][subProperty].style, 'border', '1px solid rgb(64, 158, 255)');
-                }
-                this.elementList.push(data[property][subProperty]);
-            } else if (type === 'att') {
-              // 属性-对象编辑窗
-              this.showPanel = true;
+          console.log(type, data, property, subProperty)
+          if (['renderFun', 'on', 'nativeOn', 'methods', 'computed', 'scopedSlots', 'watch'].includes(property)) {
+            // 函数编辑窗
+            if (type === 'att') {
+              // 新增函数
               this.attrName = property;
-              this.attrDetail = subProperty === '5' ? [] : {}
             } else {
-                // json编辑窗
-                this.$emit('panelContent', data, property, subProperty);
+              // 编辑函数
+              this.tempCodeArr = [data, property, subProperty];
             }
+            this.showFunctionDialog = true;
+          } else if (type === 'turn') {
+            this.$emit('clearBorderBlue');
+            if (['oContainer', 'oRow'].includes(data[property][subProperty].name)) {
+              this.$root.$emit('DEAL_CHOOSE', data[property][subProperty].props.rawId);
+            } else {
+                this.$set(data[property][subProperty].style, 'border', '1px solid rgb(64, 158, 255)');
+            }
+            this.elementList.push(data[property][subProperty]);
+          } else if (type === 'att') {
+            // 属性-对象编辑窗
+            this.showPanel = true;
+            this.attrName = property;
+            this.attrDetail = subProperty === '5' ? [] : {}
+          } else {
+            // json编辑窗
+            this.$emit('panelContent', data, property, subProperty);
+          }
         },
         getList(key, data = this.activeData) {
             let list = [];
@@ -366,7 +390,7 @@ export default {
   }
 }
 .CodeMirror{
-  height: 600px;
+  height: 520px;
 }
 .el-collapse-item__content{
     padding-bottom: 6px;

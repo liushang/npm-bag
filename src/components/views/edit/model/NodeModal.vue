@@ -15,8 +15,11 @@
           label-width="100px"
         >
           <el-col :span="24">
-            <el-form-item label="文件名" prop="name">
+            <el-form-item label="节点名" prop="name">
               <el-input v-model="formData.name" placeholder="请输入文件名" clearable />
+            </el-form-item>
+            <el-form-item label="更新id" prop="name">
+              <el-input v-model="formData.nodeId" placeholder="请输入需要更新的节点id" clearable />
             </el-form-item>
           </el-col>
         </el-form>
@@ -39,6 +42,7 @@ export default {
         return {
             formData: {
                 name: '',
+                nodeId: ''
             },
             rules: {
                 name: [{

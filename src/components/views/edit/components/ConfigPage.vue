@@ -46,7 +46,7 @@ export default {
   methods: {
       getModuleDetail(val) {
           this.$axios({
-              url: 'http://uat-bangumi-mng.bilibili.co/api/getModuleDetailByModuleId',
+              url: 'http://uat-bangumi-mng.bilibili.co/ogv/form/api/getModuleDetailByModuleId',
               params: {
                   moduleId: val || 57
               }

@@ -471,8 +471,8 @@ export default {
           this.waitNode = code
           this.showNodeModal = true;
         },
-        saveNode({ name, type }) {
-          this.$emit('saveModuleCode', this.waitNode, name, type)
+        saveNode({ name, nodeId, type }) {
+          this.$emit('saveModuleCode', this.waitNode, name, nodeId, type)
           this.showNodeModal = false;
         },
         injectNode(e) {
@@ -541,15 +541,16 @@ export default {
 }
 
 .left-board {
-  width: 150px;
+  width: 145px;
   position: absolute;
-  left: 0;
+  left: 5;
   top: 0;
   height: 100vh;
 }
 .left-scrollbar{
   height: calc(100vh - 42px);
   overflow: hidden;
+  margin-left: 5px;
 }
 .center-scrollbar {
   height: calc(100vh - 42px);

@@ -6,7 +6,6 @@
   center
   top="5vh"
   @close="close">
-  <!-- <div style="min-height:600px"> -->
   <draggable-item
       :drawing-list="viewData"
       :current-item="viewData[0]"
@@ -14,7 +13,6 @@
       showType="view"
       :containerInject="containerInject"
     />
-  <!-- </div> -->
 </el-dialog>
 </template>
 
@@ -33,8 +31,6 @@ export default {
           containerInject: {}
         };
     },
-    computed: {},
-    watch: {},
     methods: {
       close() {
         this.$emit('closeViewModel')

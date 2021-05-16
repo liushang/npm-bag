@@ -10,6 +10,7 @@ const htmlDefaultNode = {
           children: [],
           renderFun: function (x) { return x },
           scopedSlots: {},
+          directives: [],
           slot: ''
       }
   }),
@@ -20,6 +21,7 @@ const htmlDefaultNode = {
       children: [".abcde{color: red}"],
       renderFun: function (x) { return x },
       scopedSlots: {},
+      directives: [],
       slot: ''
   },
 }
@@ -192,7 +194,10 @@ const elDefaultNode = {
       },
       renderFun: function(x) {
           return (this.lcData.elRadio_items || []).map(function (i) {
-              var vv = deepClone(x);vv.label = +i.value;vv.values[0] = i.label;return vv;
+              var vv = deepClone(x);
+            vv.label = +i.value;
+            vv.values = [i.label];
+            return vv;
           });
       },
   },
@@ -260,7 +265,44 @@ const elDefaultNode = {
           x.value = this.lcData.elDatePicker_value;
           return x
       },
-  }
+      style: {},
+  },
+  ElSwitch: {
+    children: [],
+    style: {},
+    attrMap: {
+        elSwitch_value: ''
+    },
+    attrs: {},
+    on: {
+        change: function(e) {
+            this.lcData.elSwitch_value = e
+        }
+    },
+    nativeOn: {},
+    renderFun: function(x) {
+        x.value = this.lcData.elSwitch_value
+        return x;
+    },
+  },
+  ElCheckbox: {
+    children: [],
+    style: {},
+    attrMap: {
+        elCheckbox_value: ''
+    },
+    attrs: {},
+    on: {
+        change: function(e) {
+            this.lcData.elCheckbox_value = e
+        }
+    },
+    nativeOn: {},
+    renderFun: function(x) {
+        x.value = this.lcData.elCheckbox_value
+        return x;
+    },
+  },
 }
 const otherCompNode = {
   codemirror: {

@@ -20,27 +20,9 @@ Main.install = Vue => {
 if (!Vue) {
 window.Vue = Vue = _Vue
 }
-// _Vue.component('oButton', oButton)
-// _Vue.component('oInput', oInput)
-// _Vue.component('oHtml', oHtml)
-// _Vue.component('oFormRender', oFormRender)
-// _Vue.component('oHtmlRender', oHtmlRender)
-// _Vue.component('oForm', oForm)
-// _Vue.component('oFormItem', oFormItem)
+
 _Vue.component('oRow', oRowRender)
 _Vue.component('oContainer', oContainerRender)
-// _Vue.component('oCol', oColRender)
-// _Vue.component('oSwitch', oSwitch)
-// _Vue.component('oTimePicker', oTimePickerRender)
-// _Vue.component('oDatePicker', oDatePickerRender)
-// _Vue.component('oSelect', oSelectRender)
-// _Vue.component('oOption', oOptionRender)
-// _Vue.component('oCheckbox', oCheckboxRender)
-// _Vue.component('oRadioGroup', oRadioGroupRender)
-// _Vue.component('oRadio', oRadioRender)
-// _Vue.component('oTable', oTableRender)
-// _Vue.component('oTableColumn', oTableColumnRender)
-// _Vue.component('oPagination', oPaginationRender)
 _Vue.component(Main.name, Main)
 }
 export default Main;

@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class="showTree">
   <a-button class="tree-structure" type="primary" @click="visible = true">结构</a-button>
     <a-drawer
       title="Basic Drawer"
@@ -45,11 +45,13 @@ export default {
 };
 </script>
 
-<style>
+<style lang="less">
+.showTree{
   .tree-structure{
     position: absolute;
     left: 80px;
     top: 5px;
     z-index: 1;
   }
+}
 </style>

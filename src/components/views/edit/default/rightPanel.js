@@ -7,7 +7,7 @@ export const allHtmlNode = [ '!DOCTYPE', 'html', 'title', 'body', 'h1', 'h2', 'h
 // element 组件
 
 export function getElementList (list) {
-  let elCommonList = [ 'ElRow', 'ElCol', 'ElInput', 'ElSelect', 'ElOption', 'ElButton', 'ElTable', 'ElForm', 'ElItem', 'ElFormItem', 'ElRadioGroup', 'ElRadio', 'ElDatePicker' ]
+  let elCommonList = [ 'ElRow', 'ElCol', 'ElInput', 'ElSelect', 'ElOption', 'ElButton', 'ElTable', 'ElForm', 'ElItem', 'ElFormItem', 'ElRadioGroup', 'ElRadio', 'ElDatePicker', 'ElSwitch', 'ElCheckbox' ]
   let elRareList = []
   let elList = []
   for(let i in list) {

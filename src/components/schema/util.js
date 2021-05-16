@@ -1,4 +1,3 @@
-// import { activateFunction } from './configAnalysis.js'
 const isContainerComp = comp => ['oRow', 'oContainer'].includes(comp.name)
 export const allHtmlNode = [ '!DOCTYPE', 'html', 'title', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr', 'abbr', 'address', 'b', 'bdi', 'bdo', 'blockquote', 'cite', 'code', 'del', 'dfn', 'em', 'i', 'ins', 'kbd', 'mark', 'meter', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'small', 'srong', 'sub', 'time', 'u', 'var', 'wbr', 'from', 'input', 'textarea', 'button', 'select', 'optgroup', 'option', 'label', 'fieldset', 'legend', 'datalist', 'keygen', 'output', 'iframe', 'img', 'map', 'area', 'canvas', 'figcaption', 'figure', 'audio', 'source', 'track', 'video', 'a', 'link', 'nav', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'menu', 'command', 'table', 'caption', 'th', 'tr', 'td', 'thead', 'tbody', 'tfoot', 'col', 'colgroup', 'style', 'div', 'span', 'header', 'footer', 'section', 'article', 'aside', 'details', 'dialog', 'summary', 'head', 'meta', 'base', 'basefont', 'script', 'noscript', 'applet', 'enbed', 'object', 'param']
 export function deepClone(obj) {
@@ -81,7 +80,7 @@ export function analysisDataRender(configComponents) {
                 childrenData[i] = scopes[i]
             }
             let childrenArr = [childrenData];
-            childrenData.values = [];
+            childrenData.values = childrenData.values || [];
             let renderFun
             if (isContainerComp(configComponents[i])) {
                 if (rawData.props.on) {
@@ -98,6 +97,7 @@ export function analysisDataRender(configComponents) {
                         if (configComponents[i].children && typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
                             xx.values = analysisRender(configComponents[i].children)
                         } else if (typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
+                            
                             xx.values = []
                         }
                     }
@@ -119,8 +119,12 @@ export function analysisDataRender(configComponents) {
                             }
                         }
                     }
-                    xx.values = analysisRender(configComponents[i].children)
+                    if (configComponents[i].children.length) {
+                        // 子元素存在调用子元素渲染 否则 使用原设定 values
+                        xx.values =  analysisRender(configComponents[i].children) 
+                    }
                 } else if (typeof xx === 'object' && !Array.isArray(xx) && xx.name) {
+                    console.log('values置空',xx.values)
                     xx.values = []
                 }
             }
@@ -153,7 +157,7 @@ function dealChild(child, cb) {
         const { classes = {}, style = {}, attrs = {}, props = {}, domProps = {}, on = {}, attr = {},
             nativeOn, directives = [], key, ref = '', refInFor, scopedSlots = {}, slot } = child.raw
         let item = {
-            'class': classes,
+            'class': isContainerComp(child) ? classes : child.raw.class,
             style,
             attrs,
             props: (isContainerComp(child) ? props : attrs) || {},
@@ -274,7 +278,6 @@ export function stringToFunc(str) {
         let newStr = `return ${str.replace('[native code]', '')}`
         let newFun
         try {
-            console.log(newStr)
             newFun = new Function(newStr)
         } catch (error) {
             throw new Error(error)
