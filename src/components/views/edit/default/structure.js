@@ -41,13 +41,7 @@ const elDefaultNode = {
               this.lcData.elInput_value = e
           }
       },
-      nativeOn: {
-          input: e => {
-              setTimeout(() => {
-                  e.target.click()
-              }, 100)
-          }
-      },
+      nativeOn: {},
       renderFun: function (x) {
           x.value = this.lcData.elInput_value;
           return x

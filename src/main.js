@@ -12,8 +12,12 @@ Vue.config.productionTip = false;
 Vue.use(Antd);
 import oRowRender from './components/schema/components/o-rowRender'
 import oContainerRender from './components/schema/components/o-containerRender'
+import ogvFormCompRender from './components/schema/components/ogv-form-comp'
+
 Vue.component('oRow', oRowRender)
 Vue.component('oContainer', oContainerRender)
+Vue.component('ogvFormComp', ogvFormCompRender)
+
 Vue.use(VueCodemirror, {
   options: { theme: 'base16-dark'},
   events: ['scroll']

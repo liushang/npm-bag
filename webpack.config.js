@@ -6,8 +6,8 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './dist'),
     publicPath: '/dist/',
-    filename: 'yyl-npm-practice.js',
-    library: 'yyl-npm-practice',
+    filename: 'form-generate.js',
+    library: 'form-generate',
     libraryTarget: 'umd',
     umdNamedDefine: true
   },
@@ -22,11 +22,6 @@ module.exports = {
       },      {
         test: /\.vue$/,
         loader: 'vue-loader',
-        // options: {
-        //   loaders: {
-        //   }
-        //   // other vue-loader options go here
-        // }
       },
       {
         test: /\.js$/,

@@ -415,7 +415,6 @@ export default {
                         children: [],
                         class: {},
                         on: {},
-                        nativeOn: {},
                         scopedSlots: {},
                         slot: '',
                         props: {},

@@ -220,8 +220,8 @@ export default {
             const module = localStorage.getItem("drawingItems");
             this.$axios({
                 method: "post",
-                url: "http://uat-bangumi-mng.bilibili.co/ogv/form/api/updateModule",
-                // url: "http://uat-manager.bilibili.co/ogv/form/api/updateModule",
+                // url: "http://uat-bangumi-mng.bilibili.co/ogv/form/api/updateModule",
+                url: "http://uat-manager.bilibili.co/ogv/form/api/updateModule",
                 params: {
                     project_id: +this.projectId,
                     page_id: +this.pageId,
@@ -231,6 +231,7 @@ export default {
                     basicConfig: encodeURIComponent(module)
                 }
             }).then(() => {
+                this.showAddName = false;
                 this.newGetData();
             });
         },

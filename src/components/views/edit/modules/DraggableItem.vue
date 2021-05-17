@@ -32,7 +32,7 @@ const components = {
     }
 };
 const layouts = {
-    oFormItem(h, injectDataItem, currentItem) {
+    oFormItem(h, injectDataItem) {
         const { activeItem } = this.$listeners;
         if (this.formConf && this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
         if (!injectDataItem || !injectDataItem.props || !injectDataItem.props.rawId) return
@@ -45,6 +45,14 @@ const layouts = {
                 {!this.showType ? components.itemBtns.apply(this, arguments) : ''}
             </el-col>
         );
+        // return (
+        //     <el-col class='drawing-item'
+        //         nativeOnClick={event => { activeItem && activeItem(injectDataItem); event.stopPropagation(); }}>
+        //         {injectDataItem && injectDataItem.props && this.updateConfig ? 
+        //           <ogvFormComp constructure={injectDataItem.props} on-getClick={this.hahah}></ogvFormComp>: ''}
+        //         {!this.showType ? components.itemBtns.apply(this, arguments) : ''}
+        //     </el-col>
+        // );
     },
 };
 
@@ -72,9 +80,17 @@ export default {
         };
     },
     data() {
-      return {}
+      return {
+        updateConfig: true
+      }
     },
     created() {},
+    methods: {
+      hahah(e) {
+        console.log('触发hhhh')
+        console.log(e)
+      }
+    },
     computed: {
       injectDataItem() {
         if (!this.configData) {
@@ -85,8 +101,18 @@ export default {
           }
           return this.currentItem
         };
-        // return deepClone(this.currentItem)
         return  this.currentItem.props && this.currentItem.props.rawId ? analysisInjectData(deepClone(this.currentItem), this.configData[this.currentItem.props.rawId], 'oContainer', this.configData) : {__config__: {}}
+      }
+    },
+    watch: {
+      injectDataItem: {
+        deep: true,
+        handler() {
+          // this.updateConfig = false;
+          // this.$nextTick(x => {
+          //   this.updateConfig = true;
+          // })
+        }
       }
     },
     render(h) {
@@ -108,48 +134,6 @@ export default {
   height: 100%;
 }
 
-.components-list {
-  box-sizing: border-box;
-  height: 100%;
-  .components-item {
-    display: inline-block;
-    width: 100%;
-    margin: 1%;
-    transition: transform 0ms !important;
-  }
-}
-.components-draggable{
-  padding-bottom: 20px;
-}
-.components-title{
-  font-size: 14px;
-  color: #222;
-  margin: 6px 2px;
-  .svg-icon{
-    color: #666;
-    font-size: 18px;
-  }
-}
-
-.components-body {
-  padding: 4px 4px;
-  background: @selectedColor;
-  font-size: 12px;
-  cursor: move;
-  border: 1px dashed @selectedColor;
-  border-radius: 3px;
-  .svg-icon{
-    color: #777;
-    font-size: 15px;
-  }
-  &:hover {
-    border: 1px dashed #787be8;
-    color: #787be8;
-    .svg-icon {
-      color: #787be8;
-    }
-  }
-}
 .center-scrollbar {
   height: calc(100vh - 42px);
   overflow: hidden;
@@ -205,43 +189,6 @@ export default {
 .drawing-board {
   height: 100%;
   position: relative;
-  .components-body {
-    padding: 0;
-    margin: 0;
-    font-size: 0;
-  }
-  .sortable-ghost {
-    position: relative;
-    display: block;
-    overflow: hidden;
-    &::before {
-      content: " ";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      height: 3px;
-      background: rgb(89, 89, 223);
-      z-index: 2;
-    }
-  }
-  .components-item.sortable-ghost {
-    width: 100%;
-    height: 60px;
-    background-color: @selectedColor;
-  }
-  .active-from-item {
-    & > .el-form-item{
-      background: @selectedColor;
-      border-radius: 6px;
-    }
-    & > .drawing-item-copy, & > .drawing-item-delete, & > .drawing-item-export, & > .drawing-item-view{
-      display: initial;
-    }
-    & > .component-name{
-      color: @lighterBlue;
-    }
-  }
   .el-form-item{
     margin-bottom: 15px;
   }
@@ -254,39 +201,6 @@ export default {
   }
   .el-form-item{
     padding: 12px 10px;
-  }
-}
-.drawing-row-item{
-  position: relative;
-  cursor: move;
-  box-sizing: border-box;
-  border: 1px dashed #ccc;
-  border-radius: 3px;
-  padding: 0 2px;
-  margin-bottom: 15px;
-  .drawing-row-item {
-    margin-bottom: 2px;
-  }
-  .el-col{
-    margin-top: 22px;
-  }
-  .el-form-item{
-    margin-bottom: 0;
-  }
-  .drag-wrapper{
-    min-height: 80px;
-  }
-  &.active-from-item{
-    border: 1px dashed @lighterBlue;
-  }
-  .component-name{
-    position: absolute;
-    top: 0;
-    left: 0;
-    font-size: 12px;
-    color: #bbb;
-    display: inline-block;
-    padding: 0 6px;
   }
 }
 .drawing-item, .drawing-row-item{

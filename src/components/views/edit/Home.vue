@@ -126,7 +126,7 @@ import {
 import {
     deepClone
 } from '../../utils/index';
-import logo from '../../../assets/logo.png';
+// import logo from '../../../assets/logo.png';
 import DraggableItem from './modules/DraggableItem';
 import NodeModal from './model/NodeModal';
 import FuzzySearch from './components/FuzzySearch';
@@ -175,7 +175,6 @@ export default {
         return {
             // 重新展示
             showNew: true,
-            logo,
             formConf,
             // o型组件
             oComponents,
@@ -485,12 +484,6 @@ export default {
 <style lang='less'>
 @selectedColor: #f6f7ff;
 @lighterBlue: #409EFF;
-.drawing-board .border-red{
-  border: 1px solid red;
-}
-.drawing-board .border-blue{
-  border: 1px solid rgb(64, 158, 255);
-}
 .container {
   position: relative;
   width: 100%;
@@ -507,18 +500,6 @@ export default {
     transition: transform 0ms !important;
   }
 }
-.components-draggable{
-  padding-bottom: 20px;
-}
-.components-title{
-  font-size: 14px;
-  color: #222;
-  margin: 6px 2px;
-  .svg-icon{
-    color: #666;
-    font-size: 18px;
-  }
-}
 
 .components-body {
   padding: 4px 4px;
@@ -527,16 +508,9 @@ export default {
   cursor: move;
   border: 1px dashed @selectedColor;
   border-radius: 3px;
-  .svg-icon{
-    color: #777;
-    font-size: 15px;
-  }
   &:hover {
     border: 1px dashed #787be8;
     color: #787be8;
-    .svg-icon {
-      color: #787be8;
-    }
   }
 }
 
@@ -591,19 +565,6 @@ export default {
   font-weight: 600;
   font-size: 17px;
   white-space: nowrap;
-  > img{
-    width: 30px;
-    height: 30px;
-    vertical-align: top;
-  }
-  .github{
-    display: inline-block;
-    vertical-align: sub;
-    margin-left: 15px;
-    > img{
-      height: 22px;
-    }
-  }
 }
 
 .center-board-row {
@@ -622,50 +583,8 @@ export default {
     margin: 0;
     font-size: 0;
   }
-  .sortable-ghost {
-    position: relative;
-    display: block;
-    overflow: hidden;
-    &::before {
-      content: " ";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      height: 3px;
-      background: rgb(89, 89, 223);
-      z-index: 2;
-    }
-  }
-  .components-item.sortable-ghost {
-    width: 100%;
-    height: 60px;
-    background-color: @selectedColor;
-  }
-  .active-from-item {
-    & > .el-form-item{
-      background: @selectedColor;
-      border-radius: 6px;
-    }
-    & > .drawing-item-copy, & > .drawing-item-delete{
-      display: initial;
-    }
-    & > .component-name{
-      color: @lighterBlue;
-    }
-  }
   .el-form-item{
     margin-bottom: 15px;
-  }
-}
-.drawing-item{
-  position: relative;
-  cursor: move;
-  &.unfocus-bordered:not(.active-from-item) > div:first-child {
-    border: 1px dashed #ccc;
-  }
-  .el-form-item{
-    padding: 12px 10px;
   }
 }
 

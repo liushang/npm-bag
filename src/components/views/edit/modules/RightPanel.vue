@@ -171,14 +171,16 @@ export default {
             const [ data, property, subProperty ] = this.tempCodeArr;
             console.log('renderCode')
             if (this.attrName) {
-              let func = function () {}
+              // 如果是新增 函数
               if (this.attrName === 'renderFun') {
-                func = function (x) { return x }
+                return (function (x) { return x }).toString();
+              } else {
+                return (function () {}).toString()
               }
-              return func.toString();
             } else if (data[property][subProperty]) {
                 return data[property][subProperty].toString();
             } else {
+              // 如果是renderfunc
                 return data[property].toString();
             }
         },

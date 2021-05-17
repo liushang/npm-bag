@@ -213,6 +213,7 @@ function dealChild(child, cb) {
             }
             item.directives = att.filter(x => x)
         }
+        if (!item.slot) delete item.slot
         return cb(
             child.name,
             item,

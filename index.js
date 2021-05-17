@@ -8,6 +8,8 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import oRowRender from './src/components/schema/components/o-rowRender'
 import oContainerRender from './src/components/schema/components/o-containerRender'
+import ogvFormCompRender from './src/components/schema/components/ogv-form-comp'
+
 _Vue.use(VueCodemirror, {
   options: { theme: 'base16-dark'},
   events: ['scroll']
@@ -23,6 +25,8 @@ window.Vue = Vue = _Vue
 
 _Vue.component('oRow', oRowRender)
 _Vue.component('oContainer', oContainerRender)
+_Vue.component('ogvFormComp', ogvFormCompRender)
+
 _Vue.component(Main.name, Main)
 }
 export default Main;
