@@ -8,7 +8,7 @@
   <div class="field-box">
     <codemirror v-model="code" :options="cmOptions" ref="cmEditor"/>
   </div>
-  <el-button @click="save" size="small">确定修改</el-button>
+  <el-button @click="save" size="small" style="margin-top: 20px" type="primary">确定修改</el-button>
 </el-dialog>
   <!-- Two-way Data-Binding -->
 

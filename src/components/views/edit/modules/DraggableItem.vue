@@ -49,7 +49,7 @@ const layouts = {
         //     <el-col class='drawing-item'
         //         nativeOnClick={event => { activeItem && activeItem(injectDataItem); event.stopPropagation(); }}>
         //         {injectDataItem && injectDataItem.props && this.updateConfig ? 
-        //           <ogvFormComp constructure={injectDataItem.props} on-getClick={this.hahah}></ogvFormComp>: ''}
+        //           <ogvFormComp moduleId={7} on-getClick={this.hahah}></ogvFormComp>: ''}
         //         {!this.showType ? components.itemBtns.apply(this, arguments) : ''}
         //     </el-col>
         // );

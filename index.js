@@ -1,4 +1,4 @@
-import Main from './src/components/views/edit/Home'
+import Main from './src/components/views/edit/index'
 import _Vue from 'vue'
 import axios from 'axios';
 import iicarus from 'iicarus'

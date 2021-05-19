@@ -58,7 +58,7 @@
 <script type="module">
 import Home from "./Home.vue"
 export default {
-    name: "index",
+    name: "ogvFormGen",
     data() {
         return {
             projectList: [],
@@ -68,7 +68,7 @@ export default {
                 label: "-- 新增 --",
                 value: 0
             }],
-            moduleId: 7,
+            moduleId: 1,
             modules: [{
                 label: "-- 新增 --",
                 value: 0

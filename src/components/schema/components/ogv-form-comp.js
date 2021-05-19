@@ -1,6 +1,6 @@
-// import { analysisRenderConfig, analysisDataRender } from '../../../schema/util';
 import { render, computed } from '../api';
-import { dealMultiChildren, deepClone } from '../util';
+import { dealMultiChildren, deepClone, activateStr, analysisInjectData } from '../util';
+import axios from 'axios';
 let base = {
     data() {
         return {
@@ -16,111 +16,61 @@ let base = {
             containerId: '',
             lcData: {},
             // ogv-form-comp add
-            classes: {},
-            attrs: {},
-            on: {},
-            nativeOn: {},
-            scopedSlots: {},
-            directives: {},
-            children: {},
-            renderFun: {},
-            styles: {
-              'min-height': '650px',
-              'padding': '10px 0 40px'
-            },
+            classes: null,
+            attrs: null,
+            on: null,
+            nativeOn: null,
+            scopedSlots: null,
+            directives: null,
+            children: null,
+            renderFun: null,
+            styles: null,
             rawId: 'oContainer',
-            watch: {},
-            methods: {},
+            watch: null,
+            methods: null,
             env: 'dev',
-            insData: {},
-            attrMap: {}
+            insData: null,
+            attrMap: null,
+            constructure: null
         };
     },
     props: {
-        // ...baseAttr.props,
-        // classes: {
-        //     type: Object,
-        //     default: () => {
-        //         return {
-        //             // 'abcde': true
-        //         };
-        //     }
-        // },
-        // attrs: {
-        //     type: Object,
-        //     default: () => {
-        //         return {
-        //             size: 'small'
-        //         };
-        //     }
-        // },
-        // on: {
-        //     type: Object,
-        //     default: () => {}
-        // },
-        // nativeOn: {
-        //     type: Object,
-        //     default: () => {}
-        // },
-        // scopedSlots: {
-        //     type: Object,
-        //     default: () => {}
-        // },
-        // directives: {
-        //     type: Array,
-        //     default: () => []
-        // },
-        // children: {
-        //     type: Array,
-        //     default: () => []
-        // },
-        // renderFun: {
-        //     type: Function,
-        //     default: x => x
-        // },
-        // styles: {
-        //     type: Object,
-        //     default: () => {
-        //         return {
-        //             'min-height': '650px',
-        //             'padding': '10px 0 40px'
-        //         };
-        //     }
-        // },
-        // rawId: {
-        //     type: String,
-        //     default: 'oContainer'
-        // },
-        // computed: {
-        //     type: Object,
-        //     default: () => {}
-        // },
-        // watch: {
-        //     type: Object,
-        //     default: () => {}
-        // },
-        // env: {
-        //     type: String,
-        //     default: 'dev'
-        // },
-        // methods: {
-        //     type: Object,
-        //     default: () => {}
-        // },
-        // insData: {
-        //     type: Object,
-        //     default: () => {}
-        // },
-        constructure: {
-          type: Object,
-          default: () => {
-            return {}
-          }
+        moduleId: {
+            type: Number,
+            default: 0
         },
+        originStr: {
+            type: String,
+            default: ''
+        },
+        // constructure: {
+        //     type: Object,
+        //     default: {}
+        // }
     },
     render,
     methods: {
         deepClone,
+        injectData() {
+            analysisInjectData({ name: 'oContainer', props: this.constructure }, { attr: {} }, '', {} )
+            for(let i in this.constructure) {
+                this[i] = this.constructure[i]
+            }
+            this.containerId = 'oContainer'
+            this.lcData = deepClone(this.insData)
+            this.dealData(this.lcData)
+            for(let i in this.methods) {
+                this[i] = this.methods[i]
+            }
+            for(let i in this.watch) {
+                this.$watch('lcData.' + i, this.watch[i].bind(this))
+            }
+            if (!this.rootData[this.containerId]) {
+                this.$set(this.rootData, this.containerId, {});
+            }
+            this.$set(this.rootData[this.containerId], 'methods', this.methods);
+            this.$set(this.rootData[this.containerId], 'lcData', this.lcData);
+        },
         dealData (obj) {
           for(let key in obj) {
             if(!obj.hasOwnProperty(key)) return;
@@ -166,6 +116,9 @@ let base = {
         },
         configComponents() {
             // 方法作用域绑定
+            console.log('this.on', this.on)
+            console.log('this.render', this.renderFun)
+            console.log(this.constructure)
             for (let i in this.on) {
                 let func = this.on[i];
                 this.on[i] = (e) => {
@@ -184,7 +137,7 @@ let base = {
                     return func(e, this);
                 };
             }
-            const  cc = dealMultiChildren(this.renderFun({
+            const  cc = dealMultiChildren(this.renderFun && this.renderFun({
                 name: 'ElRow',
                 ref: 'oContainer',
                 on: {
@@ -201,9 +154,6 @@ let base = {
                 },
                 nativeOn: {
                     click: () => {
-                        if (this.env === 'dev') {
-                            this.$root.$emit('DEAL_CHOOSE', this);
-                        }
                         if (!this.container[this.containerId]) {
                             this.$set(this.container, this.containerId, {});
                         }                        
@@ -222,33 +172,40 @@ let base = {
                     rawId: this.containerId
                 },
                 children: this.children
-            }))
+            }) || [])
             return {
                 children: cc
             };
         }
     },
     created() {
-        console.log(this.constructure)
-        for(let i in this.constructure) {
-          if (this[i]) {
-            this[i] = this.constructure[i]
-          }
+        if (this.moduleId) {
+            axios({
+                url: 'http://manager.bilibili.co/ogv/form/api/getModuleDetailByModuleId',
+                params: {
+                    moduleId: this.moduleId
+                }
+            }).then((res) => {
+                console.log(res)
+                const { data, code } = res.data
+                if (data && code === 0) {
+                    if (data[0] && data[0].basic_config) {
+                        let moduCf = decodeURIComponent(data[0].basic_config);
+                        this.constructure = activateStr(moduCf)[0].props;
+                        this.injectData()
+                        if (this.mounted) {
+                            this.mounted()
+                        }
+                    }
+                }
+            });
+        } else if (this.originStr) {
+            let moduCf = decodeURIComponent(this.originStr);
+            this.constructure = activateStr(moduCf)[0].props;
+            this.injectData()
+        } else {
+            this.injectData()
         }
-        this.containerId = 'oContainer'
-        this.lcData = deepClone(this.insData)
-        this.dealData(this.lcData)
-        for(let i in this.methods) {
-            this[i] = this.methods[i]
-        }
-        for(let i in this.watch) {
-            this.$watch('lcData.' + i, this.watch[i].bind(this))
-        }
-        if (!this.rootData[this.containerId]) {
-            this.$set(this.rootData, this.containerId, {});
-        }
-        this.$set(this.rootData[this.containerId], 'methods', this.methods);
-        this.$set(this.rootData[this.containerId], 'lcData', this.lcData);
     },
     mounted() {
         this.mounted && this.mounted()
@@ -260,7 +217,7 @@ let base = {
         this.updated && this.updated()
     },
     beforeDestroy() {
-        this.beforeUpdate && this.beforeUpdate()
+        this.beforeDestroy && this.beforeDestroy()
     },
     destroyed() {
         this.destroyed && this.destroyed()

@@ -522,3 +522,75 @@ function injectData(item, dataItem) {
         return stringToFunc(func)
     }
 }
+
+function dealLcData (obj) {
+    // 还要增加对子inData的处理
+    if (obj && obj.props && obj.props.insData) {
+        const data = obj.props.insData
+        const dealChild = (data) => {
+            for(let i in data) {
+                if (typeof data[i] === 'object' && data[i] !== null) {
+                    dealChild(data[i])
+                } else if (typeof data[i] === 'string' && data[i].startsWith('function')) {
+                    data[i] = stringToFunc(data[i])
+                }
+            }
+        }
+        dealChild(data)
+    }
+    const child = obj && obj.props && (obj.props.rawId &&  obj.props.children || obj.props.subRawId && obj.children ) || []
+    if (child.length) {
+        for (let i of child) {
+            dealLcData(i)
+        }
+    }
+    return obj
+}
+function onToFunc(iarr, on) {
+
+    for (const i of iarr) {
+        if (i && i.props && (i.props[on])) {
+            for (let y in i.props[on]) {
+                i.props[on][y] = stringToFunc(i.props[on][y]);
+            }
+        }
+        if (i && i[on]) {
+            for (let y in i[on]) {
+                i[on][y] = stringToFunc(i[on][y]);
+            }
+        }
+        if (i && i.props && i.props.children) {
+            onToFunc(i.props.children, on);
+        }
+        if (i && i.children) {
+            onToFunc(i.children, on);
+        }
+    }
+    return iarr;
+}
+function propertyStringToFunc(str) {
+    for (let i of str) {
+        if (i && i.props && (i.props.renderFun)) {
+            i.props.renderFun = stringToFunc(i.props.renderFun);
+        }
+        if (i && i.renderFun) {
+            i.renderFun = stringToFunc(i.renderFun);
+        }
+        if (i && i.props && i.props.children) {
+            propertyStringToFunc(i.props.children);
+        }
+        if (i && i.children) {
+            propertyStringToFunc(i.children);
+        }
+    }
+    return str;
+}
+
+export function activateStr(detailStr) {
+    const str = detailStr || localStorage.getItem(DRAWING_ITEMS);
+    if (str) {
+        let abc = onToFunc(onToFunc(onToFunc(onToFunc(onToFunc(onToFunc(propertyStringToFunc(JSON.parse(str)), 'on'), 'methods'), 'nativeOn'), 'computed'), 'scopedSlots'), 'watch')
+        return [dealLcData(abc[0])]
+    };
+    return null;
+}

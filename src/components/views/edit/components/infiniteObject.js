@@ -177,7 +177,7 @@ export default {
             let childVal
             if (val) {
                 if (typeof val === 'function') {
-                    childVal = <el-tag size="small">function</el-tag>
+                    childVal = <el-tag size="small" onClick={() => this.analysisProperty('code', a, b, c)}>function</el-tag>
                     // childVal = val.toString()
                 } else {
                     childVal = val.toString()

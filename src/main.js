@@ -25,7 +25,7 @@ Vue.use(VueCodemirror, {
 Vue.prototype.$axios = axios;
 window.$axios = axios;
 Vue.use(ElementUI);
-Vue.use(iicarus)
+// Vue.use(iicarus)
 
 // import somelibrarysss from 'somelibrarysss'
 // Vue.use(somelibrarysss)
