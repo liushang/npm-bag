@@ -32,7 +32,7 @@
             </el-col>
             <el-col :span="4">
                 <el-button size="small" @click="save" type="primary">保存</el-button>
-                <el-button size="small" @click="del">删除</el-button>
+                <!-- <el-button size="small" @click="del">删除</el-button> -->
             </el-col>
         </el-row>
       </div>
@@ -233,6 +233,7 @@ export default {
             }).then(() => {
                 this.showAddName = false;
                 this.newGetData();
+                this.$message.success('保存成功')
             });
         },
         newGetData() {
@@ -262,18 +263,6 @@ export default {
                     basicConfig: encodeURIComponent(module),
                     basicConfigsssss: module
                 }
-            // this.$axios({
-            //     method: "post",
-            //     url: "http://uat-manager.bilibili.co/ogv/form/api/updateModule",
-            //     params: {
-            //         project_id: 1,
-            //         page_id: 18,
-            //         module_id: 60,
-            //         module_name: '默认modulename',
-            //         page_name: '默认pagename',
-            //         basicConfig: encodeURIComponent(module),
-            //         basicConfigsssss: module
-            //     }
             }).then(() => {
                 this.$message.success('保存成功')
                 setTimeout(() => {
